@@ -5,6 +5,10 @@
   "version": "0.1.0",
   "license": "MIT",
   "author": "Matt McCray <matt@elucidata.net>",
+  "keywords": [
+    "react",
+    "flux"
+  ],
   "homepage": "https://github.com/elucidata/storefront",
   "bugs": {
     "url": "https://github.com/elucidata/storefront/issues"
@@ -15,6 +19,12 @@
   },
   "scripts": {
     "build": "jsx --harmony --no-cache-dir src/ lib/",
+    "dist": "NODE_ENV=production browserify index.js -o dist/storefront.js --standalone Storefront",
+    "minify": "cat dist/storefront.js | uglifyjs -m -c > dist/storefront.min.js",
+    "inc-major": "mversion major",
+    "inc-minor": "mversion minor",
+    "inc-patch": "mversion patch",
+    "gz-size": "gzip -c dist/storefront.min.js | wc -c | pretty-bytes",
     "test": "tape test/**/*.js | tap-spec"
   },
   "dependencies": {
@@ -23,6 +33,9 @@
   "devDependencies": {
     "react-tools": "^0.12.1",
     "tape": "^3.0.3",
-    "tap-spec": "^2.1.0"
+    "tap-spec": "^2.1.0",
+    "mversion": "^1.8.0",
+    "uglifyjs": "^2.3.6",
+    "browserify": "^6.3.2"
   }
 }
