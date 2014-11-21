@@ -5,8 +5,8 @@
 
 ## ToDo
 
-- [ ] Build browser version for use in bower
-- [ ] Add bower.json
+- [x] Build browser version for use in bower
+- [x] Add bower.json
 - [ ] Add tests
 - [ ] Add support for renderAnimationFrame onChange batching
 - [ ] Better API docs
