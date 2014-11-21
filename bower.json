@@ -1,0 +1,27 @@
+{
+  "name": "storefront",
+  "main": "dist/storefront.min.js",
+  "version": "0.1.0",
+  "homepage": "https://github.com/elucidata/storefront",
+  "authors": [
+    "Matt McCray <matt@elucidata.net>"
+  ],
+  "description": "Less tedious Flux implementation.",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "react",
+    "flux"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
