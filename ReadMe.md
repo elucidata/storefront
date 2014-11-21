@@ -15,7 +15,7 @@ A simple flux implementation that supports all the primary elements of Facebook'
 A **Storefront** is a Facade in that encapsulates a Clerk and a Store.
 
 - **Clerks** are responsible for dispatching actions and handling any async (api) operations before sending to the dispatcher.
-- **Stores** handle the clerk actions, manage and provide access to the internal data structure(s), and sends notifications when said data has changed.
+- **Stores** handle the clerk actions, manage and provide access to the internal data structure(s), and send notifications when said data has changed.
 - **Facades** return the consumer's API of the Clerk and Stores, hiding any internals.
 
 
@@ -25,7 +25,7 @@ For an idea how it all works, here's a skeleton authentication Storefront. We'll
 
 Starting with the Clerk, let's rough out what actions are available to operate on the AuthStore:
 
-_stores/auth/auth-clerk.js_ [^3]
+_stores/auth/auth-clerk.js_ [^2]
 ```javascript
 var Storefront= require( 'storefront')
 
@@ -125,7 +125,7 @@ actionLoginClick( e) {
 
 ## Boilerplate Code Generation
 
-Personally, I set up [scaffolt](https://github.com/paulmillr/scaffolt) to generate the boilerplate code for me. The template files look like this[^2]:
+Personally, I set up [scaffolt](https://github.com/paulmillr/scaffolt) to generate the boilerplate code for me. The template files look like this[^3]:
 
 _generate.json_
 ```json
@@ -160,7 +160,7 @@ Storefront.Facade( '{{#camelize}}{{name}}{{/camelize}}', ( api)=> {
     api.exposes({
         // You don't really *have* to do anything here.
         // But you can include extra public api methods
-        // if you'd like.        
+        // if you'd like.
     })
 })
 ```
@@ -239,9 +239,9 @@ Storefront.Clerk( 'Project', function( mgr){
 
 [^1]: OK, technically there _is_ a dispatcher token, but it's internalized in such a way that you'll never need to use it.
 
-[^2]: I'll extract this into a separate repo at some point. Unfortunately, scaffolt doesn't support templates from npm (shame, really), so you'll need to integrate this into your actual app's file structure.
+[^2]: You don't have to use this naming/folder structure, it's just my preferences.
 
-[^3]: You don't have to use this naming/folder structure, it's just my preferences.
+[^3]: I'll extract this into a separate repo at some point. Unfortunately, scaffolt doesn't support templates from npm (shame, really), so you'll need to integrate this into your actual app's file structure.
 
 ## License
 

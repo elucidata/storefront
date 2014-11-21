@@ -1,14 +1,22 @@
 {
   "name": "storefront",
-  "version": "0.1.0",
   "description": "Less tedious Flux implementation.",
   "main": "index.js",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "Matt McCray <matt@elucidata.net>",
+  "homepage": "https://github.com/elucidata/storefront",
+  "bugs": {
+    "url": "https://github.com/elucidata/storefront/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/elucidata/storefront.git"
+  },
   "scripts": {
     "build": "jsx --harmony --no-cache-dir src/ lib/",
     "test": "tape test/**/*.js | tap-spec"
   },
-  "author": "Matt McCray <matt@elucidata.net>",
-  "license": "MIT",
   "dependencies": {
     "elucidata-type": "^1.1.1"
   },
