@@ -1,0 +1,20 @@
+{
+  "name": "storefront",
+  "version": "0.1.0",
+  "description": "Less tedious Flux implementation.",
+  "main": "index.js",
+  "scripts": {
+    "build": "jsx --harmony --no-cache-dir src/ lib/",
+    "test": "tape test/**/*.js | tap-spec"
+  },
+  "author": "Matt McCray <matt@elucidata.net>",
+  "license": "MIT",
+  "dependencies": {
+    "elucidata-type": "^1.1.1"
+  },
+  "devDependencies": {
+    "react-tools": "^0.12.1",
+    "tape": "^3.0.3",
+    "tap-spec": "^2.1.0"
+  }
+}
