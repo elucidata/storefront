@@ -1,8 +1,9 @@
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Storefront=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var Runtime= require( './lib/runtime')
 
-module.exports= require('./lib/core')
+module.exports= Runtime.newInstance()
 
-},{"./lib/core":4}],2:[function(require,module,exports){
+},{"./lib/runtime":10}],2:[function(require,module,exports){
 module.exports=
 function alias(/* target, prop, ...aliases */) {
   var aliases= Array.prototype.slice.call(arguments),
@@ -23,47 +24,6 @@ function camelize( string) {
 }
 
 },{}],4:[function(require,module,exports){
-var Runtime= require( './runtime'),
-    alias= require( './alias'),
-    runtime= new Runtime()
-
-// Runtime API
-module.exports= {
-
-  define:function( name, builder) {
-    return runtime.defineStore( name, builder)
-  },
-
-  get:function( name) {
-    return runtime.getInstance( name)
-  },
-
-  configure:function( settings) {
-    runtime.configure( settings)
-    return this
-  },
-
-  onChange:function( fn) {
-    runtime.onAnyChange( fn)
-    return this
-  },
-
-  offChange:function( fn) {
-    runtime.offAnyChange( fn)
-    return this
-  },
-
-  mixins: {
-    eventHelper: require( './event-helper-mixin')( runtime)
-  },
-
-  _internals: runtime
-}
-
-// DEPRECATED: Remove in a future version...
-alias( module.exports, 'define', 'defineStore', 'Store', 'defineClerk', 'Clerk')
-
-},{"./alias":2,"./event-helper-mixin":6,"./runtime":11}],5:[function(require,module,exports){
 var uid= require('./uid'),
     now= require('./now')
 
@@ -180,7 +140,7 @@ var singleton_instance= null
 
 module.exports= Dispatcher
 
-},{"./now":10,"./uid":12}],6:[function(require,module,exports){
+},{"./now":9,"./uid":11}],5:[function(require,module,exports){
 var camelize= require( './camelize')
 
 module.exports=
@@ -226,14 +186,14 @@ function eventHelperMixin( runtime) {
   }
 }
 
-},{"./camelize":3}],7:[function(require,module,exports){
+},{"./camelize":3}],6:[function(require,module,exports){
 module.exports=
 function flatten( arrays) {
   var merged= []
   return merged.concat.apply( merged, arrays)
 }
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 (function (process){
 var merge= require( './merge'),
     alias= require( './alias'),
@@ -388,7 +348,7 @@ module.exports= (function(){
 return Manager;})()
 
 }).call(this,require('_process'))
-},{"./alias":2,"./camelize":3,"./merge":9,"_process":14,"elucidata-type":15}],9:[function(require,module,exports){
+},{"./alias":2,"./camelize":3,"./merge":8,"_process":13,"elucidata-type":14}],8:[function(require,module,exports){
 module.exports=
 function merge(/* target, ...sources */) {
   var sources= Array.prototype.slice.call( arguments),
@@ -405,7 +365,7 @@ function merge(/* target, ...sources */) {
   return target
 }
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 
 /* global performance */
 var now= (function(){
@@ -424,7 +384,7 @@ var now= (function(){
 
 module.exports= now
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 (function (process){
 var Dispatcher= require( './dispatcher'),
     EventEmitter= require( 'events').EventEmitter,
@@ -433,7 +393,8 @@ var Dispatcher= require( './dispatcher'),
     camelize= require( './camelize'),
     merge= require( './merge'),
     flatten= require( './flatten'),
-    uid= require( './uid')
+    uid= require( './uid'),
+    alias= require( './alias')
 
 for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(EventEmitter____Key)){Runtime[EventEmitter____Key]=EventEmitter[EventEmitter____Key];}}var ____SuperProtoOfEventEmitter=EventEmitter===null?null:EventEmitter.prototype;Runtime.prototype=Object.create(____SuperProtoOfEventEmitter);Runtime.prototype.constructor=Runtime;Runtime.__superConstructor__=EventEmitter;
 
@@ -641,12 +602,31 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
     this.$Runtime_timer= false
   };
 
+  Runtime.newInstance=function() {"use strict";
+    var runtime= new Runtime()
+    var api= {
+      define: runtime.defineStore.bind( runtime),
+      get: runtime.getInstance.bind( runtime),
+      configure: runtime.configure.bind( runtime),
+      onChange: runtime.onAnyChange.bind( runtime),
+      offChange: runtime.offAnyChange.bind( runtime),
+      mixins: {
+        eventHelper: require( './event-helper-mixin')( runtime)
+      },
+      newInstance: Runtime.newInstance,
+      '_internals': runtime
+    }
+    // DEPRECATED: Remove in a future version...
+    alias( api, 'define', 'defineStore', 'Store', 'defineClerk', 'Clerk')
+    return api
+  };
+
 
 // Runtime API
 module.exports= Runtime
 
 }).call(this,require('_process'))
-},{"./camelize":3,"./dispatcher":5,"./flatten":7,"./manager":8,"./merge":9,"./uid":12,"_process":14,"elucidata-type":15,"events":13}],12:[function(require,module,exports){
+},{"./alias":2,"./camelize":3,"./dispatcher":4,"./event-helper-mixin":5,"./flatten":6,"./manager":7,"./merge":8,"./uid":11,"_process":13,"elucidata-type":14,"events":12}],11:[function(require,module,exports){
 var lastId = 0
 
 function uid ( radix){
@@ -664,7 +644,7 @@ function uid ( radix){
 
 module.exports= uid
 
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -967,7 +947,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -1055,7 +1035,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 (function() {
   var name, type, _elementTestRe, _fn, _i, _keys, _len, _ref, _typeList;
 

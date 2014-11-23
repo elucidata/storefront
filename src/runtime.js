@@ -5,7 +5,8 @@ var Dispatcher= require( './dispatcher'),
     camelize= require( './camelize'),
     merge= require( './merge'),
     flatten= require( './flatten'),
-    uid= require( './uid')
+    uid= require( './uid'),
+    alias= require( './alias')
 
 class Runtime extends EventEmitter {
 
@@ -211,6 +212,25 @@ class Runtime extends EventEmitter {
       this._dataChanges= []
     }
     this._timer= false
+  }
+
+  static newInstance() {
+    var runtime= new Runtime()
+    var api= {
+      define: runtime.defineStore.bind( runtime),
+      get: runtime.getInstance.bind( runtime),
+      configure: runtime.configure.bind( runtime),
+      onChange: runtime.onAnyChange.bind( runtime),
+      offChange: runtime.offAnyChange.bind( runtime),
+      mixins: {
+        eventHelper: require( './event-helper-mixin')( runtime)
+      },
+      newInstance: Runtime.newInstance,
+      '_internals': runtime
+    }
+    // DEPRECATED: Remove in a future version...
+    alias( api, 'define', 'defineStore', 'Store', 'defineClerk', 'Clerk')
+    return api
   }
 }
 

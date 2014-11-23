@@ -1,2 +1,3 @@
+var Runtime= require( './lib/runtime')
 
-module.exports= require('./lib/core')
+module.exports= Runtime.newInstance()

@@ -194,7 +194,7 @@ test("Inline stores", function(is){
     })
 
     mgr.provides({
-      test: true
+      isTest: true
     })
 
   })
@@ -211,5 +211,5 @@ test("Inline stores", function(is){
 
   is.end()
 
-  console.log( store)
+  // console.log( store)
 })
