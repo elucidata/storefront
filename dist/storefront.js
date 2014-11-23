@@ -259,10 +259,26 @@ function Manager( runtime, name, type, instance) {
     },
 
     getStore:function( storeName) {
-      storeName= storeName || name
-      return runtime.getInstance( 'store', storeName)
+      if( storeName ) {
+        return runtime.getInstance( storeName )
+      }
+      else {
+        return instance
+      }
+    },
+
+    createEvent:function( eventName) {
+      var event= runtime.createEvent( name, eventName),
+      emitterFn= event.emit.bind( event)
+
+      manager.exposes( event.public)
+      instance[ 'emit'+ camelize( eventName)]= emitterFn
+
+      return emitterFn
     }
   }
+  alias( manager, 'exposes', 'expose')
+  alias( manager, 'createEvent', 'defineEvent')
 
   if( type === 'clerk' || type === '*') {
     // Dispatcher method...
@@ -290,7 +306,6 @@ function Manager( runtime, name, type, instance) {
       }
     })
 
-    alias( manager, 'exposes', 'expose')
     alias( manager, 'actions', 'action')
   }
 
@@ -338,24 +353,15 @@ function Manager( runtime, name, type, instance) {
         })
       },
 
-      createEvent:function( eventName) {
-        var event= runtime.createEvent( name, eventName),
-            emitterFn= event.emit.bind( event)
-
-        manager.exposes( event.public)
-        instance[ 'emit'+ camelize( eventName)]= emitterFn
-
-        return emitterFn
-      },
-
       getClerk:function() {
-        return runtime.getInstance( 'clerk', name)
+        // return runtime.getInstance( 'clerk', name)
+        return instance
       }
     })
 
     alias( manager, 'handles', 'handle', 'observes', 'observe')
     alias( manager, 'hasChanged', 'dataDidChange', 'dataHasChanged')
-    alias( manager, 'exposes', 'expose', 'provides', 'provide')
+    alias( manager, 'exposes', 'provides', 'provide')
 
     manager.exposes( changeEvent.public)
     manager.exposes( notificationEvent.public)
