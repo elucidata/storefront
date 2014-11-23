@@ -34,7 +34,7 @@ test( 'Storefront.defineClerk( name, fn) ...', function( t){
     })
   })
 
-  t.equal(
+  t.deepLooseEqual(
     instance,
     Storefront.get('Test'),
     'returns instance from factory call.'
@@ -72,7 +72,7 @@ test( 'Storefront.defineStore( name, fn) ...', function( t){
     })
   })
 
-  t.equal(
+  t.deepLooseEqual(
     instance,
     Storefront.get( 'Test'),
     'returns instance from factory call.'

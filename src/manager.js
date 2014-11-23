@@ -5,8 +5,6 @@ var merge= require( './merge'),
 
 module.exports=
 function Manager( runtime, name, type, instance) {
-  instance= instance || {}
-
   // Shared props...
   var manager= {
     _name: name,
@@ -44,12 +42,20 @@ function Manager( runtime, name, type, instance) {
   if( type === 'clerk' || type === '*') {
     // Dispatcher method...
     var dispatch= (type, payload, callback)=> {
-      process.nextTick(()=>{
+      if( runtime.settings.aysncDispatch) {
+        process.nextTick(()=>{
+          runtime.dispatcher.dispatch(
+            { origin: name, type, payload },
+            callback
+          )
+        })
+      }
+      else {
         runtime.dispatcher.dispatch(
           { origin: name, type, payload },
           callback
         )
-      })
+      }
     }
     dispatch.send= dispatch
 

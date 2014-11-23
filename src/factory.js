@@ -3,7 +3,6 @@ var kind= require( 'elucidata-type'),
 
 module.exports=
 function Factory(runtime, name, type, builder, instance) {
-  instance= instance || {}
   instance.name= instance.name || name
 
   var returnValue,

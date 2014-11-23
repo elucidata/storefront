@@ -241,7 +241,6 @@ var kind= require( 'elucidata-type'),
 
 module.exports=
 function Factory(runtime, name, type, builder, instance) {
-  instance= instance || {}
   instance.name= instance.name || name
 
   var returnValue,
@@ -294,8 +293,6 @@ var merge= require( './merge'),
 
 module.exports=
 function Manager( runtime, name, type, instance) {
-  instance= instance || {}
-
   // Shared props...
   var manager= {
     _name: name,
@@ -333,12 +330,20 @@ function Manager( runtime, name, type, instance) {
   if( type === 'clerk' || type === '*') {
     // Dispatcher method...
     var dispatch= function(type, payload, callback) {
-      process.nextTick(function(){
+      if( runtime.settings.aysncDispatch) {
+        process.nextTick(function(){
+          runtime.dispatcher.dispatch(
+            { origin: name, type:type, payload:payload },
+            callback
+          )
+        })
+      }
+      else {
         runtime.dispatcher.dispatch(
           { origin: name, type:type, payload:payload },
           callback
         )
-      })
+      }
     }
     dispatch.send= dispatch
 
@@ -472,7 +477,8 @@ var Dispatcher= require( './dispatcher'),
     camelize= require( './camelize'),
     merge= require( './merge'),
     flatten= require( './flatten'),
-    storeFactory= require( './factory')
+    storeFactory= require( './factory'),
+    uid= require( './uid')
 
 for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(EventEmitter____Key)){Runtime[EventEmitter____Key]=EventEmitter[EventEmitter____Key];}}var ____SuperProtoOfEventEmitter=EventEmitter===null?null:EventEmitter.prototype;Runtime.prototype=Object.create(____SuperProtoOfEventEmitter);Runtime.prototype.constructor=Runtime;Runtime.__superConstructor__=EventEmitter;
 
@@ -491,6 +497,7 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
   Runtime.prototype.configure=function(settings) {"use strict";
     // Default config settings
     this.settings= merge({
+      asyncDispatch: true,
       useRAF: false,
       verbose: true
     }, settings || {})
@@ -550,6 +557,10 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
   };
 
   Runtime.prototype.defineComposite=function(name, builder) {"use strict";
+    if( arguments.length === 1) {
+      builder= name
+      name= uid()
+    }
     return this.$Runtime_buildFactory( name, '*', builder)
   };
 
@@ -567,8 +578,16 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
     if( !instance && this.settings.verbose) {
       console.warn( "Storefront: Store", name, "is not defined.")
     }
-    
+    // Increase safety a bit -- don't wanna freeze it, per se.
+    // else {
+    //   instance= Object.create( instance)
+    // }
+
     return instance
+  };
+
+  Runtime.prototype.getManager=function(name) {"use strict";
+    // TODO
   };
 
   Runtime.prototype.hasStore=function(name) {"use strict";
@@ -602,6 +621,11 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
 
     if( instance && this.settings.verbose) {
       console.warn(name, "already defined: Merging definitions.")
+    }
+
+    if(! instance) {
+      instance= {}
+      this.registry[ name]= instance
     }
 
     instance= storeFactory(this, name, type, builder, instance)
@@ -640,7 +664,7 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
 module.exports= Runtime
 
 }).call(this,require('_process'))
-},{"./camelize":3,"./dispatcher":5,"./factory":7,"./flatten":8,"./merge":10,"_process":15,"events":14}],13:[function(require,module,exports){
+},{"./camelize":3,"./dispatcher":5,"./factory":7,"./flatten":8,"./merge":10,"./uid":13,"_process":15,"events":14}],13:[function(require,module,exports){
 var lastId = 0
 
 function uid ( radix){

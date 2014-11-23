@@ -3,7 +3,8 @@ var Dispatcher= require( './dispatcher'),
     camelize= require( './camelize'),
     merge= require( './merge'),
     flatten= require( './flatten'),
-    storeFactory= require( './factory')
+    storeFactory= require( './factory'),
+    uid= require( './uid')
 
 class Runtime extends EventEmitter {
 
@@ -22,6 +23,7 @@ class Runtime extends EventEmitter {
   configure( settings) {
     // Default config settings
     this.settings= merge({
+      asyncDispatch: true,
       useRAF: false,
       verbose: true
     }, settings || {})
@@ -81,6 +83,10 @@ class Runtime extends EventEmitter {
   }
 
   defineComposite( name, builder) {
+    if( arguments.length === 1) {
+      builder= name
+      name= uid()
+    }
     return this._buildFactory( name, '*', builder)
   }
 
@@ -98,8 +104,16 @@ class Runtime extends EventEmitter {
     if( !instance && this.settings.verbose) {
       console.warn( "Storefront: Store", name, "is not defined.")
     }
-    
+    // Increase safety a bit -- don't wanna freeze it, per se.
+    // else {
+    //   instance= Object.create( instance)
+    // }
+
     return instance
+  }
+
+  getManager( name) {
+    // TODO
   }
 
   hasStore( name) {
@@ -133,6 +147,11 @@ class Runtime extends EventEmitter {
 
     if( instance && this.settings.verbose) {
       console.warn(name, "already defined: Merging definitions.")
+    }
+
+    if(! instance) {
+      instance= {}
+      this.registry[ name]= instance
     }
 
     instance= storeFactory(this, name, type, builder, instance)
