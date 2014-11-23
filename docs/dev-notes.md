@@ -12,7 +12,6 @@
 ## Questions
 
 - Should multiple calls to `Store` (or `Clerk`) throw an Error? Currently it merges all calls into single instance.
-- Should there be mixin support for automatic un-listening to Store events for use with React components?
 
 ## Ideas
 
@@ -29,9 +28,7 @@ module.exports=
 Storefront.define( 'Auth', ( mgr)=> {
     validationFailure= mgr.createEvent( 'validation-failure')
 
-    // Oh, did you know you can return the actions from the
-    // builder function? Well, now you do.
-    return {
+    mgr.actions({
         login( dispatch, username, password) {
             if( type.isEmpty( username)) {
                 return validatationFailure( "Username cannot be empty.")
@@ -44,7 +41,7 @@ Storefront.define( 'Auth', ( mgr)=> {
                 dispatch({ user })
             })
         }
-    }
+    })
 })
 ```
 
