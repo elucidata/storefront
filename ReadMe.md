@@ -18,6 +18,21 @@ Weighing in at ~5kB, **Storefront** is a simple flux implementation that support
 - [API](docs/api.md)
 - [Usage Example](docs/usage.md)
 
+
+## Quick Start
+
+Via **npm**:
+
+    npm install --save storefront
+
+Or via **bower**:
+
+    bower install storefront
+
+Or straight from **github**:
+
+> [dist/storefront.min.js](https://raw.githubusercontent.com/elucidata/storefront/master/dist/storefront.min.js)
+
 ## Overview
 
 For an idea how it all works, here's a skeleton authentication Storefront.

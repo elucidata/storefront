@@ -372,6 +372,14 @@ function Manager( runtime, name, type, instance) {
       _handlers: {},
 
       waitFor:function( ) {for (var stores=[],$__0=0,$__1=arguments.length;$__0<$__1;$__0++) stores.push(arguments[$__0]);
+        stores= stores.map(function( store) {
+          if( kind.isString( store)) {
+            return runtime.getInstance( store)
+          }
+          else {
+            return store
+          }
+        })
         return runtime.dispatcher.waitFor( stores);
       },
 

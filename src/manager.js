@@ -83,6 +83,14 @@ function Manager( runtime, name, type, instance) {
       _handlers: {},
 
       waitFor( ...stores) {
+        stores= stores.map(( store)=> {
+          if( kind.isString( store)) {
+            return runtime.getInstance( store)
+          }
+          else {
+            return store
+          }
+        })
         return runtime.dispatcher.waitFor( stores);
       },
 

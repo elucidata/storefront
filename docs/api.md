@@ -1,13 +1,19 @@
-# Storefront API
+# Storefront
 
-**CommonJS** (browserify/webpack)
+Getting the Storefront object...
+
+If you're using a **CommonJS** system (browserify/webpack):
 
 ```javascript
 var Storefront= require( 'storefront')
 ```
 
-If you are using Bower, `Storefront` is available as a global.
+If you are using **Bower**, `Storefront` is available as a global.
 
+In theory, **Require.js** and/or **AMD** modules are supported as well -- But they're completely untested.
+
+
+## API
 
 > `Storefront.defineClerk( name, builderFn )`
 
@@ -51,7 +57,7 @@ Storefront.defineStore( 'StoreName', ( storeMgr)=>{
             // structures, trigger change event
             storeMgr.hasChanged()
 
-            // If you what to send a notify event
+            // If you want to send a notify event
             storeMgr.notify( 'A message.')
         }
     })
@@ -80,7 +86,6 @@ Storefront.defineStore( 'StoreName', ( storeMgr)=>{
 Defines an entire storefront in a single pass:
 
 ```javascript
-// builderFn receives a manager including methods for Clerks and Stores
 Storefront.define( 'StoreName', ( manager)=>{
     // You have access to all the manager methods for Clerks and Stores:
     manager.actions({})
