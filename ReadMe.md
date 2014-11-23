@@ -1,6 +1,6 @@
 # Storefront
 
-Weighing in at < 5 kB, **Storefront** is a simple flux implementation that supports all the primary elements of [Facebook's flux pattern](https://facebook.github.io/flux/). Here are the main differences:
+Weighing in at ~5kB, **Storefront** is a simple flux implementation that supports all the primary elements of [Facebook's flux pattern](https://facebook.github.io/flux/). Here are the main differences:
 
 - Metaphors are slightly different.
 - No separate constants file to manage event names.

@@ -1,8 +1,13 @@
 # Storefront API
 
+**CommonJS** (browserify/webpack)
+
 ```javascript
 var Storefront= require( 'storefront')
 ```
+
+If you are using Bower, `Storefront` is available as a global.
+
 
 > `Storefront.defineClerk( name, builderFn )`
 
@@ -160,4 +165,27 @@ var store= Storefront.define( 'Hotkey', (mgr)=>{
 // Instances how have support for:
 store.onHotkey( fn )
 store.offHotkey( fn )
+```
+
+
+### Event Helper Mixin
+
+Storefront provides a helper mixin that will register store event listeners and  automatically deregister them at the `componentWillUnmount` lifecycle hook.
+
+It creates the helper method: `onStoreEvent( storeName, eventName, callback)`
+
+Usage:
+
+```javascript
+React.createClass({
+    mixins: [ Storefront.mixins.eventHelper ],
+
+    componentDidMount() {
+        this.onStoreEvent(
+            "Auth",                // Store name or Store instance
+            "ValidationError",     // Event name
+            this.onValidationError // Handler
+        )
+    }
+})
 ```

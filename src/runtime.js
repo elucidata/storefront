@@ -93,7 +93,13 @@ class Runtime extends EventEmitter {
   }
 
   getInstance( name ) {
-    return this.registry[ name]
+    var instance= this.registry[ name]
+
+    if( !instance && this.settings.verbose) {
+      console.warn( "Storefront: Store", name, "is not defined.")
+    }
+    
+    return instance
   }
 
   hasStore( name) {

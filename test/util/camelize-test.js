@@ -11,5 +11,7 @@ test( 'Camelize strings...', function( t){
 
   t.equal( camelize( 'hello-my_main-dog'), 'HelloMyMainDog', 'from mixed types.')
 
+  t.equal( camelize( 'helloDog'), 'HelloDog', 'from mixed case.')
+
   t.end()
 })

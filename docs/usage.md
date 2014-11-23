@@ -8,7 +8,7 @@ var Storefront= require( 'storefront'),
     API= require('<your-api-lib>')
 
 module.exports=
-Storefront.Clerk( 'Auth', ( mgr)=> {
+Storefront.defineClerk( 'Auth', ( mgr)=> {
 
     mgr.actions({
 
@@ -64,7 +64,7 @@ function getInitialState() {
 }
 
 module.exports=
-Storefront.Store( 'Auth', ( mgr)=> {
+Storefront.defineStore( 'Auth', ( mgr)=> {
     var authData= getInitialState()
 
     mgr.handles({
@@ -122,8 +122,7 @@ var Storefront= require( 'storefront'),
     require('./auth-clerk'),
     require('./auth-store')
 
-module.exports=
-Storefront.Facade( 'Auth')
+module.exports= Storefront.get( 'Auth')
 ```
 
 In your top-level view controller you can listen for an aggregate change event from Storefront like this:

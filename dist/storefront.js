@@ -61,6 +61,10 @@ module.exports= {
     return this
   },
 
+  mixins: {
+    eventHelper: require( './event-helper-mixin')( runtime)
+  },
+
   _internals: runtime
 }
 
@@ -68,7 +72,7 @@ module.exports= {
 alias( module.exports, 'defineStore', 'Store')
 alias( module.exports, 'defineClerk', 'Clerk')
 
-},{"./alias":2,"./runtime":11}],5:[function(require,module,exports){
+},{"./alias":2,"./event-helper-mixin":6,"./runtime":12}],5:[function(require,module,exports){
 var uid= require('./uid'),
     now= require('./now')
 
@@ -185,7 +189,53 @@ var singleton_instance= null
 
 module.exports= Dispatcher
 
-},{"./now":10,"./uid":12}],6:[function(require,module,exports){
+},{"./now":11,"./uid":13}],6:[function(require,module,exports){
+var camelize= require( './camelize')
+
+module.exports=
+function eventHelperMixin( runtime) {
+  return {
+    onStoreEvent:function( storeName, eventName, callback) {
+      storeName= storeName.name || storeName // in case they send a store instance
+
+      var store= runtime.getInstance( storeName), hookup
+
+      if( store) {
+        eventName= camelize( eventName)
+        if( hookup= store[ 'on'+ eventName]) {  // jshint ignore:line
+          hookup( callback)
+
+          if(! this._storeListeners) {
+            this._storeListeners= []
+          }
+
+          this._storeListeners.push({ storeName:storeName, eventName:eventName, callback:callback })
+        }
+        else {
+          if( runtime.settings.verbose) {
+            console.warn( "Storefront: Event", eventName, "isn't supported by store:", storeName)
+          }
+        }
+      }
+    },
+
+    componentWillUnmount:function() {
+      if( this._storeListeners) {
+
+        this._storeListeners.forEach(function( eventInfo) {
+          var $__0=   eventInfo,storeName=$__0.storeName,eventName=$__0.eventName,callback=$__0.callback,
+              store= runtime.getInstance( storeName)
+          store[ 'off'+ eventName]( callback )
+        })
+
+        this._storeListeners.length= 0
+        this._storeListeners= null
+      }
+    }
+  }
+}
+
+},{"./camelize":3}],7:[function(require,module,exports){
 var kind= require( 'elucidata-type'),
     createManager= require( './manager')
 
@@ -228,14 +278,14 @@ function Factory(runtime, name, type, builder, instance) {
   return instance
 }
 
-},{"./manager":8,"elucidata-type":15}],7:[function(require,module,exports){
+},{"./manager":9,"elucidata-type":16}],8:[function(require,module,exports){
 module.exports=
 function flatten( arrays) {
   var merged= []
   return merged.concat.apply( merged, arrays)
 }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 (function (process){
 var merge= require( './merge'),
     alias= require( './alias'),
@@ -371,7 +421,7 @@ function Manager( runtime, name, type, instance) {
 }
 
 }).call(this,require('_process'))
-},{"./alias":2,"./camelize":3,"./merge":9,"_process":14,"elucidata-type":15}],9:[function(require,module,exports){
+},{"./alias":2,"./camelize":3,"./merge":10,"_process":15,"elucidata-type":16}],10:[function(require,module,exports){
 module.exports=
 function merge(/* target, ...sources */) {
   var sources= Array.prototype.slice.call( arguments),
@@ -388,7 +438,7 @@ function merge(/* target, ...sources */) {
   return target
 }
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 
 /* global performance */
 var now= (function(){
@@ -407,7 +457,7 @@ var now= (function(){
 
 module.exports= now
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 (function (process){
 var Dispatcher= require( './dispatcher'),
     EventEmitter= require( 'events').EventEmitter,
@@ -504,7 +554,13 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
   };
 
   Runtime.prototype.getInstance=function(name)  {"use strict";
-    return this.registry[ name]
+    var instance= this.registry[ name]
+
+    if( !instance && this.settings.verbose) {
+      console.warn( "Storefront: Store", name, "is not defined.")
+    }
+    
+    return instance
   };
 
   Runtime.prototype.hasStore=function(name) {"use strict";
@@ -576,7 +632,7 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
 module.exports= Runtime
 
 }).call(this,require('_process'))
-},{"./camelize":3,"./dispatcher":5,"./factory":6,"./flatten":7,"./merge":9,"_process":14,"events":13}],12:[function(require,module,exports){
+},{"./camelize":3,"./dispatcher":5,"./factory":7,"./flatten":8,"./merge":10,"_process":15,"events":14}],13:[function(require,module,exports){
 var lastId = 0
 
 function uid ( radix){
@@ -594,7 +650,7 @@ function uid ( radix){
 
 module.exports= uid
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -897,7 +953,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -985,7 +1041,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 (function() {
   var name, type, _elementTestRe, _fn, _i, _keys, _len, _ref, _typeList;
 

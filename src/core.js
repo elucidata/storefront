@@ -36,6 +36,10 @@ module.exports= {
     return this
   },
 
+  mixins: {
+    eventHelper: require( './event-helper-mixin')( runtime)
+  },
+
   _internals: runtime
 }
 
