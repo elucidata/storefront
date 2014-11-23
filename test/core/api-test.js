@@ -22,9 +22,9 @@ test( 'Storefront.defineClerk( name, fn) ...', function( t){
 
   var instance= Storefront.defineClerk( 'Test', function( mgr){
     t.ok( mgr.exposes, 'clerkManager.exposes exists.')
-    t.notOk( mgr.handles, 'clerkManager.handles does not exist.')
-    t.notOk( mgr.provides, 'clerkManager.provides does not exist.')
-    t.notOk( mgr.observes, 'clerkManager.observes does not exist.')
+    t.ok( mgr.handles, 'clerkManager.handles exists.')
+    t.ok( mgr.provides, 'clerkManager.provides exists.')
+    t.ok( mgr.observes, 'clerkManager.observes exists.')
     t.ok( mgr.actions, 'clerkManager.actions exists.')
 
     mgr.actions({
@@ -35,8 +35,8 @@ test( 'Storefront.defineClerk( name, fn) ...', function( t){
   })
 
   t.deepLooseEqual(
-    instance,
-    Storefront.get('Test'),
+    Object.keys( instance),
+    Object.keys( Storefront.get( 'Test')),
     'returns instance from factory call.'
   )
 
@@ -58,8 +58,7 @@ test( 'Storefront.defineStore( name, fn) ...', function( t){
     t.ok( mgr.handles, 'storeManager.handles exists.')
     t.ok( mgr.provides, 'storeManager.provides exists.')
     t.ok( mgr.observes, 'storeManager.observes exists.')
-
-    t.notOk( mgr.actions, 'storeManager.actions does not exist.')
+    t.ok( mgr.actions, 'storeManager.actions exists.')
 
     mgr.handles({
       setData: function( action) {
@@ -76,6 +75,16 @@ test( 'Storefront.defineStore( name, fn) ...', function( t){
     instance,
     Storefront.get( 'Test'),
     'returns instance from factory call.'
+  )
+
+  t.ok(
+    instance.name,
+    'exposes store name.'
+  )
+
+  t.ok(
+    instance.token,
+    'exposes dispatch token.'
   )
 
   t.ok(
@@ -101,7 +110,7 @@ test( 'Storefront.get( name) ...', function( t){
 
   var instance= Storefront.get( 'Test')
 
-  t.equal(
+  t.deepLooseEqual(
     instance,
     Storefront._internals.getInstance( 'Test'),
     'returns instance from factory call.'
@@ -166,4 +175,41 @@ test( 'Storefront.define( name, fn) ...', function( t){
   // console.log( store)
 
   t.end()
+})
+
+test("Inline stores", function(is){
+
+  var store= Storefront.define(function( mgr){
+
+    mgr.actions({
+      test: function(d){
+        d({})
+      }
+    })
+
+    mgr.handles({
+      test: function(a) {
+
+      }
+    })
+
+    mgr.provides({
+      test: true
+    })
+
+  })
+
+  is.ok(
+    store,
+    "created."
+  )
+
+  is.ok(
+    store.name,
+    "creates a name automatically."
+  )
+
+  is.end()
+
+  console.log( store)
 })

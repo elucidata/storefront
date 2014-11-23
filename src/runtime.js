@@ -1,9 +1,10 @@
 var Dispatcher= require( './dispatcher'),
     EventEmitter= require( 'events').EventEmitter,
+    Manager= require( './manager'),
+    kind= require( 'elucidata-type'),
     camelize= require( './camelize'),
     merge= require( './merge'),
     flatten= require( './flatten'),
-    storeFactory= require( './factory'),
     uid= require( './uid')
 
 class Runtime extends EventEmitter {
@@ -12,6 +13,7 @@ class Runtime extends EventEmitter {
     super()
     this.dispatcher= Dispatcher.getInstance()
     this.registry= {}
+    this.managers= {}
     this.builders= []
     this.events= {}
     this._anyChangeEvent= this.createEvent('*', 'any-change')
@@ -24,6 +26,7 @@ class Runtime extends EventEmitter {
     // Default config settings
     this.settings= merge({
       asyncDispatch: true,
+      freezeInstance: false,
       useRAF: false,
       verbose: true
     }, settings || {})
@@ -82,30 +85,31 @@ class Runtime extends EventEmitter {
     return Object.keys( this.events)
   }
 
-  defineComposite( name, builder) {
-    if( arguments.length === 1) {
+  defineStore( name, builder) {
+    if( kind.isUndefined( builder) ) { //arguments.length === 1) {
       builder= name
       name= uid()
     }
-    return this._buildFactory( name, '*', builder)
+    return this._buildFactory( name, builder)
   }
 
-  defineStore( name, builder) {
-    return this._buildFactory( name, 'store', builder)
-  }
-
-  defineClerk( name, builder) {
-    return this._buildFactory( name, 'clerk', builder)
-  }
-
-  getInstance( name ) {
+  getInstance( name, stubMissing) {
     var instance= this.registry[ name]
 
-    if( !instance && this.settings.verbose) {
-      console.warn( "Storefront: Store", name, "is not defined.")
+    if( !instance) {
+      if( this.settings.verbose)  {
+        console.warn( "Storefront: Store", name, "is not defined.")
+      }
+      if( stubMissing === true) {
+        if( this.settings.verbose)  {
+          console.info( "Building stub for ", name)
+        }
+        instance= { name }
+        this.registry[ name]= instance
+      }
     }
-    // Increase safety a bit -- don't wanna freeze it, per se.
     // else {
+    //   // Increase safety a bit? -- don't wanna freeze it, per se.
     //   instance= Object.create( instance)
     // }
 
@@ -113,7 +117,7 @@ class Runtime extends EventEmitter {
   }
 
   getManager( name) {
-    // TODO
+    return this.managers[ name]
   }
 
   hasStore( name) {
@@ -129,40 +133,64 @@ class Runtime extends EventEmitter {
   }
 
   recreateStore( name) {
-    delete this.registry[ name]
+    var manager= this.getManager( name)
+
+    if( manager) {
+      manager.resetInternals()
+    }
 
     this.builders
       .filter(( def)=>{
         return def.name === name
       })
       .forEach(( info)=>{
-        this._buildFactory( info.name, info.type, info.builder, false)
+        this._buildFactory( info.name, info.builder, false)
       })
 
-    return this.registry[ name]
+    return this.getInstance( name)
   }
 
-  _buildFactory( name, type, builder, saveBuilder) {
-    var instance= this.registry[ name]
+  _buildFactory( name, builder, saveBuilder) {
+    var instance= this.registry[ name],
+        manager= this.managers[ name],
+        returnValue
 
     if( instance && this.settings.verbose) {
       console.warn(name, "already defined: Merging definitions.")
     }
 
     if(! instance) {
-      instance= {}
+      instance= { name }
       this.registry[ name]= instance
     }
-
-    instance= storeFactory(this, name, type, builder, instance)
-
-    this.registry[ name]= instance
-
-    if( saveBuilder !== false) {
-      this.builders.push({ name, type, builder })
+    if(! manager) {
+      manager= new Manager( this, name, instance)
+      this.managers[ name]= manager
     }
 
-    return instance
+    if( kind.isFunction( builder)) {
+      returnValue= builder( manager)
+    }
+    else if( kind.isObject( builder)) {
+      returnValue= builder
+    }
+    else {
+      throw new Error( "Wrong builder type: Must provide a builder function or object.")
+    }
+
+    if( kind.isObject( returnValue)) {
+      manager.expose( returnValue)
+    }
+
+    if( this.settings.freezeInstance === true) {
+      Object.freeze( instance)
+    }
+
+    if( saveBuilder !== false) {
+      this.builders.push({ name, builder, manager })
+    }
+
+    return this.getInstance( name)
   }
 
   _trackChangeFor( name) {

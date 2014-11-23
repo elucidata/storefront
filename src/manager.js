@@ -3,144 +3,149 @@ var merge= require( './merge'),
     camelize= require( './camelize'),
     kind= require( 'elucidata-type')
 
-module.exports=
-function Manager( runtime, name, type, instance) {
-  // Shared props...
-  var manager= {
-    _name: name,
-    _type: type,
-    _instance: instance,
+module.exports= class Manager {
 
-    exposes( methods) {
-      Object.keys( methods).forEach(( methodName)=>{
-        instance[ methodName]= methods[ methodName]
+  constructor(runtime, name, instance) {
+    this.runtime= runtime
+    this.name= name
+
+    this._instance= instance
+    this._handlers= {}
+    this._notifyEvent= runtime.createEvent( name, 'notify')
+    this._changeEvent= runtime.createEvent( name, 'change')
+
+    this.expose( this._notifyEvent.public)
+    this.expose( this._changeEvent.public)
+
+    alias( this, 'action', 'actions')
+    alias( this, 'handle', 'handles', 'observe', 'observes')
+    alias( this, 'expose', 'exposes', 'provide', 'provides')
+    alias( this, 'createEvent', 'defineEvent')
+    alias( this, 'hasChanged', 'dataDidChange', 'dataHasChanged')
+
+    if( instance.token == null) {  // jshint ignore:line
+      instance.token= runtime.dispatcher.register(( action)=>{
+        var handler;
+        if( handler= this._handlers[ action.type]) {  // jshint ignore:line
+          handler( action)
+        }
       })
-    },
-
-    getStore( storeName) {
-      if( storeName ) {
-        return runtime.getInstance( storeName )
-      }
-      else {
-        return instance
-      }
-    },
-
-    createEvent( eventName) {
-      var event= runtime.createEvent( name, eventName),
-      emitterFn= event.emit.bind( event)
-
-      manager.exposes( event.public)
-      instance[ 'emit'+ camelize( eventName)]= emitterFn
-
-      return emitterFn
     }
   }
-  alias( manager, 'exposes', 'expose')
-  alias( manager, 'createEvent', 'defineEvent')
 
-  if( type === 'clerk' || type === '*') {
-    // Dispatcher method...
-    var dispatch= (type, payload, callback)=> {
-      if( runtime.settings.aysncDispatch) {
-        process.nextTick(()=>{
-          runtime.dispatcher.dispatch(
-            { origin: name, type, payload },
-            callback
-          )
-        })
-      }
-      else {
-        runtime.dispatcher.dispatch(
-          { origin: name, type, payload },
+  dispatch( type, payload, callback) {
+    if( this.runtime.settings.aysncDispatch) {
+      process.nextTick(()=>{
+        this.runtime.dispatcher.dispatch(
+          { origin: this.name, type, payload },
           callback
         )
-      }
+      })
     }
-    dispatch.send= dispatch
-
-    manager= merge( manager, {
-
-      actions( actionDefinitions) {
-        Object.keys( actionDefinitions).forEach(( actionName)=>{
-          var eventName= name +'_'+ actionName,
-              fn= actionDefinitions[ actionName],
-              boundDispatch= dispatch.bind( null, eventName)
-
-          fn.displayName= eventName
-          instance[ actionName]= fn.bind( instance, boundDispatch)
-        })
-      }
-    })
-
-    alias( manager, 'actions', 'action')
+    else {
+      this.runtime.dispatcher.dispatch(
+        { origin: this.name, type, payload },
+        callback
+      )
+    }
   }
 
-  if( type === 'store' || type === '*') {
-    var notificationEvent= runtime.createEvent( name, 'notify'),
-        changeEvent= runtime.createEvent( name, 'change')
-
-    if(! instance._handlers) {
-      instance._handlers= {}
-    }
-
-    manager= merge( manager, {
-
-      _handlers: {},
-
-      waitFor( ...stores) {
-        stores= stores.map(( store)=> {
-          if( kind.isString( store)) {
-            return runtime.getInstance( store)
-          }
-          else {
-            return store
-          }
-        })
-        return runtime.dispatcher.waitFor( stores);
-      },
-
-      hasChanged() {
-        changeEvent.emitFlat( arguments)
-      },
-
-      notify( msg) {
-        notificationEvent.emit( msg)
-      },
-
-      handles( store, handlers) {
-        if( arguments.length === 1) {
-          handlers= store
-          store= name//runtime.getInstance( 'facade', name)
-        }
-        else if( kind.isObject( store)) {
-          store= store.name//runtime.getInstance( 'facade', store)
-        }
-
-        var getEventName= (actionName)=>{
-          return store +'_'+ actionName
-        }
-
-        Object.keys( handlers).forEach(( actionName)=>{
-          var eventName= getEventName( actionName),
-              fn= handlers[ actionName]
-          instance._handlers[ eventName]= fn //.bind(handlers)
-        })
-      },
-
-      getClerk() {
-        // return runtime.getInstance( 'clerk', name)
-        return instance
-      }
-    })
-
-    alias( manager, 'handles', 'handle', 'observes', 'observe')
-    alias( manager, 'hasChanged', 'dataDidChange', 'dataHasChanged')
-    alias( manager, 'exposes', 'provides', 'provide')
-
-    manager.exposes( changeEvent.public)
-    manager.exposes( notificationEvent.public)
+  notify( message) {
+    this._notifyEvent.emit( message)
   }
 
-  return manager
+  action( methods) {
+    Object.keys( methods).forEach(( actionName)=> {
+      var eventName= this.name +'_'+ actionName,
+          fn= methods[ actionName],
+          boundDispatch= this.dispatch.bind( this, eventName)
+
+      fn.displayName= eventName
+      // boundDispatch.send= this.dispatch.bind( this)
+
+      this._instance[ actionName]= fn.bind( this._instance, boundDispatch)
+    })
+  }
+
+  handle( store, methods) {
+    if( arguments.length === 1) {
+      methods= store
+      store= this.name
+    }
+    else if( kind.isObject( store)) {
+      store= store.name
+    }
+
+    Object.keys( methods).forEach(( actionName)=>{
+      var eventName= store +'_'+ actionName,
+          fn= methods[ actionName]
+      this._handlers[ eventName]= fn //.bind(handlers)
+    })
+  }
+
+  waitFor( ...stores) {
+    stores= stores.map(( store)=> {
+      if( kind.isString( store)) {
+        return this.runtime.getInstance( store)
+      }
+      else {
+        return store
+      }
+    })
+    this.runtime.dispatcher.waitFor( stores)
+  }
+
+  hasChanged() {
+    this._changeEvent.emitFlat( arguments)
+  }
+
+  expose( methods) {
+    Object.keys( methods).forEach(( methodName)=>{
+      if( this._instance.hasOwnProperty( methodName)) {
+        var error= new Error( "Redefining property "+ methodName +" on store "+ this.name)
+        error.framesToPop= 3
+        throw error
+      }
+      this._instance[ methodName]= methods[ methodName]
+    })
+  }
+
+  getClerk() {
+    return this._instance
+  }
+
+  getStore( storeName) {
+    if( storeName ) {
+      return this.runtime.getInstance( storeName, true )
+    }
+    else {
+      return this._instance
+    }
+  }
+
+  createEvent( eventName) {
+    var event= this.runtime.createEvent( name, eventName),
+        emitterFn= event.emit.bind( event)
+
+    this.expose( event.public)
+    this._instance[ 'emit'+ camelize( eventName)]= emitterFn
+
+    return emitterFn
+  }
+
+  // You shouldn't call this yourself... The runtime will if a resetStore call
+  // is made -- usually only in testing!
+  resetInternals() {
+    this._handlers= {}
+
+    if( this._instance.token) {
+      this.runtime.dispatcher.deregister( this._instance.token)
+    }
+
+    Object.keys( this._instance).forEach(( key)=>{
+      if( key !== 'name') {
+        delete this._instance[ key]
+      }
+    })
+  }
 }

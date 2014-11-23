@@ -6,15 +6,7 @@ var Runtime= require( './runtime'),
 module.exports= {
 
   define( name, builder) {
-    return runtime.defineComposite( name, builder)
-  },
-
-  defineStore( name, builder) {
     return runtime.defineStore( name, builder)
-  },
-
-  defineClerk( name, builder) {
-    return runtime.defineClerk( name, builder)
   },
 
   get( name) {
@@ -43,6 +35,5 @@ module.exports= {
   _internals: runtime
 }
 
-
-alias( module.exports, 'defineStore', 'Store')
-alias( module.exports, 'defineClerk', 'Clerk')
+// DEPRECATED: Remove in a future version...
+alias( module.exports, 'define', 'defineStore', 'Store', 'defineClerk', 'Clerk')

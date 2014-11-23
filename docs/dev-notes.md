@@ -2,19 +2,12 @@
 
 > This document is for me to flesh out my thoughts on current or future features in Storefront. You're welcome to read (and comment) but it may only make to sense me.
 
+## To-Do
 
-## ToDo
-
-- [ ] Add support for renderAnimationFrame onChange batching
-- [ ] Add config option for toggling `nextTick` in dispatching
-- [ ] Support `notify()` in the clerk manager
+- [ ] Add support for renderAnimationFrame onChange batching.
+- [ ] Should instance property overriding be allowed? (Behind a flag?)
 
 
-## Questions
-
-- Should multiple calls to `Store` (or `Clerk`) throw an Error? Currently it merges all calls into single instance.
-
-xw
 ## Ideas
 
 > Validation Events
