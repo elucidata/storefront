@@ -30,14 +30,10 @@ _index.js.hbs_
  */
 var Storefront= require( 'storefront')
 
-module.exports=
-Storefront.Facade( '{{#camelize}}{{name}}{{/camelize}}', ( api)=> {
-    api.exposes({
-        // You don't really *have* to do anything here.
-        // But you can include extra public api methods
-        // if you'd like.
-    })
-})
+require( './{{name}}-clerk')
+require( './{{name}}-store')
+
+module.exports= Storefront.get( '{{#camelize}}{{name}}{{/camelize}}')
 ```
 
 _clerk.js.hbs_
@@ -48,7 +44,7 @@ _clerk.js.hbs_
 var Storefront= require( 'storefront')
 
 module.exports=
-Storefront.Clerk( '{{#camelize}}{{name}}{{/camelize}}', ( mgr)=> {
+Storefront.defineClerk( '{{#camelize}}{{name}}{{/camelize}}', ( mgr)=> {
     mgr.actions({
         example( dispatch, param) {
             if(! param) return Promise.reject("Invalid param")
@@ -75,7 +71,7 @@ _store.js.hbs_
 var Storefront= require( 'storefront')
 
 module.exports=
-Storefront.Store( '{{#camelize}}{{name}}{{/camelize}}', ( mgr)=> {
+Storefront.defineStore( '{{#camelize}}{{name}}{{/camelize}}', ( mgr)=> {
 
     // Internal data, initialized to default state
     var data= null

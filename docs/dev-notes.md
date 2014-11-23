@@ -7,12 +7,14 @@
 
 - [ ] Add support for renderAnimationFrame onChange batching
 - [ ] Add config option for toggling `nextTick` in dispatching
+- [ ] Support `notify()` in the clerk manager
 
 
 ## Questions
 
 - Should multiple calls to `Store` (or `Clerk`) throw an Error? Currently it merges all calls into single instance.
 
+xw
 ## Ideas
 
 > Validation Events
@@ -66,7 +68,7 @@ React.createClass({
         // Storefront.mixins.eventHelper
         this.onStoreEvent(
             authStore,
-            'validatiion-failure',
+            'validation-failure',
             this.validationFailure
         )
     },
