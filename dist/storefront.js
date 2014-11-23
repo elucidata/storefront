@@ -15,95 +15,60 @@ function alias(/* target, prop, ...aliases */) {
 }
 
 },{}],3:[function(require,module,exports){
-(function (process){
-var alias= require( './alias'),
-    type= require( 'elucidata-type')
-
-function ClerkFactory( runtime, name, builder) {
-  var instance= {}, returnValue
-
-  var dispatch= function(type, payload, callback) {
-    process.nextTick(function(){
-      runtime.dispatcher.dispatch(
-        { origin: name, type:type, payload:payload },
-        callback
-      )
-    })
-  }
-
-  dispatch.send= dispatch
-
-  var manager= {
-
-    actions:function( actionDefinitions) {
-      Object.
-        keys( actionDefinitions).
-        forEach(function( actionName){
-          var eventName= name +'_'+ actionName,
-              fn= actionDefinitions[ actionName],
-              boundDispatch= dispatch.bind( null, eventName)
-
-          fn.displayName= eventName
-          instance[ actionName]= fn.bind( instance, boundDispatch)
-        })
-      return this
-    },
-
-    getStore:function() {
-      return runtime.getInstance('store', name)
-    }
-  }
-
-  alias( manager, 'actions', 'action', 'public')
-
-  if( type.isFunction( builder)) {
-    returnValue= builder( manager, manager.actions)
-  }
-  else {
-    returnValue= builder
-  }
-
-  if( type.isObject( returnValue)) {
-    manager.actions( returnValue)
-  }
-
-  return instance
+module.exports=
+function camelize( string) {
+  return string.replace( /(?:^|[-_])(\w)/g, function( _, c) {
+    return c ? c.toUpperCase () : ''
+  })
 }
 
-module.exports= ClerkFactory
-
-}).call(this,require('_process'))
-},{"./alias":2,"_process":13,"elucidata-type":14}],4:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var Runtime= require( './runtime'),
+    alias= require( './alias'),
     runtime= new Runtime()
 
 // Runtime API
 module.exports= {
 
-  Store:function( name, builder) {
+  define:function( name, builder) {
+    return runtime.defineComposite( name, builder)
+  },
+
+  defineStore:function( name, builder) {
     return runtime.defineStore( name, builder)
   },
 
-  Clerk:function( name, builder) {
+  defineClerk:function( name, builder) {
     return runtime.defineClerk( name, builder)
   },
 
-  Facade:function( name, builder) {
-    return runtime.defineFacade( name, builder)
+  get:function( name) {
+    return runtime.getInstance( name)
+  },
+
+  configure:function( settings) {
+    runtime.configure( settings)
+    return this
   },
 
   onChange:function( fn) {
     runtime.onAnyChange( fn)
+    return this
   },
 
   offChange:function( fn) {
     runtime.offAnyChange( fn)
+    return this
   },
 
   _internals: runtime
 }
 
-},{"./runtime":9}],5:[function(require,module,exports){
+
+alias( module.exports, 'defineStore', 'Store')
+alias( module.exports, 'defineClerk', 'Clerk')
+
+},{"./alias":2,"./runtime":11}],5:[function(require,module,exports){
 var uid= require('./uid'),
     now= require('./now')
 
@@ -165,11 +130,6 @@ var THRESHOLD= 10 // In milliseconds
       return this
     }
 
-    if( DEBUG ) {
-      console.time( action.type )
-      console.group( action.type )
-    }
-
     var length= this.$Dispatcher_tokenList.length,
         index= 0, startTime, duration
 
@@ -190,25 +150,17 @@ var THRESHOLD= 10 // In milliseconds
       duration= now() - startTime
 
       if( duration > THRESHOLD ) {
-        // alert('long!')
-        window['console'].info('Dispatch took >', THRESHOLD, 'ms') // jshint ignore:line
+        window['console'].info('Dispatch of', action.type ,'took >', THRESHOLD, 'ms') // jshint ignore:line
       }
 
     }
-
-    if( DEBUG) {
-      console.debug( (duration || 0)+ 'ms')
-      console.timeEnd( action.type )
-      console.groupEnd( action.type )
-    }
-
 
     if( callback ) callback() // Should the callback be sent anything?
 
     if( this.$Dispatcher_queue.length ) {
       // Should this happen on the nextTick?
       var queueAction= this.$Dispatcher_queue.shift()
-      this.dispatch(queueAction[0], queueAction[1])
+      this.dispatch( queueAction[0], queueAction[1])
     }
 
     return this
@@ -233,82 +185,204 @@ var singleton_instance= null
 
 module.exports= Dispatcher
 
-},{"./now":8,"./uid":11}],6:[function(require,module,exports){
-function ensure(condition, format, a, b, c, d, e, f) {
-  if (!condition) {
-    var error;
-    if (format === undefined) {
-      error = new Error(
-        'Minified exception occurred; use the non-minified dev environment ' +
-        'for the full error message and additional helpful warnings.'
-      );
-    }
-    else {
-      var args = [a, b, c, d, e, f];
-      var argIndex = 0;
-      error = new Error(
-        'Violation: ' +
-        format.replace(/%s/g, function() { return args[argIndex++]; })
-      );
-    }
+},{"./now":10,"./uid":12}],6:[function(require,module,exports){
+var kind= require( 'elucidata-type'),
+    createManager= require( './manager')
 
-    error.framesToPop = 1; // we don't care about ensure's own frame
-    throw error;
-  }
-}
+module.exports=
+function Factory(runtime, name, type, builder, instance) {
+  instance= instance || {}
+  instance.name= instance.name || name
 
-module.exports= ensure
+  var returnValue,
+      manager= createManager( runtime, name, type, instance)
 
-},{}],7:[function(require,module,exports){
-var type= require('elucidata-type'),
-    alias= require('./alias'),
-    ensure= require('./ensure')
-
-
-  function Storefront(name) {"use strict";
-    this.name= name
-  }
-
-
-function Facade(runtime, name, builder) {
-  var clerk= runtime.getInstance( 'clerk', name),
-      store= runtime.getInstance( 'store', name),
-      storeFront= new Storefront( name),
-      manager= {
-        exposes:function( methodsObj) {
-          Object.
-            keys( methodsObj).
-            forEach(function( key){
-              storeFront[ key]= methodsObj[ key]
-            })
-        }
-      },
-      returnValue
-
-  ensure( clerk && store, "A Store and Clerk are required to create a facade for: "+ name)
-
-  alias( manager, 'exposes', 'expose', 'public')
-
-  if( type.isFunction( builder)) {
+  if( kind.isFunction( builder)) {
     returnValue= builder( manager)
   }
-  else {
+  else if( kind.isObject( builder)) {
     returnValue= builder
   }
+  else {
+    throw new Error( "Wrong builder type: Must provide a builder function or object.")
+  }
 
-  if( type.isObject( returnValue)) {
+  if( kind.isObject( returnValue)) {
     manager.exposes( returnValue)
   }
 
-  storeFront= Object.merge( storeFront, clerk)
-  storeFront= Object.merge( storeFront, store)
+  if( instance.token == null) {  // jshint ignore:line
+    instance.token= runtime.dispatcher.register(function( action){
+      var handler;
+      if( handler= instance._handlers[ action.type]) {  // jshint ignore:line
+        handler( action)
+      }
+    })
+  }
 
-  return Object.freeze( storeFront)
+  // NOTE: I'd like to remove the handler list from the instance...
+  if( instance._handlers == null) {  // jshint ignore:line
+    instance._handlers= {}
+  }
+
+  return instance
 }
 
-module.exports= Facade
+},{"./manager":8,"elucidata-type":15}],7:[function(require,module,exports){
+module.exports=
+function flatten( arrays) {
+  var merged= []
+  return merged.concat.apply( merged, arrays)
+}
 
-},{"./alias":2,"./ensure":6,"elucidata-type":14}],8:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
+(function (process){
+var merge= require( './merge'),
+    alias= require( './alias'),
+    camelize= require( './camelize'),
+    kind= require( 'elucidata-type')
+
+module.exports=
+function Manager( runtime, name, type, instance) {
+  instance= instance || {}
+
+  // Shared props...
+  var manager= {
+    _name: name,
+    _type: type,
+    _instance: instance,
+
+    exposes:function( methods) {
+      Object.keys( methods).forEach(function( methodName){
+        instance[ methodName]= methods[ methodName]
+      })
+    },
+
+    getStore:function( storeName) {
+      storeName= storeName || name
+      return runtime.getInstance( 'store', storeName)
+    }
+  }
+
+  if( type === 'clerk' || type === '*') {
+    // Dispatcher method...
+    var dispatch= function(type, payload, callback) {
+      process.nextTick(function(){
+        runtime.dispatcher.dispatch(
+          { origin: name, type:type, payload:payload },
+          callback
+        )
+      })
+    }
+    dispatch.send= dispatch
+
+    manager= merge( manager, {
+
+      actions:function( actionDefinitions) {
+        Object.keys( actionDefinitions).forEach(function( actionName){
+          var eventName= name +'_'+ actionName,
+              fn= actionDefinitions[ actionName],
+              boundDispatch= dispatch.bind( null, eventName)
+
+          fn.displayName= eventName
+          instance[ actionName]= fn.bind( instance, boundDispatch)
+        })
+      }
+    })
+
+    alias( manager, 'exposes', 'expose')
+    alias( manager, 'actions', 'action')
+  }
+
+  if( type === 'store' || type === '*') {
+    var notificationEvent= runtime.createEvent( name, 'notify'),
+        changeEvent= runtime.createEvent( name, 'change')
+
+    if(! instance._handlers) {
+      instance._handlers= {}
+    }
+
+    manager= merge( manager, {
+
+      _handlers: {},
+
+      waitFor:function( ) {for (var stores=[],$__0=0,$__1=arguments.length;$__0<$__1;$__0++) stores.push(arguments[$__0]);
+        return runtime.dispatcher.waitFor( stores);
+      },
+
+      hasChanged:function() {
+        changeEvent.emitFlat( arguments)
+      },
+
+      notify:function( msg) {
+        notificationEvent.emit( msg)
+      },
+
+      handles:function( store, handlers) {
+        if( arguments.length === 1) {
+          handlers= store
+          store= name//runtime.getInstance( 'facade', name)
+        }
+        else if( kind.isObject( store)) {
+          store= store.name//runtime.getInstance( 'facade', store)
+        }
+
+        var getEventName= function(actionName){
+          return store +'_'+ actionName
+        }
+
+        Object.keys( handlers).forEach(function( actionName){
+          var eventName= getEventName( actionName),
+              fn= handlers[ actionName]
+          instance._handlers[ eventName]= fn //.bind(handlers)
+        })
+      },
+
+      createEvent:function( eventName) {
+        var event= runtime.createEvent( name, eventName),
+            emitterFn= event.emit.bind( event)
+
+        manager.exposes( event.public)
+        instance[ 'emit'+ camelize( eventName)]= emitterFn
+
+        return emitterFn
+      },
+
+      getClerk:function() {
+        return runtime.getInstance( 'clerk', name)
+      }
+    })
+
+    alias( manager, 'handles', 'handle', 'observes', 'observe')
+    alias( manager, 'hasChanged', 'dataDidChange', 'dataHasChanged')
+    alias( manager, 'exposes', 'expose', 'provides', 'provide')
+
+    manager.exposes( changeEvent.public)
+    manager.exposes( notificationEvent.public)
+  }
+
+  return manager
+}
+
+}).call(this,require('_process'))
+},{"./alias":2,"./camelize":3,"./merge":9,"_process":14,"elucidata-type":15}],9:[function(require,module,exports){
+module.exports=
+function merge(/* target, ...sources */) {
+  var sources= Array.prototype.slice.call( arguments),
+      target= sources.shift()
+
+  sources.forEach(function( source){
+    Object.
+      keys( source).
+      forEach(function( key){
+        target[ key]= source[ key]
+      })
+  })
+
+  return target
+}
+
+},{}],10:[function(require,module,exports){
 
 /* global performance */
 var now= (function(){
@@ -327,35 +401,36 @@ var now= (function(){
 
 module.exports= now
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 (function (process){
-var StoreFactory= require('./store-factory'),
-    ClerkFactory= require('./clerk-factory'),
-    Dispatcher= require('./dispatcher'),
-    Facade= require('./facade'),
-    EventEmitter= require('events').EventEmitter
+var Dispatcher= require( './dispatcher'),
+    EventEmitter= require( 'events').EventEmitter,
+    camelize= require( './camelize'),
+    merge= require( './merge'),
+    flatten= require( './flatten'),
+    storeFactory= require( './factory')
 
 for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(EventEmitter____Key)){Runtime[EventEmitter____Key]=EventEmitter[EventEmitter____Key];}}var ____SuperProtoOfEventEmitter=EventEmitter===null?null:EventEmitter.prototype;Runtime.prototype=Object.create(____SuperProtoOfEventEmitter);Runtime.prototype.constructor=Runtime;Runtime.__superConstructor__=EventEmitter;
 
   function Runtime() {"use strict";
     EventEmitter.call(this)
     this.dispatcher= Dispatcher.getInstance()
-    this.registry= {
-      store: {},
-      clerk: {},
-      facade: {}
-    }
-    this.factories= {
-      store: {},
-      clerk: {},
-      facade: {}
-    }
+    this.registry= {}
+    this.builders= []
     this.events= {}
-
     this.$Runtime_anyChangeEvent= this.createEvent('*', 'any-change')
     this.$Runtime_dataChanges= []
     this.$Runtime_timer= false
+    this.configure()
   }
+
+  Runtime.prototype.configure=function(settings) {"use strict";
+    // Default config settings
+    this.settings= merge({
+      useRAF: false,
+      verbose: true
+    }, settings || {})
+  };
 
   Runtime.prototype.createEvent=function(storeName, eventName) {"use strict";
     var event_key= storeName +':'+ eventName,
@@ -386,20 +461,18 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
       }.bind(this),
 
       emitFlat: function() {
-        var params= [ event_key].
-          concat( Array.prototype.slice.call( arguments)).
-          flatten()
+        var params= flatten( [ event_key].concat( Array.prototype.slice.call( arguments)))
         process.nextTick(function(){
           this.emit.apply( this, params)
         }.bind(this))
       }.bind(this)
     }
 
-    api.public[ 'on'+ eventName.camelize( true)]= function( fn) {
+    api.public[ 'on'+ camelize( eventName)]= function( fn) {
       this.on( event_key, fn)
     }.bind(this)
 
-    api.public[ 'off'+ eventName.camelize( true)]= function( fn) {
+    api.public[ 'off'+ camelize( eventName)]= function( fn) {
       this.removeListener( event_key, fn)
     }.bind(this)
 
@@ -412,69 +485,71 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
     return Object.keys( this.events)
   };
 
+  Runtime.prototype.defineComposite=function(name, builder) {"use strict";
+    return this.$Runtime_buildFactory( name, '*', builder)
+  };
+
   Runtime.prototype.defineStore=function(name, builder) {"use strict";
-    if( this.hasStore( name)) throw new Error("Store "+ name +" already defined!")
-
-    this.factories.store[ name]= builder
-
-    var store= this.registry.store[ name]= StoreFactory( this, name, builder)
-
-    this.$Runtime_trackChangeFor( name)
-
-    return store
+    return this.$Runtime_buildFactory( name, 'store', builder)
   };
 
   Runtime.prototype.defineClerk=function(name, builder) {"use strict";
-    if( this.hasClerk( name)) throw new Error("Clerk "+ name +" already defined!")
-
-    this.factories.clerk[ name]= builder
-
-    var clerk= this.registry.clerk[ name]= ClerkFactory( this, name, builder)
-
-    return clerk
+    return this.$Runtime_buildFactory( name, 'clerk', builder)
   };
 
-  Runtime.prototype.defineFacade=function(name, builder) {"use strict";
-    if( this.hasFacade( name)) throw new Error("Facade "+ name +" already defined!")
-
-    this.factories.facade[ name]= builder
-
-    var api= this.registry.facade[ name]= Facade( this, name, builder)
-
-    return api
-  };
-
-  Runtime.prototype.getInstance=function(type, name)  {"use strict";
-    return this.registry[ type][ name]
-  };
-
-  Runtime.prototype.getFactory=function(type, name)  {"use strict";
-    return this.factories[ type][ name]
+  Runtime.prototype.getInstance=function(name)  {"use strict";
+    return this.registry[ name]
   };
 
   Runtime.prototype.hasStore=function(name) {"use strict";
-    return this.registry.store.hasOwnProperty( name)
-  };
-
-  Runtime.prototype.hasClerk=function(name) {"use strict";
-    return this.registry.clerk.hasOwnProperty( name)
-  };
-
-  Runtime.prototype.hasFacade=function(name) {"use strict";
-    return this.registry.facade.hasOwnProperty( name)
+    return this.registry.hasOwnProperty( name)
   };
 
   Runtime.prototype.onAnyChange=function(fn) {"use strict";
     this.$Runtime_anyChangeEvent.public.onAnyChange( fn)
   };
+
   Runtime.prototype.offAnyChange=function(fn) {"use strict";
     this.$Runtime_anyChangeEvent.public.offAnyChange( fn)
+  };
+
+  Runtime.prototype.recreateStore=function(name) {"use strict";
+    delete this.registry[ name]
+
+    this.builders
+      .filter(function( def){
+        return def.name === name
+      })
+      .forEach(function( info){
+        this.$Runtime_buildFactory( info.name, info.type, info.builder, false)
+      }.bind(this))
+
+    return this.registry[ name]
+  };
+
+  Runtime.prototype.$Runtime_buildFactory=function(name, type, builder, saveBuilder) {"use strict";
+    var instance= this.registry[ name]
+
+    if( instance && this.settings.verbose) {
+      console.warn(name, "already defined: Merging definitions.")
+    }
+
+    instance= storeFactory(this, name, type, builder, instance)
+
+    this.registry[ name]= instance
+
+    if( saveBuilder !== false) {
+      this.builders.push({ name:name, type:type, builder:builder })
+    }
+
+    return instance
   };
 
   Runtime.prototype.$Runtime_trackChangeFor=function(name) {"use strict";
     var eventName= name +':change'
     this.on( eventName, function(){
       this.$Runtime_dataChanges.push({ type:eventName, params:Array.prototype.slice.call(arguments)})
+
       if(! this.$Runtime_timer) {
         process.nextTick( this.$Runtime_relayDataChanges.bind( this))
         this.$Runtime_timer= true
@@ -495,109 +570,7 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
 module.exports= Runtime
 
 }).call(this,require('_process'))
-},{"./clerk-factory":3,"./dispatcher":5,"./facade":7,"./store-factory":10,"_process":13,"events":12}],10:[function(require,module,exports){
-var alias= require('./alias'),
-    type= require('elucidata-type')
-
-function StoreFactory(runtime, name, builder) {
-  var _handlers= {},
-      instance= {},
-      notificationEvent= runtime.createEvent( name, 'notify'),
-      changeEvent= runtime.createEvent( name, 'change'),
-      returnValue
-
-  var manager= {
-
-    waitFor:function( ) {for (var stores=[],$__0=0,$__1=arguments.length;$__0<$__1;$__0++) stores.push(arguments[$__0]);
-      return runtime.dispatcher.waitFor( stores);
-    },
-
-    hasChanged:function() {
-      changeEvent.emitFlat( arguments)
-    },
-
-    notify:function( msg) {
-      // sendNotification.emit( msg)
-      notificationEvent.emit( msg)
-    },
-
-    deliver:function( methods) {
-      Object.
-        keys( methods).
-        forEach(function( methodName){
-          instance[ methodName]= methods[ methodName]
-        })
-    },
-
-    handle:function(store, handlers) {
-      if( arguments.length === 1) {
-        handlers= store
-        store= runtime.getInstance( 'facade', name)
-      }
-      var getEventName= function(actionName){
-        return name +'_'+ actionName
-      }
-
-      Object.
-        keys( handlers).
-        forEach(function( actionName){
-          var eventName= getEventName( actionName),
-              fn= handlers[ actionName]
-          _handlers[ eventName]= fn //.bind(handlers)
-        })
-
-    },
-
-    createEvent:function(eventName) {
-      var event= runtime.createEvent( name, eventName),
-          emitterFn= event.emit.bind( event)
-
-      this.deliver( event.public)
-      this['emit'+ eventName.camelize( true)]= emitterFn
-
-      return emitterFn
-    },
-
-    getClerk:function() {
-      return runtime.getInstance('clerk', name)
-    }
-  }
-
-  alias( manager, 'handle', 'handles')
-  alias( manager, 'hasChanged', 'dataDidChange', 'dataHasChanged')
-  alias( manager, 'deliver', 'delivers', 'provide', 'provides', 'public')
-
-  manager.deliver( changeEvent.public)
-  manager.deliver( notificationEvent.public)
-
-  if( type.isFunction( builder)) {
-    returnValue= builder(manager, manager.hasChanged, manager.waitFor, manager.notify)
-  }
-  else {
-    returnValue= builder
-  }
-
-  if( type.isObject( returnValue)) {
-    manager.deliver( returnValue)
-  }
-
-  // TODO: Deprecate onDataChange and only support onChange
-  alias( instance, 'onChange', 'onDataChange')
-  alias( instance, 'offChange', 'offDataChange')
-
-  instance.id= runtime.dispatcher.register(function( action){
-    var handler;
-    if( handler= _handlers[ action.type]) {  // jshint ignore:line
-      handler( action)
-    }
-  })
-
-  return instance;
-}
-
-module.exports= StoreFactory
-
-},{"./alias":2,"elucidata-type":14}],11:[function(require,module,exports){
+},{"./camelize":3,"./dispatcher":5,"./factory":6,"./flatten":7,"./merge":9,"_process":14,"events":13}],12:[function(require,module,exports){
 var lastId = 0
 
 function uid ( radix){
@@ -615,7 +588,7 @@ function uid ( radix){
 
 module.exports= uid
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -918,7 +891,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -1006,7 +979,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 (function() {
   var name, type, _elementTestRe, _fn, _i, _keys, _len, _ref, _typeList;
 

@@ -59,11 +59,6 @@ class Dispatcher {
       return this
     }
 
-    if( DEBUG ) {
-      console.time( action.type )
-      console.group( action.type )
-    }
-
     var length= this._tokenList.length,
         index= 0, startTime, duration
 
@@ -84,25 +79,17 @@ class Dispatcher {
       duration= now() - startTime
 
       if( duration > THRESHOLD ) {
-        // alert('long!')
-        window['console'].info('Dispatch took >', THRESHOLD, 'ms') // jshint ignore:line
+        window['console'].info('Dispatch of', action.type ,'took >', THRESHOLD, 'ms') // jshint ignore:line
       }
 
     }
-
-    if( DEBUG) {
-      console.debug( (duration || 0)+ 'ms')
-      console.timeEnd( action.type )
-      console.groupEnd( action.type )
-    }
-
 
     if( callback ) callback() // Should the callback be sent anything?
 
     if( this._queue.length ) {
       // Should this happen on the nextTick?
       var queueAction= this._queue.shift()
-      this.dispatch(queueAction[0], queueAction[1])
+      this.dispatch( queueAction[0], queueAction[1])
     }
 
     return this

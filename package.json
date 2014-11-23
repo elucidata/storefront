@@ -19,6 +19,7 @@
   },
   "scripts": {
     "build": "jsx --harmony --no-cache-dir src/ lib/",
+    "watch": "jsx -w --harmony --no-cache-dir src/ lib/",
     "dist": "NODE_ENV=production browserify index.js -o dist/storefront.js --standalone Storefront",
     "minify": "cat dist/storefront.js | uglifyjs -m -c > dist/storefront.min.js",
     "inc-major": "mversion major",

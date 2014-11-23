@@ -11,6 +11,7 @@ OK, not really. _Actually_, after playing with Flux there are a few things I got
 - No `switch` blocks of doom.
 - No keeping a constants file.
 - No need for consumers to require several files to work with a single store: Flux should be an implementation detail, consumers should be able to deal with a Store like a plain object.
+- The term 'Action Creator' is weird and too verbose.
 
 Not to be overly negative, there are excellent parts of Flux that are kept:
 

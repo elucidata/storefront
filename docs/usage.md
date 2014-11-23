@@ -129,7 +129,7 @@ Storefront.Facade( 'Auth')
 In your top-level view controller you can listen for an aggregate change event from Storefront like this:
 
 _main/routes.jsx_
-```javascript
+``` javascript
 var Storefront= require( 'storefront'),
     React= require( 'react/addons'),
     {Route}= require( 'react-router')

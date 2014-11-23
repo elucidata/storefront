@@ -1,28 +1,44 @@
 var Runtime= require( './runtime'),
+    alias= require( './alias'),
     runtime= new Runtime()
 
 // Runtime API
 module.exports= {
 
-  Store( name, builder) {
+  define( name, builder) {
+    return runtime.defineComposite( name, builder)
+  },
+
+  defineStore( name, builder) {
     return runtime.defineStore( name, builder)
   },
 
-  Clerk( name, builder) {
+  defineClerk( name, builder) {
     return runtime.defineClerk( name, builder)
   },
 
-  Facade( name, builder) {
-    return runtime.defineFacade( name, builder)
+  get( name) {
+    return runtime.getInstance( name)
+  },
+
+  configure( settings) {
+    runtime.configure( settings)
+    return this
   },
 
   onChange( fn) {
     runtime.onAnyChange( fn)
+    return this
   },
 
   offChange( fn) {
     runtime.offAnyChange( fn)
+    return this
   },
 
   _internals: runtime
 }
+
+
+alias( module.exports, 'defineStore', 'Store')
+alias( module.exports, 'defineClerk', 'Clerk')
