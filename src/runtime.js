@@ -29,7 +29,7 @@ class Runtime extends EventEmitter {
       asyncDispatch: true,
       freezeInstance: false,
       useRAF: false,
-      verbose: true
+      verbose: false
     }, settings || {})
   }
 
