@@ -6,6 +6,8 @@
 
 - [ ] Add support for renderAnimationFrame onChange batching.
 - [ ] Should instance property overriding be allowed? (Behind a flag?)
+- [ ] Stop using a singleton instance, instead use a different dispatcher for each Storefront stack (created with `newInstance()`).
+- [ ] Add `.dispose()` method to runtime.
 
 
 ## Ideas

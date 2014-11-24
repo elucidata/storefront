@@ -37,7 +37,8 @@ Storefront._internals.resetStore( "Auth")
 Another approach is to return methods to reset your state in debug/test mode. Something like:
 
 ```javascript
-module.exports= Storefront.define( 'Error', ( mgr)=>{
+module.exports=
+Storefront.define( 'Error', ( mgr)=>{
 
     var errors= []
 
@@ -72,7 +73,8 @@ module.exports= Storefront.define( 'Error', ( mgr)=>{
 Some stores may not provide any actions, but will adjust themselves based on other store actions.
 
 ```javascript
-module.exports= Storefront.define( 'Navigation', ( mgr)=>{
+module.exports=
+Storefront.define( 'Navigation', ( mgr)=>{
 
     var navItems= []
 

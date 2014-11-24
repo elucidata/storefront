@@ -61,7 +61,6 @@ module.exports= class Manager {
           boundDispatch= this.dispatch.bind( this, eventName)
 
       fn.displayName= eventName
-      // boundDispatch.send= this.dispatch.bind( this)
 
       this._instance[ actionName]= fn.bind( this._instance, boundDispatch)
     })
