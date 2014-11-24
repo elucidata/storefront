@@ -4,15 +4,17 @@ var Runtime= require( './lib/runtime')
 module.exports= Runtime.newInstance()
 
 },{"./lib/runtime":10}],2:[function(require,module,exports){
+// Creates alias methods. Auto-binds all to target.
 module.exports=
 function alias(/* target, prop, ...aliases */) {
   var aliases= Array.prototype.slice.call(arguments),
       target= aliases.shift(),
       prop= aliases.shift(),
-      item= target[ prop]
+      item= target[ prop].bind( target)
   aliases.forEach(function( alias){
     target[ alias]= item
   })
+  target[ prop]= item
 }
 
 },{}],3:[function(require,module,exports){
@@ -416,7 +418,7 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
       asyncDispatch: true,
       freezeInstance: false,
       useRAF: false,
-      verbose: true
+      verbose: false
     }, settings || {})
   };
 
