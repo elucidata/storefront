@@ -14,8 +14,9 @@ OK, not really. _Actually_, after working with Flux in a couple of small project
 - It should provide a top-level aggregated 'change' event.
 - The term 'Action Creators' is rather clumsy and too verbose.
 
-Not to be overly negative, there are excellent parts of Flux that are kept:
+Not to seem negative, there are excellent parts of Flux that I wanted to be sure to keep:
 
+- General flow.
 - Singleton Dispatcher.
 - Sequenceable dispatching.
 - Synchronicity of dispatching and store updates.
