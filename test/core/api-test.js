@@ -104,7 +104,7 @@ test( 'Storefront.defineStore( name, fn) ...', function( t){
 
 test( 'Storefront.get( name) ...', function( t){
 
-  t.plan( 9)
+  t.plan( 10)
 
   t.ok( Storefront.get, 'exists.')
 
@@ -138,6 +138,10 @@ test( 'Storefront.get( name) ...', function( t){
   )
 
   instance.setData( 'new data')
+
+  Storefront.onChange(function(){
+    t.pass('Global onChange called')
+  })
 
   // This works because dipatching happens on nextTick()
   instance.onChange(function(){

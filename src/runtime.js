@@ -167,6 +167,7 @@ class Runtime extends EventEmitter {
     if(! manager) {
       manager= new Manager( this, name, instance)
       this.managers[ name]= manager
+      this._trackChangeFor( name)
     }
 
     if( kind.isFunction( builder)) {

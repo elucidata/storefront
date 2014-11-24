@@ -554,6 +554,7 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
     if(! manager) {
       manager= new Manager( this, name, instance)
       this.managers[ name]= manager
+      this.$Runtime_trackChangeFor( name)
     }
 
     if( kind.isFunction( builder)) {
