@@ -60,6 +60,8 @@ test( 'Storefront.defineStore( name, fn) ...', function( t){
     t.ok( mgr.observes, 'storeManager.observes exists.')
     t.ok( mgr.actions, 'storeManager.actions exists.')
 
+    // console.log( Object.keys( mgr.constructor.prototype))
+
     mgr.handles({
       setData: function( action) {
         data= action.payload.data

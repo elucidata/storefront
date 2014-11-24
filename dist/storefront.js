@@ -3,21 +3,36 @@ var Runtime= require( './lib/runtime')
 
 module.exports= Runtime.newInstance()
 
-},{"./lib/runtime":10}],2:[function(require,module,exports){
-// Creates alias methods. Auto-binds all to target.
+},{"./lib/runtime":11}],2:[function(require,module,exports){
 module.exports=
 function alias(/* target, prop, ...aliases */) {
-  var aliases= Array.prototype.slice.call(arguments),
+  var aliases= Array.prototype.slice.call( arguments),
       target= aliases.shift(),
       prop= aliases.shift(),
-      item= target[ prop].bind( target)
+      item= target[ prop] //.bind( target)
   aliases.forEach(function( alias){
     target[ alias]= item
   })
-  target[ prop]= item
+  // target[ prop]= item
 }
 
 },{}],3:[function(require,module,exports){
+var kind= require( 'elucidata-type')
+
+module.exports=
+function bindAll(/* target, ...props */) {
+  var props= Array.prototype.slice.call( arguments),
+      target= props.shift()
+  props.forEach(function( key){
+    var prop= target[ key]
+    if( prop && kind.isFunction( prop)) {
+      target[ key]= prop.bind( target)
+    }
+  })
+  return target
+}
+
+},{"elucidata-type":15}],4:[function(require,module,exports){
 module.exports=
 function camelize( string) {
   return string.replace( /(?:^|[-_])(\w)/g, function( _, c) {
@@ -25,7 +40,7 @@ function camelize( string) {
   })
 }
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 var uid= require('./uid'),
     now= require('./now')
 
@@ -142,7 +157,7 @@ var singleton_instance= null
 
 module.exports= Dispatcher
 
-},{"./now":9,"./uid":11}],5:[function(require,module,exports){
+},{"./now":10,"./uid":12}],6:[function(require,module,exports){
 var camelize= require( './camelize')
 
 module.exports=
@@ -188,17 +203,18 @@ function eventHelperMixin( runtime) {
   }
 }
 
-},{"./camelize":3}],6:[function(require,module,exports){
+},{"./camelize":4}],7:[function(require,module,exports){
 module.exports=
 function flatten( arrays) {
   var merged= []
   return merged.concat.apply( merged, arrays)
 }
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 (function (process){
 var merge= require( './merge'),
     alias= require( './alias'),
+    bindAll= require( './bind-all'),
     camelize= require( './camelize'),
     kind= require( 'elucidata-type')
 
@@ -215,6 +231,11 @@ module.exports= (function(){
 
     this.expose( this.$Manager_notifyEvent.public)
     this.expose( this.$Manager_changeEvent.public)
+
+    bindAll( this,
+      'dispatch', 'notify', 'action', 'handle', 'waitFor',
+      'hasChanged', 'expose', 'getClerk', 'getStore', 'createEvent'
+    )
 
     alias( this, 'action', 'actions')
     alias( this, 'handle', 'handles', 'observe', 'observes')
@@ -349,7 +370,7 @@ module.exports= (function(){
 return Manager;})()
 
 }).call(this,require('_process'))
-},{"./alias":2,"./camelize":3,"./merge":8,"_process":13,"elucidata-type":14}],8:[function(require,module,exports){
+},{"./alias":2,"./bind-all":3,"./camelize":4,"./merge":9,"_process":14,"elucidata-type":15}],9:[function(require,module,exports){
 module.exports=
 function merge(/* target, ...sources */) {
   var sources= Array.prototype.slice.call( arguments),
@@ -366,7 +387,7 @@ function merge(/* target, ...sources */) {
   return target
 }
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 
 /* global performance */
 var now= (function(){
@@ -385,7 +406,7 @@ var now= (function(){
 
 module.exports= now
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 (function (process){
 var Dispatcher= require( './dispatcher'),
     EventEmitter= require( 'events').EventEmitter,
@@ -628,7 +649,7 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
 module.exports= Runtime
 
 }).call(this,require('_process'))
-},{"./alias":2,"./camelize":3,"./dispatcher":4,"./event-helper-mixin":5,"./flatten":6,"./manager":7,"./merge":8,"./uid":11,"_process":13,"elucidata-type":14,"events":12}],11:[function(require,module,exports){
+},{"./alias":2,"./camelize":4,"./dispatcher":5,"./event-helper-mixin":6,"./flatten":7,"./manager":8,"./merge":9,"./uid":12,"_process":14,"elucidata-type":15,"events":13}],12:[function(require,module,exports){
 var lastId = 0
 
 function uid ( radix){
@@ -646,7 +667,7 @@ function uid ( radix){
 
 module.exports= uid
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -949,7 +970,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -1037,7 +1058,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 (function() {
   var name, type, _elementTestRe, _fn, _i, _keys, _len, _ref, _typeList;
 

@@ -1,5 +1,6 @@
 var merge= require( './merge'),
     alias= require( './alias'),
+    bindAll= require( './bind-all'),
     camelize= require( './camelize'),
     kind= require( 'elucidata-type')
 
@@ -16,6 +17,11 @@ module.exports= class Manager {
 
     this.expose( this._notifyEvent.public)
     this.expose( this._changeEvent.public)
+
+    bindAll( this,
+      'dispatch', 'notify', 'action', 'handle', 'waitFor',
+      'hasChanged', 'expose', 'getClerk', 'getStore', 'createEvent'
+    )
 
     alias( this, 'action', 'actions')
     alias( this, 'handle', 'handles', 'observe', 'observes')
