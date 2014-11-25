@@ -20,7 +20,7 @@ test(".newInstance()", function(is){
   // Make sure old store and new store dispatchers are separate:
 
   Storefront.define('Dupes', function(mgr){
-    mgr.handles({
+    mgr.actions({
       runIt: function( action) {
         is.fail('Storefront dupes called.')
       }
@@ -28,7 +28,7 @@ test(".newInstance()", function(is){
   })
 
   var store= NSF.define('Dupes', function(mgr){
-    mgr.handles({
+    mgr.actions({
       runIt: function( action) {
         is.pass('NEW Storefront dupes called.')
       }

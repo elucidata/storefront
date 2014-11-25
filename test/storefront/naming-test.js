@@ -6,18 +6,10 @@ test("Storefront (inline) store auto-naming...", function(is){
   var store= Storefront.define(function( mgr){
 
     mgr.actions({
-      test: function(d){
-        d({})
-      }
+      test: function( action){}
     })
 
-    mgr.handles({
-      test: function(a) {
-
-      }
-    })
-
-    mgr.provides({
+    mgr.outlets({
       isTest: true
     })
 
@@ -42,10 +34,8 @@ test("Storefront (inline) store auto-naming...", function(is){
 test("Storefront automatic action generation...", function(is){
 
   var store= Storefront.define(function( mgr){
-    mgr.handles({
-      test: function(a) {
-
-      }
+    mgr.actions({
+      test: function(a) {}
     })
   })
 
@@ -60,6 +50,37 @@ test("Storefront automatic action generation...", function(is){
   )
 
   is.end()
+
+  // console.log( store)
+})
+
+
+test("Storefront before action...", function(is){
+
+  is.plan( 3)
+
+  var store= Storefront.define(function( mgr){
+    mgr.actions({
+      test: function(a) {
+        is.pass( 'Called action handler.')
+      }
+    })
+    mgr.before({
+      test: function(d){
+        is.pass( 'Called before handler.')
+        d()
+      }
+    })
+  })
+
+  is.ok(
+    store,
+    "created."
+  )
+
+  store.test()
+
+  // is.end()
 
   // console.log( store)
 })

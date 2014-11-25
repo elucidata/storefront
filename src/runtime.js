@@ -36,11 +36,11 @@ class Runtime extends EventEmitter {
       eventHelper: eventHelperMixin( this)
     }
 
-    // DEPRECATED: Remove in a future version...
-    alias( this, 'define', 'defineStore', 'Store', 'defineClerk', 'Clerk')
     alias( this, 'get', 'getInstance')
-    alias( this, 'onChange', 'onAnyChange')
-    alias( this, 'offChange', 'offAnyChange')
+    // DEPRECATED: Remove in a future version...
+    // alias( this, 'define', 'defineStore', 'Store', 'defineClerk', 'Clerk')
+    // alias( this, 'onChange', 'onAnyChange')
+    // alias( this, 'offChange', 'offAnyChange')
   }
 
   configure( settings) {
@@ -141,7 +141,7 @@ class Runtime extends EventEmitter {
         this._buildFactory( info.name, info.builder, false)
       })
 
-    return this.getInstance( name)
+    return this.get( name)
   }
 
   _buildFactory( name, builder, saveBuilder) {
@@ -185,7 +185,7 @@ class Runtime extends EventEmitter {
       this._builders.push({ name, builder, manager })
     }
 
-    return this.getInstance( name)
+    return this.get( name)
   }
 
   _trackChangeFor( name) {

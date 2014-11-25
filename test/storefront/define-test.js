@@ -5,25 +5,28 @@ test( 'Storefront.define( name, fn) ...', function( t){
   t.ok( Storefront.define, 'exists.')
 
   var instance= Storefront.define( 'Test', function( mgr){
-    t.ok( mgr.exposes, 'manager.exposes exists.')
-    t.ok( mgr.handles, 'manager.handles exists.')
-    t.ok( mgr.provides, 'manager.provides exists.')
+    t.ok( mgr.before, 'manager.before exists.')
+    t.ok( mgr.actions, 'manager.actions exists.')
+    t.ok( mgr.outlets, 'manager.outlets exists.')
     t.ok( mgr.observes, 'manager.observes exists.')
     t.ok( mgr.actions, 'manager.actions exists.')
     t.ok( mgr.notify, 'manager.notify exists.')
     t.ok( mgr.hasChanged, 'manager.hasChanged exists.')
     t.ok( mgr.waitFor, 'manager.waitFor exists.')
+    t.ok( mgr.exposes, 'manager.exposes exists.')
 
     var data= 'RESULT'
 
-    mgr.handles({
+    mgr.actions({
+
       setData: function( action) {
         data= action.payload
         mgr.dataHasChanged()
       }
     })
 
-    mgr.provides({
+    mgr.outlets({
+
       getData: function() { return data }
     })
   })

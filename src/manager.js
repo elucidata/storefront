@@ -23,12 +23,14 @@ module.exports= class Manager {
       'hasChanged', 'expose', 'getClerk', 'getStore', 'createEvent'
     )
 
-    alias( this, 'action', 'actions')
+    alias( this, 'actions', 'action', 'observe', 'observes')
     alias( this, 'getStore', 'get')
-    alias( this, 'handle', 'handles', 'observe', 'observes')
-    alias( this, 'expose', 'exposes', 'provide', 'provides')
+    alias( this, 'expose', 'exposes', 'outlet', 'outlets')
     alias( this, 'createEvent', 'defineEvent')
     alias( this, 'hasChanged', 'dataDidChange', 'dataHasChanged')
+
+    // alias( this, 'handle', 'handles', 'observe', 'observes')
+    // alias( this, 'expose', 'exposes', 'provide', 'provides')
 
     if( instance.token == null) {  // jshint ignore:line
       instance.token= runtime.dispatcher.register(( action)=>{
@@ -67,7 +69,8 @@ module.exports= class Manager {
     return this
   }
 
-  action( methods) {
+  before( methods) {
+    var actionDispatchers= {}
     Object.keys( methods).forEach(( actionName)=> {
       var eventName= this.name +'_'+ actionName,
           fn= methods[ actionName],
@@ -79,7 +82,7 @@ module.exports= class Manager {
     return this
   }
 
-  handle( store, methods) {
+  actions( store, methods) {
     if( arguments.length === 1) {
       methods= store
       store= this.name
@@ -106,8 +109,7 @@ module.exports= class Manager {
             dispatch( args)
           }
         }
-        stub[ actionName]._isStub= true
-        this.action( stub)
+        this.before( stub)
       }
     })
     return this
@@ -135,6 +137,7 @@ module.exports= class Manager {
     Object.keys( methods).forEach(( methodName)=>{
       if( this._instance.hasOwnProperty( methodName)) {
         var method= this._instance[ methodName]
+
         if(! method._isStub) {
           var error= new Error( "Redefining property "+ methodName +" on store "+ this.name)
           error.framesToPop= 3
