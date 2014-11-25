@@ -55,10 +55,16 @@ module.exports= class Manager {
         callback
       )
     }
+    return this
+  }
+
+  invoke( cmd, ...params) {
+    return this._instance[ cmd].apply( this._instance, params)
   }
 
   notify( message) {
     this._notifyEvent.emit( message)
+    return this
   }
 
   action( methods) {
@@ -70,6 +76,7 @@ module.exports= class Manager {
       fn.displayName= eventName
       this._instance[ actionName]= fn.bind( this._instance, boundDispatch)
     })
+    return this
   }
 
   handle( store, methods) {
@@ -102,6 +109,7 @@ module.exports= class Manager {
         this.action( stub)
       }
     })
+    return this
   }
 
   waitFor( ...stores) {
@@ -114,10 +122,12 @@ module.exports= class Manager {
       }
     })
     this.runtime.dispatcher.waitFor( stores)
+    return this
   }
 
   hasChanged() {
     this._changeEvent.emitFlat( arguments)
+    return this
   }
 
   expose( methods) {
@@ -129,6 +139,7 @@ module.exports= class Manager {
       }
       this._instance[ methodName]= methods[ methodName]
     })
+    return this
   }
 
   getClerk() {
