@@ -2,6 +2,26 @@
 
 > This document is for me to flesh out my thoughts on current or future features in Storefront. You're welcome to read (and comment) but it may only make to sense me.
 
+
+
+
+
+
+
+<!-- toc -->
+
+* [To-Do](#to-do)
+* [Ideas](#ideas)
+  * [Validation Custom Events](#validation-custom-events)
+  * [Alternate Names](#alternate-names)
+  * [ES6 Classes?](#es6-classes)
+  * [Pass all stores down from top of React component structure?](#pass-all-stores-down-from-top-of-react-component-structure)
+
+<!-- toc stop -->
+
+
+
+
 ## To-Do
 
 - [ ] Add `.dispose()` method to runtime.
@@ -9,7 +29,7 @@
 
 ## Ideas
 
-> Validation Events
+### Validation Custom Events
 
 Use custom events for validation error messages?
 
@@ -101,7 +121,122 @@ React.createClass({
 
 ---
 
-> Pass all stores down from top of React component structure?
+### Alternate Names
+
+> `inlets`/`outlets` vs `handles`/`provides`?
+
+```javascript
+Storefront.define( 'Timer', (mgr)=>{
+    var {inlets, outlets, dataDidChange}= mgr
+
+    var _timer= false
+
+    // user/consumer calls these methods to trigger data changes/actions
+    inlets({
+        // alias of .handles()
+        start( action) {
+            _timer= true
+            dataDidChange()
+        },
+        stop( action) {
+            _timer= false
+            dataDidChange()
+        }
+    })
+
+    // user/consumer calls these methods to retreive/query data
+    outlets({
+        // alias of .provides()
+        isRunning() {
+            return _timer
+        }
+    })
+})
+```
+_Meh_. How about:
+
+---
+
+> `actions` instead of `handles`, `before` instead of `actions`?
+
+```javascript
+Storefront.define( "Timer", ( mgr)=> {
+    var {actions, before, outlets, dataHasChanged}= mgr
+
+    before({
+        stop( dispatch) {
+            // Only dispatch 'stop' if the timer is running.
+            if( _timer) {
+                dispatch()
+            }
+        }
+    })
+
+    actions({
+        start( action) {
+            _timer= true
+            dataHasChanged()
+        },
+        stop( action) {
+            _timer= false
+            dataHasChanged()
+        }
+    })
+
+    outlets({
+        isRunning() {
+            return _timer
+        }
+    })
+})
+```
+
+Hmmm... I kinda like that.
+
+---
+
+### ES6 Classes?
+
+```javascript
+
+var manager;
+
+var _state= Store.initialState()
+
+class Actions {
+    add( dispatch, title) {
+        dispatch({ title })
+    }
+}
+
+class Store {
+
+    add( action) {
+        _state.posts.push( action.payload)
+        manager.dataHasChanged()
+    }
+
+    static initialState() {
+        return {
+            posts: []
+        }
+    }
+}
+
+Storefront.define( "Posts", (mgr)=> {
+    manager= mgr
+
+    actions( new Actions)
+    handles( new Store)
+})
+
+```
+
+Why bother?
+
+---
+
+### Pass all stores down from top of React component structure?
 
 ```javascript
 
@@ -115,81 +250,17 @@ var stores= {
 function renderApp() {
     React.render(
         <Routes>
-            <Route name="root" path="/" {...stores} handler={...}>
-                <Route name="login" {...stores} handler={...}/>
-            </Route>
+        <Route name="root" path="/" {...stores} handler={...}>
+        <Route name="login" {...stores} handler={...}/>
+        </Route>
         </Routes>,
         document.body
     )
 }
 
 Storefront.
-    configure({ useRAF:true }).
-    onChange( renderApp)
+configure({ useRAF:true }).
+onChange( renderApp)
 
 renderApp()
-```
-
-What is gained by this?
-
----
-
-> Auto-generate actions?
-
-Can/should we auto-generate actions? I think actions are good for handling async calls before dispatching... But for simple actions it's just boilerplate. And boilerplate should be generated, if possible!
-
-What might this look like?
-
-When/how would the generation occur? As multiple `define` calls actually merge Store definitions, they are never really closed. As such, when would Storefront know when an action was 'missing?'
-
-Perhaps it auto-stubs the action as soon as the `handles` function is called, if the action is missing. It would have to be marked as 'overwritable' so actions won't throw an Error if the instance prop already exists.
-
-Simple CRUD pattern:
-
-```javascript
-Storefront.define( 'User', ( mgr)=> {
-
-    var _users= []
-
-    inlets({ // handles/actions in one
-        add( action) {
-            if(! isValid( action.payload)) return
-            _users.push( action.payload)
-            mgr.hasChanged()
-        },
-        remove( action) {
-            var len= _users.length
-            _users= _users.
-                filter((u)=> u.id !== action.payload.id)
-            if( len !== _users.length)
-                mgr.hasChanged()
-        },
-        update( action) {
-            _users= _users.
-                filter((u)=> u.id === action.payload.id).
-                forEach((u)=>{
-                    merge(u, action.payload)
-                    mgr.hasChanged()
-                })
-        }
-    })
-
-    outlets({ // provides
-        all() {
-            return _users
-        },
-        get( id) {
-            return _users.
-                filter(( u)=> u.id === id)[ 0]
-        }
-    })
-
-    // Could still listen to other stores...
-    observes( 'Auth', {
-        logout( action) {
-            _users= []
-            mgr.hasChanged()
-        }
-    })
-})
 ```

@@ -39,20 +39,17 @@ Another approach is to return methods to reset your state in debug/test mode. So
 ```javascript
 module.exports=
 Storefront.define( 'Error', ( mgr)=>{
+    var {handles, provides}= mgr
 
     var errors= []
 
-    mgr.actions({
-        report( dispatch, error) { dispatch({ error }) }
-    })
-
-    mgr.handles({
+    handles({
         report( action) {
             errors.push( action.payload.error)
         }
     })
 
-    mgr.provides({
+    provides({
         getErrors() { return errors }
     })
 
