@@ -18,6 +18,8 @@ Weighing in at ~5kB, **Storefront** is a simple flux implementation that support
 - [API](docs/api.md)
 - [Usage Example](docs/usage.md)
 
+Example project on GitHub: [github.com/elucidata/storefront-example](https://github.com/elucidata/storefront-example)
+
 
 ## Quick Start
 
@@ -159,7 +161,41 @@ var AuthStore= Storefront.define( 'Auth', (mgr)=>{
 
 ```
 
+---
 
+For simple actions where we're just forwarding parameters to the dispatcher, we can omit the `actions` block entirely, Storefront will automatically create an action stub for us:
+
+```javascript
+Storefront.define( 'Timer', ( mgr)=>{
+    var {handles, dataHasChanged}= mgr
+
+    var _timer= {
+        active: false,
+        started: null
+    }
+
+    handles({
+        start( action) {
+            _timer.active= true
+            _timer.started= +new Date
+            dataHasChanged()
+        },
+
+        stop( action) {
+            _timer.active= false
+            _timer.started= 0
+            dataHasChanged()
+        }
+    })
+
+    provides({
+        duration() {
+            var now = +new Date
+            return now - _timer.started
+        }
+    })
+})
+```
 
 
 ## ES5 vs ES6 Styles...

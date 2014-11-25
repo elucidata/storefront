@@ -155,6 +155,44 @@ Stop listening for notifications:
 store.offNotify( fn )
 ```
 
+### Action Stubbing
+
+For simple actions where you're just forwarding parameters to the dispatcher, you can omit the `actions` block entirely, Storefront will automatically create an action stub:
+
+```javascript
+Storefront.define( 'Timer', ( mgr)=>{
+    var {handles, dataHasChanged}= mgr
+
+    var _timer= {
+        active: false,
+        started: null
+    }
+
+    // Just define the 'handlers' and the actions will be auto-stubbed
+    handles({
+        start( action) {
+            _timer.active= true
+            _timer.started= +new Date
+            dataHasChanged()
+        },
+
+        stop( action) {
+            _timer.active= false
+            _timer.started= 0
+            dataHasChanged()
+        }
+    })
+
+    provides({
+        duration() {
+            var now = +new Date
+            return now - _timer.started
+        }
+    })
+})
+```
+
+
 ## Custom Events
 
 You can define custom events in your store by calling `storeManager.createEvent( name )`. Once defined, store instances have onXXX and offXXX methods (where XXX is the event name). Example:

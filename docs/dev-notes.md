@@ -4,9 +4,6 @@
 
 ## To-Do
 
-- [ ] Add support for renderAnimationFrame onChange batching.
-- [ ] Should instance property overriding be allowed? (Behind a flag?)
-- [ ] Stop using a singleton instance, instead use a different dispatcher for each Storefront stack (created with `newInstance()`).
 - [ ] Add `.dispose()` method to runtime.
 
 
@@ -106,14 +103,13 @@ React.createClass({
 
 > Pass all stores down from top of React component structure?
 
-
 ```javascript
 
 var stores= {
-    auth: require( 'stores/auth'),
-    users: require( 'stores/users'),
-    projects: require( 'stores/projects'),
-    tasks: require( 'stores/tasks'),
+    authStore: require( 'stores/auth'),
+    userStore: require( 'stores/users'),
+    projectStore: require( 'stores/projects'),
+    taskStore: require( 'stores/tasks'),
 }
 
 function renderApp() {
@@ -127,7 +123,10 @@ function renderApp() {
     )
 }
 
-Storefront.onChange( renderApp)
+Storefront.
+    configure({ useRAF:true }).
+    onChange( renderApp)
+
 renderApp()
 ```
 
@@ -140,30 +139,6 @@ What is gained by this?
 Can/should we auto-generate actions? I think actions are good for handling async calls before dispatching... But for simple actions it's just boilerplate. And boilerplate should be generated, if possible!
 
 What might this look like?
-
-```javascript
-Storefront.define( 'Auth', (mgr)=> {
-
-    actions({
-        login( dispatch, username, password) {
-            // Call api then...
-            dispatch({ user })
-        }
-    })
-
-    handles({
-        login( action) {
-            // From actions block above...
-        },
-
-        logout( action) {
-            // This would auto-generate an action for logout. The Gen'd code
-            // would look like:
-            // logout(dispatch) { dispatch( Array.prototype.slice.call(arguments, 1)) }
-        }
-    })
-})
-```
 
 When/how would the generation occur? As multiple `define` calls actually merge Store definitions, they are never really closed. As such, when would Storefront know when an action was 'missing?'
 

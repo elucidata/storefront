@@ -52,6 +52,7 @@ class Runtime extends EventEmitter {
       verbose: false,
       singletonDispatcher: false
     }, settings || {})
+    return this
   }
 
   newInstance() {
@@ -109,10 +110,12 @@ class Runtime extends EventEmitter {
 
   onChange( fn) {
     this._anyChangeEvent.public.onAnyChange( fn)
+    return this
   }
 
   offChange( fn) {
     this._anyChangeEvent.public.offAnyChange( fn)
+    return this
   }
 
   size() {

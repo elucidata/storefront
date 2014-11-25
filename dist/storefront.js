@@ -530,6 +530,7 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
       verbose: false,
       singletonDispatcher: false
     }, settings || {})
+    return this
   };
 
   Runtime.prototype.newInstance=function() {"use strict";
@@ -587,10 +588,12 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
 
   Runtime.prototype.onChange=function(fn) {"use strict";
     this.$Runtime_anyChangeEvent.public.onAnyChange( fn)
+    return this
   };
 
   Runtime.prototype.offChange=function(fn) {"use strict";
     this.$Runtime_anyChangeEvent.public.offAnyChange( fn)
+    return this
   };
 
   Runtime.prototype.size=function() {"use strict";
