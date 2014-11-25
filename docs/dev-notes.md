@@ -7,7 +7,6 @@
 * [To-Do](#to-do)
 * [Ideas](#ideas)
   * [Validation Custom Events](#validation-custom-events)
-  * [Alternate Names](#alternate-names)
   * [ES6 Classes?](#es6-classes)
   * [Pass all stores down from top of React component structure?](#pass-all-stores-down-from-top-of-react-component-structure)
 
@@ -111,80 +110,6 @@ React.createClass({
     }
 })
 ```
-
----
-
-### Alternate Names
-
-> `inlets`/`outlets` vs `handles`/`provides`?
-
-```javascript
-Storefront.define( 'Timer', (mgr)=>{
-    var {inlets, outlets, dataDidChange}= mgr
-
-    var _timer= false
-
-    // user/consumer calls these methods to trigger data changes/actions
-    inlets({
-        // alias of .handles()
-        start( action) {
-            _timer= true
-            dataDidChange()
-        },
-        stop( action) {
-            _timer= false
-            dataDidChange()
-        }
-    })
-
-    // user/consumer calls these methods to retreive/query data
-    outlets({
-        // alias of .provides()
-        isRunning() {
-            return _timer
-        }
-    })
-})
-```
-_Meh_. How about:
-
----
-
-> `actions` instead of `handles`, `before` instead of `actions`?
-
-```javascript
-Storefront.define( "Timer", ( mgr)=> {
-    var {actions, before, outlets, dataHasChanged}= mgr
-
-    before({
-        stop( dispatch) {
-            // Only dispatch 'stop' if the timer is running.
-            if( _timer) {
-                dispatch()
-            }
-        }
-    })
-
-    actions({
-        start( action) {
-            _timer= true
-            dataHasChanged()
-        },
-        stop( action) {
-            _timer= false
-            dataHasChanged()
-        }
-    })
-
-    outlets({
-        isRunning() {
-            return _timer
-        }
-    })
-})
-```
-
-Hmmm... I kinda like that.
 
 ---
 
