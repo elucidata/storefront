@@ -2,15 +2,9 @@
 
 Weighing in at ~5kB, **Storefront** is a simple flux implementation that supports all the primary elements of [Facebook's flux pattern](https://facebook.github.io/flux/). Here are the main differences:
 
-- Metaphors are slightly different.
 - No separate constants file to manage event names.
-- Makes the dispatcher an internal detail that consumers don't worry about. (No dispatcherToken[^1])
+- Makes the dispatcher an internal detail that consumers don't worry about. (No dispatcherToken<sup>1</sup>)
 - Encapsulates all the Flux details within the store module, exposing only operational methods (queries and actions).
-
-**Storefront Metaphors**
-
-- **Clerks** are responsible for dispatching actions and handling any async (api) operations before sending to the dispatcher.
-- **Stores** handle the clerk actions, manage and provide access to the internal data structure(s), and send notifications when said data has changed.
 
 
 ## Docs
@@ -37,165 +31,100 @@ Or straight from **github**:
 
 ## Overview
 
-For an idea how it all works, here's a skeleton authentication Storefront.
+For an idea of how it all works, here's a skeleton authentication Storefront:
 
-Starting with the Clerk, let's rough out what actions are available to operate on the AuthStore:
-
-_stores/auth/auth-clerk.js_ [^2]
+_stores/auth.js_
 ```javascript
 var Storefront= require( 'storefront')
 
 module.exports=
-Storefront.defineClerk( 'Auth', ( mgr)=>{
+Storefront.define( 'Auth', ( manager)=>{
+    // Destructuring for prettier code. :-)
+    var {actions, outlets, dataHasChanged}= manager
 
-    mgr.actions({
+    // Internal state.
+    var _loggedIn= false
 
-        login( dispatch, username, password) {
-            // Impl not shown here, see docs/usage.md
-        },
-
-        logout( dispatch) {
-            // Under the covers it's dispatching the event: "Auth_logout"
-            dispatch({})
-        }
-    })
-})
-```
-
-So the method names we chose (`login` and `logout`) become the _actions_ that the Store will handle. You'll notice that each action defines an initial param of `dispatch`, this is a function provided by Storefront that's autobound to the appropriate action name so that you don't have to deal with some extraneous constants file. See [docs/api.md](./docs/api.md) for more.
-
-Let's setup the Store to handle those actions, and while we're there, we'll add some methods that other Stores and Views can query:
-
-_stores/auth/auth-store.js_
-```javascript
-var Storefront= require( 'storefront')
-
-module.exports=
-Storefront.defineStore( 'Auth', ( mgr)=>{
-
-    mgr.handles({
+    // The following actions, login/logout, will have
+    // 'creators' automatically generated for us.
+    actions({
 
         login( action) {
-            // This is called when "Auth_login" is dispatched
+            if( authenticate( action.payload)) {
+                _loggedIn= true
+            }
+            else {
+                _loggedIn= false
+            }
+            // notify listeners that the internal state has changed
+            dataHasChanged()
         },
 
         logout( action) {
-            // This is called when "Auth_logout" is dispatched
+            _loggedIn= false
+            dataHasChanged()
         }
     })
 
-    mgr.provides({
+    // Methods for querying state are defined as 'outlets'
+    outlets({
 
-        isAuthenticated() {
-        },
-
-        currentUser() {
+        isLoggedIn() {
+            return _loggedIn
         }
     })
 })
-```
-
-I like to leverage a CommonJS module pattern for loading stores, so I'll add this:
-
-_stores/auth/index.js_
-```javascript
-var Storefront= require( 'storefront'),
-    // Make sure we load the Clerk and Store
-    require( './auth-clerk'),
-    require( './auth-store')
-
-module.exports= Storefront.get( 'Auth')
 ```
 
 At its simplest, that's it.
 
-> For the full example code with a demonstration of how I prefer to handle input validation in Storefront (spoilers: Promises), how to `waitFor` other stores, and more see [docs/usage.md](./docs/usage.md)
+> For the full example code with a demonstration of how to handle input validation in Storefront (Promises or Events), how to `waitFor` other stores, and more see [docs/usage.md](./docs/usage.md)
 
-We can now consume a Storefront like this:
+You can now use the store as a simple object:
 
-_views/some-view.jsx_
 ```javascript
-// All the Flux infrastructure is encapsulated and hidden within
-// the store itself, the facade becomes your single reference
-// point for the AuthStore
-var authStore= require( 'stores/auth')
+// get by name or require( 'stores/auth'), whichever you prefer.
+var authStore= Storefront.get( 'Auth')
 
-// Then query some data...
-
-if( authStore.isAuthenticated() ) {
-    var user= authStore.currentUser()
-}
-
-// Or trigger an action...
-
-actionLoginClick( e) {
-    authStore.login()
+if(! authStore.isLoggedIn()) {
+    authStore.login('username', 'password')
 }
 ```
 
----
-
-We don't have to use separate files for the clerk/store/index... We can do it all in one pass too:
+So the method names we chose in the `actions` block (`login` and `logout`) will have so-called "Action Creator" functions automatically created using the same name. But you can write your own dispatching function by defining it in a `before` block like this:
 
 ```javascript
-var Storefront= require( 'storefront')
+Storefront.define( 'Auth', ( mgr)=> {
+    // Destructuring for prettier code. :-)
+    var {actions, outlets, before, dataHasChanged}= manager
 
-var AuthStore= Storefront.define( 'Auth', (mgr)=>{
+    // 'actions' block from above goes here...
 
-    mgr.actions({
-        login( dispatch, username, password) { },
-        logout( dispatch) {}
-    })
+    before({
 
-    mgr.handles({
-        login( action) {},
-        logout( action) {}
-    })
+        // If we need to do something async, it's better to do it here,
+        // before it's been dispatched...
+        login( dispatch, username, password) {
+            myApi.authenticate( username, passord)
+                .then(( user)=>{
+                    // The 'dispatch' param is a function that's
+                    // pre-bound to the correct action event name,
+                    // you just call it with your payload:
+                    dispatch( user)
+                })
+                .catch(( err)=>{
+                    // Maybe you have a central api error store?
+                    manager.getStore( 'Errors').report( err)
+                })
 
-    mgr.provides({
-        isAuthenticated() {},
-        currentUser() {}
-    })
-
-})
-
-```
-
----
-
-For simple actions where we're just forwarding parameters to the dispatcher, we can omit the `actions` block entirely, Storefront will automatically create an action stub for us:
-
-```javascript
-Storefront.define( 'Timer', ( mgr)=>{
-    var {handles, dataHasChanged}= mgr
-
-    var _timer= {
-        active: false,
-        started: null
-    }
-
-    handles({
-        start( action) {
-            _timer.active= true
-            _timer.started= +new Date
-            dataHasChanged()
-        },
-
-        stop( action) {
-            _timer.active= false
-            _timer.started= 0
-            dataHasChanged()
         }
     })
 
-    provides({
-        duration() {
-            var now = +new Date
-            return now - _timer.started
-        }
-    })
+    // rest of code from above goes here...
 })
 ```
+
+See [docs/api.md](./docs/api.md) for more.
 
 
 ## ES5 vs ES6 Styles...
@@ -203,19 +132,15 @@ Storefront.define( 'Timer', ( mgr)=>{
 I use ES6 syntax in all my javascript files for consistency, but it's not required to use Storefront, just change the method calls to the more old-school style:
 
 ```javascript
-Storefront.defineClerk( 'Project', function( mgr){
+Storefront.define( 'Project', function( mgr){
     mgr.actions({
-        addProject: function( dispatch, projectData) {
-            // Validate projectData...
-            dispatch({ data:projectData })
+        addProject: function( action) {
+            // ...
         }
     })
 })
 ```
 
-[^1]: OK, technically there _is_ a dispatcher token, but it's internalized in such a way that you'll never need to use it.
-
-[^2]: You don't have to use this naming/folder structure, it's just my preferences.
 
 ## License
 
@@ -240,3 +165,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+1. OK, technically there _is_ a dispatcher token, but it's internalized in such a way that you'll never need to use it.

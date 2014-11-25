@@ -289,12 +289,14 @@ module.exports= (function(){
       'hasChanged', 'expose', 'getClerk', 'getStore', 'createEvent'
     )
 
-    alias( this, 'action', 'actions')
+    alias( this, 'actions', 'action', 'observe', 'observes')
     alias( this, 'getStore', 'get')
-    alias( this, 'handle', 'handles', 'observe', 'observes')
-    alias( this, 'expose', 'exposes', 'provide', 'provides')
+    alias( this, 'expose', 'exposes', 'outlet', 'outlets')
     alias( this, 'createEvent', 'defineEvent')
     alias( this, 'hasChanged', 'dataDidChange', 'dataHasChanged')
+
+    // alias( this, 'handle', 'handles', 'observe', 'observes')
+    // alias( this, 'expose', 'exposes', 'provide', 'provides')
 
     if( instance.token == null) {  // jshint ignore:line
       instance.token= runtime.dispatcher.register(function( action){
@@ -333,7 +335,8 @@ module.exports= (function(){
     return this
   };
 
-  Manager.prototype.action=function(methods) {"use strict";
+  Manager.prototype.before=function(methods) {"use strict";
+    var actionDispatchers= {}
     Object.keys( methods).forEach(function( actionName) {
       var eventName= this.name +'_'+ actionName,
           fn= methods[ actionName],
@@ -345,7 +348,7 @@ module.exports= (function(){
     return this
   };
 
-  Manager.prototype.handle=function(store, methods) {"use strict";
+  Manager.prototype.actions=function(store, methods) {"use strict";
     if( arguments.length === 1) {
       methods= store
       store= this.name
@@ -372,8 +375,7 @@ module.exports= (function(){
             dispatch( args)
           }
         }
-        stub[ actionName].$Manager_isStub= true
-        this.action( stub)
+        this.before( stub)
       }
     }.bind(this))
     return this
@@ -401,6 +403,7 @@ module.exports= (function(){
     Object.keys( methods).forEach(function( methodName){
       if( this.$Manager_instance.hasOwnProperty( methodName)) {
         var method= this.$Manager_instance[ methodName]
+
         if(! method.$Manager_isStub) {
           var error= new Error( "Redefining property "+ methodName +" on store "+ this.name)
           error.framesToPop= 3
@@ -529,11 +532,11 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
       eventHelper: eventHelperMixin( this)
     }
 
-    // DEPRECATED: Remove in a future version...
-    alias( this, 'define', 'defineStore', 'Store', 'defineClerk', 'Clerk')
     alias( this, 'get', 'getInstance')
-    alias( this, 'onChange', 'onAnyChange')
-    alias( this, 'offChange', 'offAnyChange')
+    // DEPRECATED: Remove in a future version...
+    // alias( this, 'define', 'defineStore', 'Store', 'defineClerk', 'Clerk')
+    // alias( this, 'onChange', 'onAnyChange')
+    // alias( this, 'offChange', 'offAnyChange')
   }
 
   Runtime.prototype.configure=function(settings) {"use strict";
@@ -634,7 +637,7 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
         this.$Runtime_buildFactory( info.name, info.builder, false)
       }.bind(this))
 
-    return this.getInstance( name)
+    return this.get( name)
   };
 
   Runtime.prototype.$Runtime_buildFactory=function(name, builder, saveBuilder) {"use strict";
@@ -678,7 +681,7 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
       this.$Runtime_builders.push({ name:name, builder:builder, manager:manager })
     }
 
-    return this.getInstance( name)
+    return this.get( name)
   };
 
   Runtime.prototype.$Runtime_trackChangeFor=function(name) {"use strict";
