@@ -4,33 +4,36 @@
 
 * [Getting the Storefront object...](#getting-the-storefront-object)
 * [Storefront Static API](#storefront-static-api)
-  * [`Storefront.configure( settings:object )`](#storefrontconfigure-settingsobject)
-  * [`Storefront.define( name:string, builder:function )`](#storefrontdefine-namestring-builderfunction)
-  * [`Storefront.get( name:string )`](#storefrontget-namestring)
-  * [`Storefront.onChange( fn:function )`](#storefrontonchange-fnfunction)
-  * [`Storefront.offChange( fn:function )`](#storefrontoffchange-fnfunction)
-  * [`Storefront.newInstance()`](#storefrontnewinstance)
+    * [`Storefront.configure( settings:object )`](#storefrontconfigure-settingsobject)
+    * [`Storefront.define( name:string, builder:function )`](#storefrontdefine-namestring-builderfunction)
+    * [`Storefront.get( name:string )`](#storefrontget-namestring)
+    * [`Storefront.onChange( fn:function )`](#storefrontonchange-fnfunction)
+    * [`Storefront.offChange( fn:function )`](#storefrontoffchange-fnfunction)
+    * [`Storefront.newInstance()`](#storefrontnewinstance)
 * [Storefront Manager API](#storefront-manager-api)
-  * [`manager.actions( methods:object )`](#manageractions-methodsobject)
-  * [`manager.before( methods:object )`](#managerbefore-methodsobject)
-  * [`manager.createEvent( name:string )`](#managercreateevent-namestring)
-  * [`manager.get( name:string )`](#managerget-namestring)
-  * [`manager.hasChanged()`](#managerhaschanged)
-  * [`manager.invoke( outletOrAction:string|object, ...params:any[] )`](#managerinvoke-outletoractionstringobject-paramsany)
-  * [`manager.notify( data:any )`](#managernotify-dataany)
-  * [`manager.observes( storeOrName:string|object, methods:object )`](#managerobserves-storeornamestringobject-methodsobject)
-  * [`manager.outlets( methods:object )`](#manageroutlets-methodsobject)
-  * [`manager.waitFor( storeOrName )`](#managerwaitfor-storeorname)
+    * [`manager.actions( methods:object )`](#manageractions-methodsobject)
+    * [`manager.before( methods:object )`](#managerbefore-methodsobject)
+    * [`manager.createEvent( name:string )`](#managercreateevent-namestring)
+    * [`manager.get( name:string )`](#managerget-namestring)
+    * [`manager.hasChanged()`](#managerhaschanged)
+    * [`manager.invoke( outletOrAction:string|object, ...params:any[] )`](#managerinvoke-outletoractionstringobject-paramsany)
+    * [`manager.notify( data:any )`](#managernotify-dataany)
+    * [`manager.observes( storeOrName:string|object, methods:object )`](#managerobserves-storeornamestringobject-methodsobject)
+    * [`manager.outlets( methods:object )`](#manageroutlets-methodsobject)
+    * [`manager.waitFor( storeOrName:string|object )`](#managerwaitfor-storeornamestringobject)
 * [Storefront Instance API](#storefront-instance-api)
-  * [`store.onChange( fn:function )`](#storeonchange-fnfunction)
-  * [`store.offChange( fn:function )`](#storeoffchange-fnfunction)
-  * [`store.onNotify( fn:function )`](#storeonnotify-fnfunction)
-  * [`store.offNotify( fn:function )`](#storeoffnotify-fnfunction)
+    * [`store.name:string`](#storenamestring)
+    * [`store.onChange( fn:function )`](#storeonchange-fnfunction)
+    * [`store.offChange( fn:function )`](#storeoffchange-fnfunction)
+    * [`store.onNotify( fn:function )`](#storeonnotify-fnfunction)
+    * [`store.offNotify( fn:function )`](#storeoffnotify-fnfunction)
+    * [`store.token:string`](#storetokenstring)
   * [Action Stubbing](#action-stubbing)
 * [Custom Events](#custom-events)
   * [Event Helper Mixin](#event-helper-mixin)
 
 <!-- toc stop -->
+
 
 
 ## Getting the Storefront object...
@@ -48,7 +51,7 @@ In theory, **Require.js** and/or **AMD** modules are supported as well -- But th
 
 ## Storefront Static API
 
-### `Storefront.configure( settings:object )`
+#### `Storefront.configure( settings:object )`
 
 Settings object:
 
@@ -62,7 +65,7 @@ name|default|description
 
 ---
 
-### `Storefront.define( name:string, builder:function )`
+#### `Storefront.define( name:string, builder:function )`
 
 Defines a store:
 
@@ -131,25 +134,25 @@ Storefront.define( 'StoreName', ( manager)=>{
 
 ---
 
-### `Storefront.get( name:string )`
+#### `Storefront.get( name:string )`
 
-Retrieves a defined storefront.
+Retrieves a defined store.
 
 ---
 
-### `Storefront.onChange( fn:function )`
+#### `Storefront.onChange( fn:function )`
 
 Storefront aggregates all defined stores' onChange events into a single top-level change event. By default, it will use requestAnimationFrame to schedule event delivery.
 
 ---
 
-### `Storefront.offChange( fn:function )`
+#### `Storefront.offChange( fn:function )`
 
 Stops listening to aggregated change event.
 
 ---
 
-### `Storefront.newInstance()`
+#### `Storefront.newInstance()`
 
 Returns a new Runtime (_Storefront_ instance) configured with the same settings, but none of the store definitions.
 
@@ -161,7 +164,7 @@ The store builder function will be called with an instance of a Manager. This is
 
 ---
 
-### `manager.actions( methods:object )`
+#### `manager.actions( methods:object )`
 
 Define actions that this store will handle. "Action Creators" are automatically created and look like this:
 
@@ -178,55 +181,55 @@ stubbed_action_creator= ()=> {
 
 ---
 
-### `manager.before( methods:object )`
+#### `manager.before( methods:object )`
 
 Define custom "Action Creators."
 
 ---
 
-### `manager.createEvent( name:string )`
+#### `manager.createEvent( name:string )`
 
 Create a custom store event. See [Custom Events](#custom-events), below.
 
 ---
 
-### `manager.get( name:string )`
+#### `manager.get( name:string )`
 
 Returns a store instance by name.
 
 ---
 
-### `manager.hasChanged()`
+#### `manager.hasChanged()`
 
 Trigger an onChange event. You need to call this whenever your store's internal data structures have changed.
 
 ---
 
-### `manager.invoke( outletOrAction:string|object, ...params:any[] )`
+#### `manager.invoke( outletOrAction:string|object, ...params:any[] )`
 
 Call an outlet or action method on the store instance.
 
 ---
 
-### `manager.notify( data:any )`
+#### `manager.notify( data:any )`
 
 Trigger a Notify event.
 
 ---
 
-### `manager.observes( storeOrName:string|object, methods:object )`
+#### `manager.observes( storeOrName:string|object, methods:object )`
 
 Listen for actions on other stores.
 
 ---
 
-### `manager.outlets( methods:object )`
+#### `manager.outlets( methods:object )`
 
 Properties specified are created on the store instance.
 
 ---
 
-### `manager.waitFor( storeOrName:string|object )`
+#### `manager.waitFor( storeOrName:string|object )`
 
 Sequences dispatching so that the store specified will have handled the action before this method returns.
 
@@ -235,35 +238,48 @@ Sequences dispatching so that the store specified will have handled the action b
 
 ## Storefront Instance API
 
-In addition to the methods provided by Stores, and action defined by Clerks, storefront instances also have these properties defined:
+In addition to the outlets and actions defined in stores, storefront instances also have these properties defined:
 
 ```javascript
+// Get a store instance by name...
 var store= Storefront.get( "StoreName")
 ```
 
 ---
 
-### `store.onChange( fn:function )`
+#### `store.name:string`
+
+The name of the store.
+
+---
+
+#### `store.onChange( fn:function )`
 
 Listen for changes on store instance. Not batched.
 
 ---
 
-### `store.offChange( fn:function )`
+#### `store.offChange( fn:function )`
 
 Stop listening for changes.
 
 ---
 
-### `store.onNotify( fn:function )`
+#### `store.onNotify( fn:function )`
 
 Listen for notifications.
 
 ---
 
-### `store.offNotify( fn:function )`
+#### `store.offNotify( fn:function )`
 
 Stop listening for notifications.
+
+---
+
+#### `store.token:string`
+
+The token used by the Dispatcher. Primarily for internal use.
 
 ---
 
