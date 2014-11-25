@@ -1,7 +1,7 @@
 var test= require( 'tape'),
     merge= require( '../../lib/merge')
 
-test( 'Merge...', function( t){
+test( 'lib/merge.js: Merge...', function( t){
   var target= { a:'A' },
       source= { b:'B' }
 

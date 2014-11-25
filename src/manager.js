@@ -106,6 +106,7 @@ module.exports= class Manager {
             dispatch( args)
           }
         }
+        stub[ actionName]._isStub= true
         this.action( stub)
       }
     })
@@ -133,9 +134,12 @@ module.exports= class Manager {
   expose( methods) {
     Object.keys( methods).forEach(( methodName)=>{
       if( this._instance.hasOwnProperty( methodName)) {
-        var error= new Error( "Redefining property "+ methodName +" on store "+ this.name)
-        error.framesToPop= 3
-        throw error
+        var method= this._instance[ methodName]
+        if(! method._isStub) {
+          var error= new Error( "Redefining property "+ methodName +" on store "+ this.name)
+          error.framesToPop= 3
+          throw error
+        }
       }
       this._instance[ methodName]= methods[ methodName]
     })

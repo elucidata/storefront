@@ -1,7 +1,7 @@
 var test= require( 'tape'),
     uid= require( '../../lib/uid')
 
-test( 'UID...', function( t){
+test( 'lib/uid.js: UID...', function( t){
 
   t.equal( typeof uid(), 'string', 'creates string id.')
 

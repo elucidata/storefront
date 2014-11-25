@@ -372,6 +372,7 @@ module.exports= (function(){
             dispatch( args)
           }
         }
+        stub[ actionName].$Manager_isStub= true
         this.action( stub)
       }
     }.bind(this))
@@ -399,9 +400,12 @@ module.exports= (function(){
   Manager.prototype.expose=function(methods) {"use strict";
     Object.keys( methods).forEach(function( methodName){
       if( this.$Manager_instance.hasOwnProperty( methodName)) {
-        var error= new Error( "Redefining property "+ methodName +" on store "+ this.name)
-        error.framesToPop= 3
-        throw error
+        var method= this.$Manager_instance[ methodName]
+        if(! method.$Manager_isStub) {
+          var error= new Error( "Redefining property "+ methodName +" on store "+ this.name)
+          error.framesToPop= 3
+          throw error
+        }
       }
       this.$Manager_instance[ methodName]= methods[ methodName]
     }.bind(this))
