@@ -7,7 +7,6 @@ test('Storefront core API...', function( t){
 
   t.ok( Storefront.get, 'get() is available.')
   t.ok( Storefront.configure, 'configure() is available.')
-  t.ok( Storefront._internals, '_internals are available.')
   t.ok( Storefront.onChange, 'onChange() is available.')
   t.ok( Storefront.offChange, 'offChange() is available.')
 
@@ -114,7 +113,7 @@ test( 'Storefront.get( name) ...', function( t){
 
   t.deepLooseEqual(
     instance,
-    Storefront._internals.getInstance( 'Test'),
+    Storefront.get( 'Test'),
     'returns instance from factory call.'
   )
 
@@ -156,7 +155,7 @@ test( 'Storefront.get( name) ...', function( t){
       'actions propagate correctly.'
     )
 
-    instance= Storefront._internals.recreateStore( 'Test')
+    instance= Storefront.recreateStore( 'Test')
 
     t.equal(
       instance.getData(),
@@ -216,6 +215,75 @@ test("Inline stores", function(is){
   )
 
   is.end()
+
+  // console.log( store)
+})
+
+
+test("Automatic action generation", function(is){
+
+  var store= Storefront.define(function( mgr){
+    mgr.handles({
+      test: function(a) {
+
+      }
+    })
+  })
+
+  is.ok(
+    store,
+    "created."
+  )
+
+  is.ok(
+    store.test,
+    "creates an action automatically."
+  )
+
+  is.end()
+
+  // console.log( store)
+})
+
+
+test(".newInstance()", function(is){
+
+  var NSF= Storefront.newInstance()
+
+  is.plan( 3)
+
+  is.ok(
+    NSF,
+    "created."
+  )
+
+  is.equal(
+    NSF.size(),
+    0,
+    "creates an empty runtime."
+  )
+
+  // Make sure old store and new store dispatchers are separate:
+
+  Storefront.define('Dupes', function(mgr){
+    mgr.handles({
+      runIt: function( action) {
+        is.fail('Storefront dupes called.')
+      }
+    })
+  })
+
+  var store= NSF.define('Dupes', function(mgr){
+    mgr.handles({
+      runIt: function( action) {
+        is.pass('NEW Storefront dupes called.')
+      }
+    })
+  })
+
+  store.runIt()
+
+  // is.end()
 
   // console.log( store)
 })

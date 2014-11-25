@@ -79,7 +79,7 @@ class Dispatcher {
       duration= now() - startTime
 
       if( duration > THRESHOLD ) {
-        window['console'].info('Dispatch of', action.type ,'took >', THRESHOLD, 'ms') // jshint ignore:line
+        global['console'].info('Dispatch of', action.type ,'took >', THRESHOLD, 'ms') // jshint ignore:line
       }
 
     }

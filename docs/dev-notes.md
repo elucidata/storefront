@@ -132,3 +132,89 @@ renderApp()
 ```
 
 What is gained by this?
+
+---
+
+> Auto-generate actions?
+
+Can/should we auto-generate actions? I think actions are good for handling async calls before dispatching... But for simple actions it's just boilerplate. And boilerplate should be generated, if possible!
+
+What might this look like?
+
+```javascript
+Storefront.define( 'Auth', (mgr)=> {
+
+    actions({
+        login( dispatch, username, password) {
+            // Call api then...
+            dispatch({ user })
+        }
+    })
+
+    handles({
+        login( action) {
+            // From actions block above...
+        },
+
+        logout( action) {
+            // This would auto-generate an action for logout. The Gen'd code
+            // would look like:
+            // logout(dispatch) { dispatch( Array.prototype.slice.call(arguments, 1)) }
+        }
+    })
+})
+```
+
+When/how would the generation occur? As multiple `define` calls actually merge Store definitions, they are never really closed. As such, when would Storefront know when an action was 'missing?'
+
+Perhaps it auto-stubs the action as soon as the `handles` function is called, if the action is missing. It would have to be marked as 'overwritable' so actions won't throw an Error if the instance prop already exists.
+
+Simple CRUD pattern:
+
+```javascript
+Storefront.define( 'User', ( mgr)=> {
+
+    var _users= []
+
+    inlets({ // handles/actions in one
+        add( action) {
+            if(! isValid( action.payload)) return
+            _users.push( action.payload)
+            mgr.hasChanged()
+        },
+        remove( action) {
+            var len= _users.length
+            _users= _users.
+                filter((u)=> u.id !== action.payload.id)
+            if( len !== _users.length)
+                mgr.hasChanged()
+        },
+        update( action) {
+            _users= _users.
+                filter((u)=> u.id === action.payload.id).
+                forEach((u)=>{
+                    merge(u, action.payload)
+                    mgr.hasChanged()
+                })
+        }
+    })
+
+    outlets({ // provides
+        all() {
+            return _users
+        },
+        get( id) {
+            return _users.
+                filter(( u)=> u.id === id)[ 0]
+        }
+    })
+
+    // Could still listen to other stores...
+    observes( 'Auth', {
+        logout( action) {
+            _users= []
+            mgr.hasChanged()
+        }
+    })
+})
+```

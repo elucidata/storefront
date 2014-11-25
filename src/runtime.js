@@ -6,21 +6,41 @@ var Dispatcher= require( './dispatcher'),
     merge= require( './merge'),
     flatten= require( './flatten'),
     uid= require( './uid'),
-    alias= require( './alias')
+    alias= require( './alias'),
+    bindAll= require( './bind-all'),
+    createEvent= require( './create-event'),
+    eventHelperMixin= require( './event-helper-mixin')
 
 class Runtime extends EventEmitter {
 
-  constructor() {
+  constructor(settings) {
     super()
-    this.dispatcher= Dispatcher.getInstance()
-    this.registry= {}
-    this.managers= {}
-    this.builders= []
-    this.events= {}
+    this.configure( settings)
+
+    this._registry= {}
+    this._managers= {}
+    this._builders= []
+    this._events= {}
     this._anyChangeEvent= this.createEvent('*', 'any-change')
     this._dataChanges= []
     this._timer= false
-    this.configure()
+
+    if( this.settings.singletonDispatcher) {
+      this.dispatcher= Dispatcher.getInstance()
+    }
+    else {
+      this.dispatcher= new Dispatcher()
+    }
+
+    this.mixins={
+      eventHelper: eventHelperMixin( this)
+    }
+
+    // DEPRECATED: Remove in a future version...
+    alias( this, 'define', 'defineStore', 'Store', 'defineClerk', 'Clerk')
+    alias( this, 'get', 'getInstance')
+    alias( this, 'onChange', 'onAnyChange')
+    alias( this, 'offChange', 'offAnyChange')
   }
 
   configure( settings) {
@@ -28,65 +48,31 @@ class Runtime extends EventEmitter {
     this.settings= merge({
       asyncDispatch: true,
       freezeInstance: false,
-      useRAF: false,
-      verbose: false
+      useRAF: true,
+      verbose: false,
+      singletonDispatcher: false
     }, settings || {})
   }
 
+  newInstance() {
+    return new Runtime( this.settings)
+  }
+
   createEvent( storeName, eventName) {
-    var event_key= storeName +':'+ eventName,
-        helpers= {},
-        api= null
+    var event= createEvent( storeName, eventName, this)
 
-    if( api= this.events[ event_key]) {  // jshint ignore:line
-      // TODO: Should a recycled event check some flag somewhere to know if it show clear out the listener queue?
-      return api
+    if(! this._events[ event.name]) {
+      this._events[ event.name]= event
     }
 
-    api= {
-
-      public: {},
-
-      emit: ()=> {
-        var params= Array.prototype.slice.call( arguments)
-        params.unshift( event_key)
-        process.nextTick(()=>{
-          this.emit.apply( this, params)
-        })
-      },
-
-      emitNow: ()=> {
-        var params= Array.prototype.slice.call( arguments)
-        params.unshift( event_key)
-        this.emit.apply( this, params)
-      },
-
-      emitFlat: ()=> {
-        var params= flatten( [ event_key].concat( Array.prototype.slice.call( arguments)))
-        process.nextTick(()=>{
-          this.emit.apply( this, params)
-        })
-      }
-    }
-
-    api.public[ 'on'+ camelize( eventName)]= ( fn)=> {
-      this.on( event_key, fn)
-    }
-
-    api.public[ 'off'+ camelize( eventName)]= ( fn)=> {
-      this.removeListener( event_key, fn)
-    }
-
-    this.events[ event_key]= api
-
-    return api
+    return this._events[ event.name]
   }
 
   knownEvents() {
-    return Object.keys( this.events)
+    return Object.keys( this._events)
   }
 
-  defineStore( name, builder) {
+  define( name, builder) {
     if( kind.isUndefined( builder) ) { //arguments.length === 1) {
       builder= name
       name= uid()
@@ -94,8 +80,8 @@ class Runtime extends EventEmitter {
     return this._buildFactory( name, builder)
   }
 
-  getInstance( name, stubMissing) {
-    var instance= this.registry[ name]
+  get( name, stubMissing) {
+    var instance= this._registry[ name]
 
     if( !instance) {
       if( this.settings.verbose)  {
@@ -106,31 +92,35 @@ class Runtime extends EventEmitter {
           console.info( "Building stub for ", name)
         }
         instance= { name }
-        this.registry[ name]= instance
+        this._registry[ name]= instance
       }
     }
-    // else {
-    //   // Increase safety a bit? -- don't wanna freeze it, per se.
-    //   instance= Object.create( instance)
-    // }
 
     return instance
   }
 
   getManager( name) {
-    return this.managers[ name]
+    return this._managers[ name]
   }
 
   hasStore( name) {
-    return this.registry.hasOwnProperty( name)
+    return this._registry.hasOwnProperty( name)
   }
 
-  onAnyChange( fn) {
+  onChange( fn) {
     this._anyChangeEvent.public.onAnyChange( fn)
   }
 
-  offAnyChange( fn) {
+  offChange( fn) {
     this._anyChangeEvent.public.offAnyChange( fn)
+  }
+
+  size() {
+    return this.storeNames().length
+  }
+
+  storeNames() {
+    return Object.keys( this._registry)
   }
 
   recreateStore( name) {
@@ -140,7 +130,7 @@ class Runtime extends EventEmitter {
       manager.resetInternals()
     }
 
-    this.builders
+    this._builders
       .filter(( def)=>{
         return def.name === name
       })
@@ -152,8 +142,8 @@ class Runtime extends EventEmitter {
   }
 
   _buildFactory( name, builder, saveBuilder) {
-    var instance= this.registry[ name],
-        manager= this.managers[ name],
+    var instance= this._registry[ name],
+        manager= this._managers[ name],
         returnValue
 
     if( instance && this.settings.verbose) {
@@ -162,11 +152,11 @@ class Runtime extends EventEmitter {
 
     if(! instance) {
       instance= { name }
-      this.registry[ name]= instance
+      this._registry[ name]= instance
     }
     if(! manager) {
       manager= new Manager( this, name, instance)
-      this.managers[ name]= manager
+      this._managers[ name]= manager
       this._trackChangeFor( name)
     }
 
@@ -189,7 +179,7 @@ class Runtime extends EventEmitter {
     }
 
     if( saveBuilder !== false) {
-      this.builders.push({ name, builder, manager })
+      this._builders.push({ name, builder, manager })
     }
 
     return this.getInstance( name)
@@ -201,7 +191,7 @@ class Runtime extends EventEmitter {
       this._dataChanges.push({ type:eventName, params:Array.prototype.slice.call(arguments)})
 
       if(! this._timer) {
-        if( this.settings.useRAF && window.requestAnimationFrame) {
+        if( this.settings.useRAF && global.requestAnimationFrame) {
           requestAnimationFrame( this._relayDataChanges.bind( this))
         }
         else {
@@ -220,24 +210,6 @@ class Runtime extends EventEmitter {
     this._timer= false
   }
 
-  static newInstance() {
-    var runtime= new Runtime()
-    var api= {
-      define: runtime.defineStore.bind( runtime),
-      get: runtime.getInstance.bind( runtime),
-      configure: runtime.configure.bind( runtime),
-      onChange: runtime.onAnyChange.bind( runtime),
-      offChange: runtime.offAnyChange.bind( runtime),
-      mixins: {
-        eventHelper: require( './event-helper-mixin')( runtime)
-      },
-      newInstance: Runtime.newInstance,
-      '_internals': runtime
-    }
-    // DEPRECATED: Remove in a future version...
-    alias( api, 'define', 'defineStore', 'Store', 'defineClerk', 'Clerk')
-    return api
-  }
 }
 
 // Runtime API

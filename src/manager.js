@@ -24,6 +24,7 @@ module.exports= class Manager {
     )
 
     alias( this, 'action', 'actions')
+    alias( this, 'getStore', 'get')
     alias( this, 'handle', 'handles', 'observe', 'observes')
     alias( this, 'expose', 'exposes', 'provide', 'provides')
     alias( this, 'createEvent', 'defineEvent')
@@ -67,7 +68,6 @@ module.exports= class Manager {
           boundDispatch= this.dispatch.bind( this, eventName)
 
       fn.displayName= eventName
-
       this._instance[ actionName]= fn.bind( this._instance, boundDispatch)
     })
   }
@@ -84,14 +84,30 @@ module.exports= class Manager {
     Object.keys( methods).forEach(( actionName)=>{
       var eventName= store +'_'+ actionName,
           fn= methods[ actionName]
-      this._handlers[ eventName]= fn //.bind(handlers)
+      this._handlers[ eventName]= fn //.bind(this._instance)
+
+      if( store == this.name && !this._instance[ actionName]) {
+        // Stub out an action...
+        var stub= {}
+        stub[ actionName]= ()=> {
+          var args= Array.prototype.slice.call( arguments),
+              dispatch= args.shift()
+          if( args.length === 1) {
+            dispatch( args[ 0])
+          }
+          else {
+            dispatch( args)
+          }
+        }
+        this.action( stub)
+      }
     })
   }
 
   waitFor( ...stores) {
     stores= stores.map(( store)=> {
       if( kind.isString( store)) {
-        return this.runtime.getInstance( store)
+        return this.runtime.get( store)
       }
       else {
         return store
@@ -121,7 +137,7 @@ module.exports= class Manager {
 
   getStore( storeName) {
     if( storeName ) {
-      return this.runtime.getInstance( storeName, true )
+      return this.runtime.get( storeName, true )
     }
     else {
       return this._instance
