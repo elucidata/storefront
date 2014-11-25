@@ -2,12 +2,6 @@
 
 > This document is for me to flesh out my thoughts on current or future features in Storefront. You're welcome to read (and comment) but it may only make to sense me.
 
-
-
-
-
-
-
 <!-- toc -->
 
 * [To-Do](#to-do)
@@ -20,11 +14,10 @@
 <!-- toc stop -->
 
 
-
-
 ## To-Do
 
 - [ ] Add `.dispose()` method to runtime.
+- [ ] Add `.version` to runtime.
 
 
 ## Ideas

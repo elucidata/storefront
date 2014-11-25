@@ -19,8 +19,8 @@ module.exports= class Manager {
     this.expose( this._changeEvent.public)
 
     bindAll( this,
-      'dispatch', 'notify', 'action', 'handle', 'waitFor',
-      'hasChanged', 'expose', 'getClerk', 'getStore', 'createEvent'
+      'dispatch', 'notify', 'actions', 'waitFor', 'hasChanged', 'before',
+      'expose', 'getClerk', 'getStore', 'createEvent', 'invoke'
     )
 
     alias( this, 'actions', 'action', 'observe', 'observes')
