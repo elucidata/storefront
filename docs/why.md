@@ -12,18 +12,22 @@ OK, not really. _Actually_, after working with Flux in a couple of small project
 - No keeping a constants file.
 - No need for consumers to require several files to work with a single store: Flux should be an implementation detail, consumers should be able to deal with a Store like a plain object.
 - It should provide a top-level aggregated 'change' event.
-- The term 'Action Creators' is rather clumsy and too verbose.
+- It should generate as much boilerplate code as it can.
+- Also, the term 'Action Creators' is rather clumsy and too verbose.
 
 Not to seem negative, there are excellent parts of Flux that I wanted to be sure to keep:
 
 - General flow.
-- Singleton Dispatcher.
+- ~~Singleton Dispatcher~~ Shared dispatcher per Runtime instance.
 - Sequenceable dispatching.
 - Synchronicity of dispatching and store updates.
 
-Originally, I really wanted to use ES6 classes for Stores. But I found that closures are nicer from a private-data perspective (internal state is truly hidden from consumers), _and_ from a ease-of-use perspective (code is cleaner looking).
+Originally, I wanted to use ES6 classes for Stores. But it turns out that closures are nicer from a private-data perspective (internal state is truly hidden from consumers), _and_ from a ease-of-use perspective (code is cleaner looking).
 
-So I wound up with **Storefront**. Terminology-wise, instead of '_Action Creators_' you have '_Clerks_.' '_Stores_' are, well, '_Stores_.' The Dispatcher is hidden under the covers. And there are no constants files.
+So I wound up with **Storefront**.
+
+Terminology-wise, instead of _Action Creators_, _Action Events_ (usually in a constants files somewhere), _Actions_, _Dispatcher_, and _Stores_, you have _Stores_ that define _Actions_ and _Outlets_. The other things are all there, in one form or another, under the covers.
+
 
 **Example Store**
 
@@ -32,27 +36,21 @@ Here's a tiny store to illustrate how to use Storefront:
 ```javascript
 var selectionStore= Storefront.define( 'Selection', ( mgr)=> {
     // mgr contains all the methods required to define your store.
-    mgr.actions({
-        select( dispatch, item) {
-            // the dispatch param is provided by Storefront. In this case,
-            // it's auto-bound to dispatch the event "Selection_select"
-            dispatch{{ item }}
-        }
-    })
+    var {actions, outlets, dataHasChanged}= mgr
 
     // Internal State
     var _selectedItem= null
 
     // Handle the actions
-    mgr.handles({
+    actions({
         select( action) {
             _selectedItem= action.payload.item
-            mgr.dataHasChanged()
+            dataHasChanged()
         }
     })
 
     // Provide some data access methods to consumers
-    mgr.provides({
+    outlets({
         getSelectedItem() {
             return _selectedItem
         },

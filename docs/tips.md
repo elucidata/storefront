@@ -27,29 +27,29 @@ _Note:_ If you're defining the clerk and store separately (`defineClerk` & `defi
 
 ## Testing
 
-If you need to reset a store, you can reach into `Storefront._internals` to do that.
+If you need to reset a store, you can reach call `Storefront.resetStore` to do that.
 
 ```javascript
 // Re-runs the builder function.
-Storefront._internals.resetStore( "Auth")
+Storefront.resetStore( "Auth")
 ```
 
-Another approach is to return methods to reset your state in debug/test mode. Something like:
+Another, perhaps better, approach is to return methods to reset your state in debug/test mode. Something like:
 
 ```javascript
 module.exports=
 Storefront.define( 'Error', ( mgr)=>{
-    var {handles, provides}= mgr
+    var {actions, outlets}= mgr
 
     var errors= []
 
-    handles({
+    actions({
         report( action) {
             errors.push( action.payload.error)
         }
     })
 
-    provides({
+    outlets({
         getErrors() { return errors }
     })
 
@@ -75,7 +75,7 @@ Storefront.define( 'Navigation', ( mgr)=>{
 
     var navItems= []
 
-    mgr.provides({
+    mgr.outlets({
         getNavItems() {
             return navItems
         }
@@ -88,6 +88,7 @@ Storefront.define( 'Navigation', ( mgr)=>{
             mgr.waitFor( auth)
 
             // Now you can adjust .navItems then
+
             mgr.hasChanged()
         }
     })

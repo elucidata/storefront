@@ -1,6 +1,39 @@
 # Storefront
 
-Getting the Storefront object...
+<!-- toc -->
+
+* [Getting the Storefront object...](#getting-the-storefront-object)
+* [Storefront Static API](#storefront-static-api)
+  * [`Storefront.configure( settings:object )`](#storefrontconfigure-settingsobject)
+  * [`Storefront.define( name:string, builder:function )`](#storefrontdefine-namestring-builderfunction)
+  * [`Storefront.get( name:string )`](#storefrontget-namestring)
+  * [`Storefront.onChange( fn:function )`](#storefrontonchange-fnfunction)
+  * [`Storefront.offChange( fn:function )`](#storefrontoffchange-fnfunction)
+  * [`Storefront.newInstance()`](#storefrontnewinstance)
+* [Storefront Manager API](#storefront-manager-api)
+  * [`manager.actions( methods:object )`](#manageractions-methodsobject)
+  * [`manager.before( methods:object )`](#managerbefore-methodsobject)
+  * [`manager.createEvent( name:string )`](#managercreateevent-namestring)
+  * [`manager.get( name:string )`](#managerget-namestring)
+  * [`manager.hasChanged()`](#managerhaschanged)
+  * [`manager.invoke( outletOrAction:string|object, ...params:any[] )`](#managerinvoke-outletoractionstringobject-paramsany)
+  * [`manager.notify( data:any )`](#managernotify-dataany)
+  * [`manager.observes( storeOrName:string|object, methods:object )`](#managerobserves-storeornamestringobject-methodsobject)
+  * [`manager.outlets( methods:object )`](#manageroutlets-methodsobject)
+  * [`manager.waitFor( storeOrName )`](#managerwaitfor-storeorname)
+* [Storefront Instance API](#storefront-instance-api)
+  * [`store.onChange( fn:function )`](#storeonchange-fnfunction)
+  * [`store.offChange( fn:function )`](#storeoffchange-fnfunction)
+  * [`store.onNotify( fn:function )`](#storeonnotify-fnfunction)
+  * [`store.offNotify( fn:function )`](#storeoffnotify-fnfunction)
+  * [Action Stubbing](#action-stubbing)
+* [Custom Events](#custom-events)
+  * [Event Helper Mixin](#event-helper-mixin)
+
+<!-- toc stop -->
+
+
+## Getting the Storefront object...
 
 If you're using a **CommonJS** system (browserify/webpack):
 
@@ -13,16 +46,58 @@ If you are using **Bower**, `Storefront` is available as a global.
 In theory, **Require.js** and/or **AMD** modules are supported as well -- But they're completely untested.
 
 
-## API
+## Storefront Static API
 
-> `Storefront.defineClerk( name, builderFn )`
+### `Storefront.configure( settings:object )`
 
-Defines a clerk:
+Settings object:
+
+name|default|description
+---|---|---
+`asyncDispatch`| true | Defer dispatching from action creator to nextTick.
+`freezeInstance`| false | Use `Object.freeze` on instance after definition.
+`useRAF`| true | Batch all onChange events using requestAnimationFrame.
+`verbose`| false | Prints warnings to console.
+`singletonDispatcher`| false | Use a global dispatcher instead of a shared-runtime instance.
+
+---
+
+### `Storefront.define( name:string, builder:function )`
+
+Defines a store:
 
 ```javascript
-Storefront.defineClerk( 'StoreName', ( clerkMgr)=>{
+Storefront.define( 'StoreName', ( manager)=>{
+
     // Object keys sent to .actions() become action names
-    manager.actions({
+    storeMgr.actions({
+        // Match the object key (method name) from the Clerk's actions block
+        actionName( action) {
+            // action === {
+            //     origin: 'StoreName',
+            //     type: 'StoreName_actionName',
+            //     payload: { params }
+            // }
+
+            // You can wait of other Store like this:
+            manager.waitFor( 'OtherStore')
+
+            // Or...
+            var otherStore= manager.getStore( 'OtherStore')
+            manager.waitFor( otherStore)
+
+            // After you have changed your internal data
+            // structures, trigger change event
+            manager.hasChanged()
+
+            // If you want to send a notify event
+            manager.notify( 'A message.')
+        }
+    })
+
+
+    // Create your own "Action Creators"
+    manager.before({
 
         // Available on the storefront instance
         actionName( dispatch, params ) {
@@ -33,97 +108,132 @@ Storefront.defineClerk( 'StoreName', ( clerkMgr)=>{
             dispatch({ params })
         }
     })
-})
-```
 
-> `Storefront.defineStore( name, builderFn )`
-
-Defines a store:
-
-```javascript
-Storefront.defineStore( 'StoreName', ( storeMgr)=>{
-
-    // Handle actions defined by the Clerk
-    storeMgr.handles({
-        // Match the object key (method name) from the Clerk's actions block
-        actionName( action) {
-            // action === {
-            //     origin: 'StoreName',
-            //     type: 'StoreName_actionName',
-            //     payload: { params }
-            // }
-
-            // After you have changed your internal data
-            // structures, trigger change event
-            storeMgr.hasChanged()
-
-            // If you want to send a notify event
-            storeMgr.notify( 'A message.')
-        }
-    })
 
     // Provide data accessor methods for public consumption
-    storeMgr.provides({
+    manager.outlets({
         // Available on the storefront instance
         getSomething() {}
     })
 
     // Listen to actions from other other stores
-    storeMgr.observes( 'OtherStore', {
+    manager.observes( 'OtherStore', {
         // Match the action name/mthod of other store
         otherActionName( action) {
             // You can send the name of the store to wait for, or get
-            // an instance with: storeMgr.getStore( 'OtherStore')
-            storeMgr.waitFor( 'OtherStore')
+            // an instance with: manager.getStore( 'OtherStore')
+            manager.waitFor( 'OtherStore')
         }
     })
 
 })
 ```
 
-> `Storefront.define( name, builderFn )`
+---
 
-Defines an entire storefront in a single pass:
+### `Storefront.get( name:string )`
+
+Retrieves a defined storefront.
+
+---
+
+### `Storefront.onChange( fn:function )`
+
+Storefront aggregates all defined stores' onChange events into a single top-level change event. By default, it will use requestAnimationFrame to schedule event delivery.
+
+---
+
+### `Storefront.offChange( fn:function )`
+
+Stops listening to aggregated change event.
+
+---
+
+### `Storefront.newInstance()`
+
+Returns a new Runtime (_Storefront_ instance) configured with the same settings, but none of the store definitions.
+
+---
+
+## Storefront Manager API
+
+The store builder function will be called with an instance of a Manager. This is what you'll use to define your store's API (actions, outlets, observations, etc.).
+
+---
+
+### `manager.actions( methods:object )`
+
+Define actions that this store will handle. "Action Creators" are automatically created and look like this:
 
 ```javascript
-Storefront.define( 'StoreName', ( manager)=>{
-    // You have access to all the manager methods for Clerks and Stores:
-    manager.actions({})
-    manager.handles({})
-    manager.observes({})
-    manager.provides({})
-    manager.getStore(name)
-    manager.getClerk()
-    manager.hasChanged()
-    manager.notify(msg)
-    manager.createEvent() // See 'Custom Events' section below
-})
+stubbed_action_creator= ()=> {
+    var args= Array.prototype.slice.call( arguments),
+        dispatch= args.shift()
+    if( args.length === 1)
+        dispatch( args[ 0])
+    else
+        dispatch( args)
+}
 ```
 
-Retrieve a defined storefront:
+---
 
-```javascript
-Storefront.get( name )
-```
+### `manager.before( methods:object )`
 
-Storefront aggregates all defined stores' onChange events into a single top-level change event:
+Define custom "Action Creators."
 
-```javascript
-Storefront.onChange( fn )
-```
+---
 
-Stop listening to aggregated change event:
+### `manager.createEvent( name:string )`
 
-```javascript
-Storefront.offChange( fn )
-```
+Create a custom store event. See [Custom Events](#custom-events), below.
 
-Also:
+---
 
-- `Storefront.configure( settings:object )`
-- `Storefront._internals` Runtime instance.
+### `manager.get( name:string )`
 
-## Storefront Instances
+Returns a store instance by name.
+
+---
+
+### `manager.hasChanged()`
+
+Trigger an onChange event. You need to call this whenever your store's internal data structures have changed.
+
+---
+
+### `manager.invoke( outletOrAction:string|object, ...params:any[] )`
+
+Call an outlet or action method on the store instance.
+
+---
+
+### `manager.notify( data:any )`
+
+Trigger a Notify event.
+
+---
+
+### `manager.observes( storeOrName:string|object, methods:object )`
+
+Listen for actions on other stores.
+
+---
+
+### `manager.outlets( methods:object )`
+
+Properties specified are created on the store instance.
+
+---
+
+### `manager.waitFor( storeOrName:string|object )`
+
+Sequences dispatching so that the store specified will have handled the action before this method returns.
+
+
+---
+
+## Storefront Instance API
 
 In addition to the methods provided by Stores, and action defined by Clerks, storefront instances also have these properties defined:
 
@@ -131,45 +241,47 @@ In addition to the methods provided by Stores, and action defined by Clerks, sto
 var store= Storefront.get( "StoreName")
 ```
 
-Listen for changes:
+---
 
-```javascript
-store.onChange( fn )
-```
+### `store.onChange( fn:function )`
 
-Stop listening for changes:
+Listen for changes on store instance. Not batched.
 
-```javascript
-store.offChange( fn )
-```
+---
 
-Listen for notifications:
+### `store.offChange( fn:function )`
 
-```javascript
-store.onNotify( fn )
-```
+Stop listening for changes.
 
-Stop listening for notifications:
+---
 
-```javascript
-store.offNotify( fn )
-```
+### `store.onNotify( fn:function )`
+
+Listen for notifications.
+
+---
+
+### `store.offNotify( fn:function )`
+
+Stop listening for notifications.
+
+---
 
 ### Action Stubbing
 
-For simple actions where you're just forwarding parameters to the dispatcher, you can omit the `actions` block entirely, Storefront will automatically create an action stub:
+Storefront will automatically create an action stubs for every method defined in the `actions` block:
 
 ```javascript
 Storefront.define( 'Timer', ( mgr)=>{
-    var {handles, dataHasChanged}= mgr
+    var {actions, outlets, dataHasChanged}= mgr
 
     var _timer= {
         active: false,
         started: null
     }
 
-    // Just define the 'handlers' and the actions will be auto-stubbed
-    handles({
+    // Just define the 'actions' and the actions will be auto-stubbed
+    actions({
         start( action) {
             _timer.active= true
             _timer.started= +new Date
@@ -183,7 +295,7 @@ Storefront.define( 'Timer', ( mgr)=>{
         }
     })
 
-    provides({
+    outlets({
         duration() {
             var now = +new Date
             return now - _timer.started
@@ -192,6 +304,55 @@ Storefront.define( 'Timer', ( mgr)=>{
 })
 ```
 
+To implement your own "Action Creators," use the `before` block. It will be provided a `dispatch` function as the first argument. That function is pre-bound to trigger the correct action, so you just call it with your payload.
+
+This is the same Timer example store as above, only it intercepts the `start` action and only dispatches it if the timer isn't already running.
+
+```javascript
+Storefront.define( 'Timer', ( mgr)=>{
+    var {actions, outlets, dataHasChanged}= mgr
+
+    var _timer= {
+        active: false,
+        started: null
+    }
+
+    before({
+        start( dispatch) {
+            if( _timer.active === false) {
+                dispatch() // carry on
+            }
+            else {
+                console.log( "Timer already started!")
+                // dispatch isn't called!
+            }
+        }
+    })
+
+    actions({
+        start( action) {
+            _timer.active= true
+            _timer.started= +new Date
+            dataHasChanged()
+        },
+
+        stop( action) {
+            _timer.active= false
+            _timer.started= 0
+            dataHasChanged()
+        }
+    })
+
+    outlets({
+        duration() {
+            var now = +new Date
+            return now - _timer.started
+        }
+    })
+})
+```
+
+---
 
 ## Custom Events
 
@@ -210,6 +371,7 @@ store.onHotkey( fn )
 store.offHotkey( fn )
 ```
 
+---
 
 ### Event Helper Mixin
 
