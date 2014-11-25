@@ -201,7 +201,12 @@ class Runtime extends EventEmitter {
       this._dataChanges.push({ type:eventName, params:Array.prototype.slice.call(arguments)})
 
       if(! this._timer) {
-        process.nextTick( this._relayDataChanges.bind( this))
+        if( this.settings.useRAF && window.requestAnimationFrame) {
+          requestAnimationFrame( this._relayDataChanges.bind( this))
+        }
+        else {
+          process.nextTick( this._relayDataChanges.bind( this))
+        }
         this._timer= true
       }
     })

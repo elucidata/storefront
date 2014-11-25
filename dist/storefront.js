@@ -611,7 +611,12 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
       this.$Runtime_dataChanges.push({ type:eventName, params:Array.prototype.slice.call(arguments)})
 
       if(! this.$Runtime_timer) {
-        process.nextTick( this.$Runtime_relayDataChanges.bind( this))
+        if( this.settings.useRAF && window.requestAnimationFrame) {
+          requestAnimationFrame( this.$Runtime_relayDataChanges.bind( this))
+        }
+        else {
+          process.nextTick( this.$Runtime_relayDataChanges.bind( this))
+        }
         this.$Runtime_timer= true
       }
     }.bind(this))
