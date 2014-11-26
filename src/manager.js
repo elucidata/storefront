@@ -24,7 +24,7 @@ module.exports= class Manager {
     )
 
     alias( this, 'actions', 'action', 'observe', 'observes')
-    alias( this, 'getStore', 'get')
+    alias( this, 'get', 'getStore', 'getClerk')
     alias( this, 'expose', 'exposes', 'outlet', 'outlets')
     alias( this, 'createEvent', 'defineEvent')
     alias( this, 'hasChanged', 'dataDidChange', 'dataHasChanged')
@@ -149,11 +149,7 @@ module.exports= class Manager {
     return this
   }
 
-  getClerk() {
-    return this._instance
-  }
-
-  getStore( storeName) {
+  get( storeName) {
     if( storeName ) {
       return this.runtime.get( storeName, true )
     }
