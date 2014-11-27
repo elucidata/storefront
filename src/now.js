@@ -1,4 +1,3 @@
-
 /* global performance */
 var now= (()=>{
   if( typeof performance === 'object' && performance.now ) {

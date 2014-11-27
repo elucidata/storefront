@@ -10,11 +10,11 @@ function alias(/* target, prop, ...aliases */) {
   var aliases= Array.prototype.slice.call( arguments),
       target= aliases.shift(),
       prop= aliases.shift(),
-      item= target[ prop] //.bind( target)
+      item= target[ prop]
+
   aliases.forEach(function( alias){
     target[ alias]= item
   })
-  // target[ prop]= item
 }
 
 },{}],3:[function(require,module,exports){
@@ -24,20 +24,22 @@ module.exports=
 function bindAll(/* target, ...props */) {
   var props= Array.prototype.slice.call( arguments),
       target= props.shift()
+
   props.forEach(function( key){
     var prop= target[ key]
     if( prop && kind.isFunction( prop)) {
       target[ key]= prop.bind( target)
     }
   })
+
   return target
 }
 
 },{"elucidata-type":16}],4:[function(require,module,exports){
 module.exports=
 function camelize( string) {
-  return string.replace( /(?:^|[-_])(\w)/g, function( _, c) {
-    return c ? c.toUpperCase () : ''
+  return string.replace( /(?:^|[-_])(\w)/g, function( _, char) {
+    return char ? char.toUpperCase () : ''
   })
 }
 
@@ -92,121 +94,109 @@ function createEvent( baseName, eventName, emitter) {
 }).call(this,require('_process'))
 },{"./camelize":4,"./flatten":8,"_process":15}],6:[function(require,module,exports){
 (function (global){
-var uid= require('./uid'),
-    now= require('./now')
+var uid= require( './uid'),
+    now= require( './now')
 
-var THRESHOLD= 10 // In milliseconds
+var THRESHOLD= 10, // In milliseconds
+    _singleton_instance= null
 
-
+module.exports=
+(function(){
 
   function Dispatcher() {"use strict";
+    this.active= false
     this.$Dispatcher_handlers= {}
     this.$Dispatcher_processed= {}
     this.$Dispatcher_tokenList= []
     this.$Dispatcher_queue= []
-    this.active= false
   }
 
-  Dispatcher.prototype.$Dispatcher_destructor=function() {"use strict";
-    this.$Dispatcher_handlers= null
-    this.$Dispatcher_processed= null
-    this.$Dispatcher_tokenList= null
-    this.$Dispatcher_queue= null
-    this.active= false
-  };
-
-  Dispatcher.prototype.dispose=function() {"use strict";
-    this.$Dispatcher_destructor()
-  };
-
-  Dispatcher.prototype.register=function(handler, preferredToken)  {"use strict";
-    if( preferredToken && this.$Dispatcher_handlers.hasOwnProperty(preferredToken) ) {
+  Dispatcher.prototype.register=function(handler, preferredToken) {"use strict";
+    if( preferredToken && this.$Dispatcher_handlers.hasOwnProperty( preferredToken)) {
       preferredToken= uid()
     }
 
     var token = preferredToken || uid()
     this.$Dispatcher_handlers[token]= handler
-    this.$Dispatcher_tokenList= Object.keys( this.$Dispatcher_handlers )
+    this.$Dispatcher_tokenList= Object.keys( this.$Dispatcher_handlers)
     return token
   };
 
-  Dispatcher.prototype.deregister=function(token)  {"use strict";
+  Dispatcher.prototype.deregister=function(token) {"use strict";
     var handler;
-    if( handler= this.$Dispatcher_handlers[token] )  // jshint ignore:line
-        delete this.$Dispatcher_handlers[ token ]
+    if( handler= this.$Dispatcher_handlers[ token] )  // jshint ignore:line
+        delete this.$Dispatcher_handlers[ token]
     return handler
   };
 
-  Dispatcher.prototype.waitFor=function(tokens)  {"use strict";
-    if(! this.active ) return this
-    // Trigger each one
-    for (var i=0, l=tokens.length; i < l; i++) {
-      var token = tokens[ i ].token || tokens[ i ]
-      this.$Dispatcher_callHandler( token )
-    }
+  Dispatcher.prototype.waitFor=function(tokens) {"use strict";
+    if(! this.active) return this
+    (tokens || []).forEach(function( token){
+      // support waitFor params being store instances or store tokens:
+      this.$Dispatcher_callHandler( token.token || token)
+    }.bind(this))
     return this
   };
 
-  Dispatcher.prototype.dispatch=function(action, callback)  {"use strict";
+  Dispatcher.prototype.dispatch=function(action, callback) {"use strict";
     if( this.active ) {
-      this.$Dispatcher_queue.push([ action, callback ])
+      this.$Dispatcher_queue.push([ action, callback])
       return this
     }
 
     var length= this.$Dispatcher_tokenList.length,
-        index= 0, startTime, duration
+        index= 0, start_time, duration
 
     if( length ) {
-      startTime= now()
+      start_time= now()
       this.active= true
       this.$Dispatcher_currentAction= action
       this.$Dispatcher_processed= {}
 
-      while( index < length ) {
-          this.$Dispatcher_callHandler( this.$Dispatcher_tokenList[ index ] )
+      while( index < length) {
+          this.$Dispatcher_callHandler( this.$Dispatcher_tokenList[ index])
           index += 1
       }
 
       this.$Dispatcher_currentAction= null
       this.active= false
 
-      duration= now() - startTime
+      duration= now() - start_time
 
-      if( duration > THRESHOLD ) {
-        global['console'].info('Dispatch of', action.type ,'took >', THRESHOLD, 'ms') // jshint ignore:line
+      if( duration > THRESHOLD) {
+        global[ 'console'].info( 'Dispatch of', action.type ,'took >', THRESHOLD, 'ms') // jshint ignore:line
       }
 
     }
 
-    if( callback ) callback() // Should the callback be sent anything?
+    if( callback) {
+      callback() // Should the callback be sent anything?
+    }
 
-    if( this.$Dispatcher_queue.length ) {
+    if( this.$Dispatcher_queue.length) {
       // Should this happen on the nextTick?
-      var queueAction= this.$Dispatcher_queue.shift()
-      this.dispatch( queueAction[0], queueAction[1])
+      var $__0=  this.$Dispatcher_queue.shift(),nextAction=$__0[0],nextCallback=$__0[1]
+      this.dispatch( nextAction, nextCallback)
     }
 
     return this
   };
 
-  Dispatcher.prototype.$Dispatcher_callHandler=function(token)  {"use strict";
-    if( this.$Dispatcher_processed[token] === true || ! this.active ) return
-    var handler= this.$Dispatcher_handlers[ token ]
-    handler.call( this, this.$Dispatcher_currentAction, this, token )
-    this.$Dispatcher_processed[ token ]= true
+  Dispatcher.prototype.$Dispatcher_callHandler=function(token) {"use strict";
+    if( this.$Dispatcher_processed[ token] === true || !this.active) return
+    var handler= this.$Dispatcher_handlers[ token]
+
+    handler.call( this, this.$Dispatcher_currentAction, this, token)
+    this.$Dispatcher_processed[ token]= true
   };
 
   Dispatcher.getInstance=function() {"use strict";
-    if( singleton_instance === null ) {
-      singleton_instance= new Dispatcher()
+    if( _singleton_instance === null) {
+      _singleton_instance= new this()
     }
-    return singleton_instance
+    return _singleton_instance
   };
-
-
-var singleton_instance= null
-
-module.exports= Dispatcher
+return Dispatcher;})()
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./now":11,"./uid":13}],7:[function(require,module,exports){
@@ -222,6 +212,7 @@ function eventHelperMixin( runtime) {
 
       if( store) {
         eventName= camelize( eventName)
+
         if( hookup= store[ 'on'+ eventName]) {  // jshint ignore:line
           hookup( callback)
 
@@ -259,6 +250,7 @@ function eventHelperMixin( runtime) {
 module.exports=
 function flatten( arrays) {
   var merged= []
+  
   return merged.concat.apply( merged, arrays)
 }
 
@@ -270,7 +262,8 @@ var merge= require( './merge'),
     camelize= require( './camelize'),
     kind= require( 'elucidata-type')
 
-module.exports= (function(){
+module.exports=
+(function(){
 
   function Manager(runtime, name, instance) {"use strict";
     this.runtime= runtime
@@ -290,17 +283,14 @@ module.exports= (function(){
     )
 
     alias( this, 'actions', 'action', 'observe', 'observes')
-    alias( this, 'getStore', 'get')
+    alias( this, 'get', 'getStore', 'getClerk')
     alias( this, 'expose', 'exposes', 'outlet', 'outlets')
     alias( this, 'createEvent', 'defineEvent')
     alias( this, 'hasChanged', 'dataDidChange', 'dataHasChanged')
 
-    // alias( this, 'handle', 'handles', 'observe', 'observes')
-    // alias( this, 'expose', 'exposes', 'provide', 'provides')
-
     if( instance.token == null) {  // jshint ignore:line
       instance.token= runtime.dispatcher.register(function( action){
-        var handler;
+        var handler
         if( handler= this.$Manager_handlers[ action.type]) {  // jshint ignore:line
           handler( action)
         }
@@ -336,14 +326,13 @@ module.exports= (function(){
   };
 
   Manager.prototype.before=function(methods) {"use strict";
-    var actionDispatchers= {}
-    Object.keys( methods).forEach(function( actionName) {
-      var eventName= this.name +'_'+ actionName,
-          fn= methods[ actionName],
-          boundDispatch= this.dispatch.bind( this, eventName)
+    Object.keys( methods).forEach(function( action_name) {
+      var event_name= this.name +'_'+ action_name,
+          fn= methods[ action_name],
+          bound_dispatch= this.dispatch.bind( this, event_name)
 
-      fn.displayName= eventName
-      this.$Manager_instance[ actionName]= fn.bind( this.$Manager_instance, boundDispatch)
+      fn.displayName= event_name
+      this.$Manager_instance[ action_name]= fn.bind( this.$Manager_instance, bound_dispatch)
     }.bind(this))
     return this
   };
@@ -357,15 +346,16 @@ module.exports= (function(){
       store= store.name
     }
 
-    Object.keys( methods).forEach(function( actionName){
-      var eventName= store +'_'+ actionName,
-          fn= methods[ actionName]
-      this.$Manager_handlers[ eventName]= fn //.bind(this._instance)
+    Object.keys( methods).forEach(function( action_name){
+      var event_name= store +'_'+ action_name,
+          fn= methods[ action_name]
 
-      if( store == this.name && !this.$Manager_instance[ actionName]) {
+      this.$Manager_handlers[ event_name]= fn //.bind(this._instance)
+
+      if( store == this.name && !this.$Manager_instance[ action_name]) {
         // Stub out an action...
         var stub= {}
-        stub[ actionName]= function() {
+        stub[ action_name]= function() {
           var args= Array.prototype.slice.call( arguments),
               dispatch= args.shift()
           if( args.length === 1) {
@@ -400,26 +390,22 @@ module.exports= (function(){
   };
 
   Manager.prototype.expose=function(methods) {"use strict";
-    Object.keys( methods).forEach(function( methodName){
-      if( this.$Manager_instance.hasOwnProperty( methodName)) {
-        var method= this.$Manager_instance[ methodName]
+    Object.keys( methods).forEach(function( method_name){
+      if( this.$Manager_instance.hasOwnProperty( method_name)) {
+        var method= this.$Manager_instance[ method_name]
 
         if(! method.$Manager_isStub) {
-          var error= new Error( "Redefining property "+ methodName +" on store "+ this.name)
+          var error= new Error( "Redefining property "+ method_name +" on store "+ this.name)
           error.framesToPop= 3
           throw error
         }
       }
-      this.$Manager_instance[ methodName]= methods[ methodName]
+      this.$Manager_instance[ method_name]= methods[ method_name]
     }.bind(this))
     return this
   };
 
-  Manager.prototype.getClerk=function() {"use strict";
-    return this.$Manager_instance
-  };
-
-  Manager.prototype.getStore=function(storeName) {"use strict";
+  Manager.prototype.get=function(storeName) {"use strict";
     if( storeName ) {
       return this.runtime.get( storeName, true )
     }
@@ -474,7 +460,6 @@ function merge(/* target, ...sources */) {
 }
 
 },{}],11:[function(require,module,exports){
-
 /* global performance */
 var now= (function(){
   if( typeof performance === 'object' && performance.now ) {
@@ -533,10 +518,6 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
     }
 
     alias( this, 'get', 'getInstance')
-    // DEPRECATED: Remove in a future version...
-    // alias( this, 'define', 'defineStore', 'Store', 'defineClerk', 'Clerk')
-    // alias( this, 'onChange', 'onAnyChange')
-    // alias( this, 'offChange', 'offAnyChange')
   }
 
   Runtime.prototype.configure=function(settings) {"use strict";
@@ -551,8 +532,8 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
     return this
   };
 
-  Runtime.prototype.newInstance=function() {"use strict";
-    return new Runtime( this.settings)
+  Runtime.prototype.newInstance=function(settings) {"use strict";
+    return new Runtime( settings || this.settings)
   };
 
   Runtime.prototype.createEvent=function(storeName, eventName) {"use strict";
@@ -643,7 +624,7 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
   Runtime.prototype.$Runtime_buildFactory=function(name, builder, saveBuilder) {"use strict";
     var instance= this.$Runtime_registry[ name],
         manager= this.$Runtime_managers[ name],
-        returnValue
+        return_value
 
     if( instance && this.settings.verbose) {
       console.warn(name, "already defined: Merging definitions.")
@@ -660,17 +641,17 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
     }
 
     if( kind.isFunction( builder)) {
-      returnValue= builder( manager)
+      return_value= builder( manager)
     }
     else if( kind.isObject( builder)) {
-      returnValue= builder
+      return_value= builder
     }
     else {
       throw new Error( "Wrong builder type: Must provide a builder function or object.")
     }
 
-    if( kind.isObject( returnValue)) {
-      manager.expose( returnValue)
+    if( kind.isObject( return_value)) {
+      manager.expose( return_value)
     }
 
     if( this.settings.freezeInstance === true) {
@@ -711,24 +692,23 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
 
 
 
-// Runtime API
 module.exports= Runtime
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./alias":2,"./bind-all":3,"./camelize":4,"./create-event":5,"./dispatcher":6,"./event-helper-mixin":7,"./flatten":8,"./manager":9,"./merge":10,"./uid":13,"_process":15,"elucidata-type":16,"events":14}],13:[function(require,module,exports){
-var lastId = 0
+var _last_id = 0
 
 function uid ( radix){
   var now = Math.floor( (new Date()).getTime() / 1000 )
   radix= radix || 36
 
-  while ( now <= lastId ) {
+  while ( now <= _last_id ) {
     now += 1
   }
 
-  lastId = now
+  _last_id= now
 
-  return now.toString( radix )
+  return now.toString( radix)
 }
 
 module.exports= uid

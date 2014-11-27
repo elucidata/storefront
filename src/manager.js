@@ -4,9 +4,10 @@ var merge= require( './merge'),
     camelize= require( './camelize'),
     kind= require( 'elucidata-type')
 
-module.exports= class Manager {
+module.exports=
+class Manager {
 
-  constructor(runtime, name, instance) {
+  constructor( runtime, name, instance) {
     this.runtime= runtime
     this.name= name
 
@@ -29,12 +30,9 @@ module.exports= class Manager {
     alias( this, 'createEvent', 'defineEvent')
     alias( this, 'hasChanged', 'dataDidChange', 'dataHasChanged')
 
-    // alias( this, 'handle', 'handles', 'observe', 'observes')
-    // alias( this, 'expose', 'exposes', 'provide', 'provides')
-
     if( instance.token == null) {  // jshint ignore:line
       instance.token= runtime.dispatcher.register(( action)=>{
-        var handler;
+        var handler
         if( handler= this._handlers[ action.type]) {  // jshint ignore:line
           handler( action)
         }
@@ -70,14 +68,13 @@ module.exports= class Manager {
   }
 
   before( methods) {
-    var actionDispatchers= {}
-    Object.keys( methods).forEach(( actionName)=> {
-      var eventName= this.name +'_'+ actionName,
-          fn= methods[ actionName],
-          boundDispatch= this.dispatch.bind( this, eventName)
+    Object.keys( methods).forEach(( action_name)=> {
+      var event_name= this.name +'_'+ action_name,
+          fn= methods[ action_name],
+          bound_dispatch= this.dispatch.bind( this, event_name)
 
-      fn.displayName= eventName
-      this._instance[ actionName]= fn.bind( this._instance, boundDispatch)
+      fn.displayName= event_name
+      this._instance[ action_name]= fn.bind( this._instance, bound_dispatch)
     })
     return this
   }
@@ -91,15 +88,16 @@ module.exports= class Manager {
       store= store.name
     }
 
-    Object.keys( methods).forEach(( actionName)=>{
-      var eventName= store +'_'+ actionName,
-          fn= methods[ actionName]
-      this._handlers[ eventName]= fn //.bind(this._instance)
+    Object.keys( methods).forEach(( action_name)=>{
+      var event_name= store +'_'+ action_name,
+          fn= methods[ action_name]
 
-      if( store == this.name && !this._instance[ actionName]) {
+      this._handlers[ event_name]= fn //.bind(this._instance)
+
+      if( store == this.name && !this._instance[ action_name]) {
         // Stub out an action...
         var stub= {}
-        stub[ actionName]= ()=> {
+        stub[ action_name]= ()=> {
           var args= Array.prototype.slice.call( arguments),
               dispatch= args.shift()
           if( args.length === 1) {
@@ -134,17 +132,17 @@ module.exports= class Manager {
   }
 
   expose( methods) {
-    Object.keys( methods).forEach(( methodName)=>{
-      if( this._instance.hasOwnProperty( methodName)) {
-        var method= this._instance[ methodName]
+    Object.keys( methods).forEach(( method_name)=>{
+      if( this._instance.hasOwnProperty( method_name)) {
+        var method= this._instance[ method_name]
 
         if(! method._isStub) {
-          var error= new Error( "Redefining property "+ methodName +" on store "+ this.name)
+          var error= new Error( "Redefining property "+ method_name +" on store "+ this.name)
           error.framesToPop= 3
           throw error
         }
       }
-      this._instance[ methodName]= methods[ methodName]
+      this._instance[ method_name]= methods[ method_name]
     })
     return this
   }

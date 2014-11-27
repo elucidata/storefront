@@ -13,7 +13,7 @@ var Dispatcher= require( './dispatcher'),
 
 class Runtime extends EventEmitter {
 
-  constructor(settings) {
+  constructor( settings) {
     super()
     this.configure( settings)
 
@@ -37,10 +37,6 @@ class Runtime extends EventEmitter {
     }
 
     alias( this, 'get', 'getInstance')
-    // DEPRECATED: Remove in a future version...
-    // alias( this, 'define', 'defineStore', 'Store', 'defineClerk', 'Clerk')
-    // alias( this, 'onChange', 'onAnyChange')
-    // alias( this, 'offChange', 'offAnyChange')
   }
 
   configure( settings) {
@@ -55,8 +51,8 @@ class Runtime extends EventEmitter {
     return this
   }
 
-  newInstance() {
-    return new Runtime( this.settings)
+  newInstance( settings) {
+    return new Runtime( settings || this.settings)
   }
 
   createEvent( storeName, eventName) {
@@ -147,7 +143,7 @@ class Runtime extends EventEmitter {
   _buildFactory( name, builder, saveBuilder) {
     var instance= this._registry[ name],
         manager= this._managers[ name],
-        returnValue
+        return_value
 
     if( instance && this.settings.verbose) {
       console.warn(name, "already defined: Merging definitions.")
@@ -164,17 +160,17 @@ class Runtime extends EventEmitter {
     }
 
     if( kind.isFunction( builder)) {
-      returnValue= builder( manager)
+      return_value= builder( manager)
     }
     else if( kind.isObject( builder)) {
-      returnValue= builder
+      return_value= builder
     }
     else {
       throw new Error( "Wrong builder type: Must provide a builder function or object.")
     }
 
-    if( kind.isObject( returnValue)) {
-      manager.expose( returnValue)
+    if( kind.isObject( return_value)) {
+      manager.expose( return_value)
     }
 
     if( this.settings.freezeInstance === true) {
@@ -215,5 +211,4 @@ class Runtime extends EventEmitter {
 
 }
 
-// Runtime API
 module.exports= Runtime
