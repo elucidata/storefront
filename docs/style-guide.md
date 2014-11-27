@@ -4,7 +4,7 @@ Generally, your code should look like the rest of the codebase.
 
 Basic rules-of-thumb:
 
-- Use ES6-isms where applicable (destructering).
+- Use ES6-isms where applicable (destructuring).
 - Only use semicolons when absolutely necessary.
 - Line up variables under a single `var`.
 - Manually hoist all variables (prefer a single `var` per scope).
@@ -37,7 +37,7 @@ class ClassName {
 
     static methodNamesToo( ) {
         return {
-            publicallyAccessibleVariable: true
+            publiclyAccessibleVariable: true
         }
     }
 }
