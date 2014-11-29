@@ -1,7 +1,7 @@
 {
   "name": "storefront",
   "main": "dist/storefront.min.js",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "homepage": "https://github.com/elucidata/storefront",
   "authors": [
     "Matt McCray <matt@elucidata.net>"
