@@ -7,16 +7,15 @@ var Dispatcher= require( './dispatcher'),
     flatten= require( './flatten'),
     uid= require( './uid'),
     alias= require( './alias'),
+    console= require( './console'),  // jshint ignore:line
     bindAll= require( './bind-all'),
     createEvent= require( './create-event'),
     eventHelperMixin= require( './event-helper-mixin')
 
-class Runtime extends EventEmitter {
+class Runtime {
 
   constructor( settings) {
-    super()
-    this.configure( settings)
-
+    this._emitter= new EventEmitter()
     this._registry= {}
     this._managers= {}
     this._builders= []
@@ -24,6 +23,8 @@ class Runtime extends EventEmitter {
     this._anyChangeEvent= this.createEvent('*', 'any-change')
     this._dataChanges= []
     this._timer= false
+
+    this.configure( settings)
 
     if( this.settings.singletonDispatcher) {
       this.dispatcher= Dispatcher.getInstance()
@@ -46,8 +47,10 @@ class Runtime extends EventEmitter {
       freezeInstance: false,
       useRAF: true,
       verbose: false,
+      logging: false,
       singletonDispatcher: false
     }, settings || {})
+    Dispatcher.enableLogging( this.settings.logging)
     return this
   }
 
@@ -56,7 +59,7 @@ class Runtime extends EventEmitter {
   }
 
   createEvent( storeName, eventName) {
-    var event= createEvent( storeName, eventName, this)
+    var event= createEvent( storeName, eventName, this._emitter)
 
     if(! this._events[ event.name]) {
       this._events[ event.name]= event
@@ -81,13 +84,9 @@ class Runtime extends EventEmitter {
     var instance= this._registry[ name]
 
     if( !instance) {
-      if( this.settings.verbose)  {
-        console.warn( "Storefront: Store", name, "is not defined.")
-      }
+      this._warn( "Store", name, "is not defined.")
       if( stubMissing === true) {
-        if( this.settings.verbose)  {
-          console.info( "Building stub for ", name)
-        }
+        this._info( "Building stub for", name)
         instance= { name }
         this._registry[ name]= instance
       }
@@ -145,8 +144,8 @@ class Runtime extends EventEmitter {
         manager= this._managers[ name],
         return_value
 
-    if( instance && this.settings.verbose) {
-      console.warn(name, "already defined: Merging definitions.")
+    if( instance) {
+      this._warn( name, "already defined: Merging definitions.")
     }
 
     if(! instance) {
@@ -185,9 +184,9 @@ class Runtime extends EventEmitter {
   }
 
   _trackChangeFor( name) {
-    var eventName= name +':change'
-    this.on( eventName, ()=>{
-      this._dataChanges.push({ type:eventName, params:Array.prototype.slice.call(arguments)})
+    var event_name= name +':change'
+    this._emitter.on( event_name, ()=>{
+      this._dataChanges.push({ type:event_name, params:Array.prototype.slice.call(arguments)})
 
       if(! this._timer) {
         if( this.settings.useRAF && global.requestAnimationFrame) {
@@ -201,12 +200,28 @@ class Runtime extends EventEmitter {
     })
   }
 
+  _stopTrackingChangesFor( name) {
+    var event_name= name +':change'
+    this._emitter.removeListener( event_name)
+  }
+
   _relayDataChanges() {
     if( this._dataChanges.length) {
       this._anyChangeEvent.emitNow( this._dataChanges)
       this._dataChanges= []
     }
     this._timer= false
+  }
+
+  _warn() {
+    if( this.settings.verbose) {
+      console.warn.apply( console, arguments)
+    }
+  }
+  _info() {
+    if( this.settings.verbose) {
+      console.info.apply( console, arguments)
+    }
   }
 
 }

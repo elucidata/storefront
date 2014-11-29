@@ -15,9 +15,7 @@
 
 ## To-Do
 
-- [ ] Add `.dispose()` method to runtime.
 - [ ] Add `.version` to runtime.
-- [ ] Instead of extending EventEmitter, the runtime should create an emitter instance as a property.
 
 
 ## Ideas

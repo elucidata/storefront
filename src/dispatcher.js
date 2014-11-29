@@ -1,8 +1,10 @@
 var uid= require( './uid'),
-    now= require( './now')
+    now= require( './now'),
+    console= require( './console')  // jshint ignore:line
 
 var THRESHOLD= 10, // In milliseconds
-    _singleton_instance= null
+    _singleton_instance= null,
+    _log_dispatches= false
 
 module.exports=
 class Dispatcher {
@@ -49,7 +51,13 @@ class Dispatcher {
     }
 
     var length= this._tokenList.length,
-        index= 0, start_time, duration
+        index= 0, start_time, duration, label
+
+    if( _log_dispatches) {
+      label= action.type;
+      console.time( label)
+      console.group( label)
+    }
 
     if( length ) {
       start_time= now()
@@ -68,9 +76,15 @@ class Dispatcher {
       duration= now() - start_time
 
       if( duration > THRESHOLD) {
-        global[ 'console'].info( 'Dispatch of', action.type ,'took >', THRESHOLD, 'ms') // jshint ignore:line
+        console.info( 'Dispatch of', action.type ,'took >', THRESHOLD, 'ms') // jshint ignore:line
+        // global[ 'console'].info( 'Dispatch of', action.type ,'took >', THRESHOLD, 'ms') // jshint ignore:line
       }
 
+    }
+
+    if( _log_dispatches) {
+      console.groupEnd( label)
+      console.timeEnd( label)
     }
 
     if( callback) {
@@ -99,5 +113,9 @@ class Dispatcher {
       _singleton_instance= new this()
     }
     return _singleton_instance
+  }
+
+  static enableLogging( enabled) {
+    _log_dispatches= enabled
   }
 }

@@ -59,7 +59,13 @@ class Manager {
   }
 
   invoke( cmd, ...params) {
-    return this._instance[ cmd].apply( this._instance, params)
+    var fn= this._instance[ cmd]
+    if( kind.isFunction( fn)) {
+      return fn.apply( this._instance, params)
+    }
+    else {
+      throw new Error( "Method "+ cmd +" not found!")
+    }
   }
 
   notify( message) {

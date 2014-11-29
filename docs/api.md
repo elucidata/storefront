@@ -55,13 +55,14 @@ In theory, **Require.js** and/or **AMD** modules are supported as well -- But th
 
 Settings object:
 
-name|default|description
+name | default | description
 ---|---|---
-`asyncDispatch`| true | Defer dispatching from action creator to nextTick.
-`freezeInstance`| false | Use `Object.freeze` on instance after definition.
-`useRAF`| true | Batch all onChange events using requestAnimationFrame.
-`verbose`| false | Prints warnings to console.
-`singletonDispatcher`| false | Use a global dispatcher instead of a shared-runtime instance.
+`asyncDispatch` | true | Defer dispatching from action creator to nextTick.
+`freezeInstance` | false | Use `Object.freeze` on instance after definition.
+`logging` | false | Log all dispatches to the console.
+`useRAF` | true | Batch all onChange events using requestAnimationFrame.
+`verbose` | false | Prints warnings to console.
+`singletonDispatcher` | false | Use a global dispatcher instead of a shared-runtime instance.
 
 ---
 

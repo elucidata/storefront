@@ -38,6 +38,7 @@
     "tap-spec": "^2.1.0",
     "mversion": "^1.8.0",
     "uglifyjs": "^2.3.6",
-    "browserify": "^6.3.2"
+    "browserify": "^6.3.2",
+    "envify": "^3.2.0"
   }
 }

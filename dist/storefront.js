@@ -4,7 +4,7 @@ var Runtime= require( './lib/runtime')
 // module.exports= Runtime.newInstance()
 module.exports= new Runtime()
 
-},{"./lib/runtime":12}],2:[function(require,module,exports){
+},{"./lib/runtime":13}],2:[function(require,module,exports){
 module.exports=
 function alias(/* target, prop, ...aliases */) {
   var aliases= Array.prototype.slice.call( arguments),
@@ -35,7 +35,7 @@ function bindAll(/* target, ...props */) {
   return target
 }
 
-},{"elucidata-type":16}],4:[function(require,module,exports){
+},{"elucidata-type":17}],4:[function(require,module,exports){
 module.exports=
 function camelize( string) {
   return string.replace( /(?:^|[-_])(\w)/g, function( _, char) {
@@ -44,6 +44,59 @@ function camelize( string) {
 }
 
 },{}],5:[function(require,module,exports){
+(function (global){
+// Based on: https://github.com/paulmillr/console-polyfill/blob/master/index.js
+module.exports=
+(function( con) {
+  var prop, method,
+      empty= {},
+      dummy= function() {},
+      properties= [
+        'memory'
+      ],
+      methods= [
+        'assert',
+        'clear',
+        'count',
+        'debug',
+        'dir',
+        'dirxml',
+        'error',
+        'exception',
+        'group',
+        'groupCollapsed',
+        'groupEnd',
+        'info',
+        'log',
+        'markTimeline',
+        'profile',
+        'profiles',
+        'profileEnd',
+        'show',
+        'table',
+        'time',
+        'timeEnd',
+        'timeline',
+        'timelineEnd',
+        'timeStamp',
+        'trace',
+        'warn'
+      ]
+
+  while( prop= properties.pop()) {  // jshint ignore:line
+    con[ prop]= con[ prop] || empty
+  }
+
+  while( method= methods.pop()) {  // jshint ignore:line
+    con[ method]= con[ method] || dummy
+  }
+
+  return con
+
+})( global.console= global.console || {})
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],6:[function(require,module,exports){
 (function (process){
 var camelize= require( './camelize'),
     flatten= require( './flatten')
@@ -92,13 +145,14 @@ function createEvent( baseName, eventName, emitter) {
 }
 
 }).call(this,require('_process'))
-},{"./camelize":4,"./flatten":8,"_process":15}],6:[function(require,module,exports){
-(function (global){
+},{"./camelize":4,"./flatten":9,"_process":16}],7:[function(require,module,exports){
 var uid= require( './uid'),
-    now= require( './now')
+    now= require( './now'),
+    console= require( './console')  // jshint ignore:line
 
 var THRESHOLD= 10, // In milliseconds
-    _singleton_instance= null
+    _singleton_instance= null,
+    _log_dispatches= false
 
 module.exports=
 (function(){
@@ -145,7 +199,13 @@ module.exports=
     }
 
     var length= this.$Dispatcher_tokenList.length,
-        index= 0, start_time, duration
+        index= 0, start_time, duration, label
+
+    if( _log_dispatches) {
+      label= action.type;
+      console.time( label)
+      console.group( label)
+    }
 
     if( length ) {
       start_time= now()
@@ -164,9 +224,15 @@ module.exports=
       duration= now() - start_time
 
       if( duration > THRESHOLD) {
-        global[ 'console'].info( 'Dispatch of', action.type ,'took >', THRESHOLD, 'ms') // jshint ignore:line
+        console.info( 'Dispatch of', action.type ,'took >', THRESHOLD, 'ms') // jshint ignore:line
+        // global[ 'console'].info( 'Dispatch of', action.type ,'took >', THRESHOLD, 'ms') // jshint ignore:line
       }
 
+    }
+
+    if( _log_dispatches) {
+      console.groupEnd( label)
+      console.timeEnd( label)
     }
 
     if( callback) {
@@ -196,10 +262,13 @@ module.exports=
     }
     return _singleton_instance
   };
+
+  Dispatcher.enableLogging=function(enabled) {"use strict";
+    _log_dispatches= enabled
+  };
 return Dispatcher;})()
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./now":11,"./uid":13}],7:[function(require,module,exports){
+},{"./console":5,"./now":12,"./uid":14}],8:[function(require,module,exports){
 var camelize= require( './camelize')
 
 module.exports=
@@ -246,7 +315,7 @@ function eventHelperMixin( runtime) {
   }
 }
 
-},{"./camelize":4}],8:[function(require,module,exports){
+},{"./camelize":4}],9:[function(require,module,exports){
 module.exports=
 function flatten( arrays) {
   var merged= []
@@ -254,7 +323,7 @@ function flatten( arrays) {
   return merged.concat.apply( merged, arrays)
 }
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 (function (process){
 var merge= require( './merge'),
     alias= require( './alias'),
@@ -317,7 +386,13 @@ module.exports=
   };
 
   Manager.prototype.invoke=function(cmd)  {"use strict";for (var params=[],$__0=1,$__1=arguments.length;$__0<$__1;$__0++) params.push(arguments[$__0]);
-    return this.$Manager_instance[ cmd].apply( this.$Manager_instance, params)
+    var fn= this.$Manager_instance[ cmd]
+    if( kind.isFunction( fn)) {
+      return fn.apply( this.$Manager_instance, params)
+    }
+    else {
+      throw new Error( "Method "+ cmd +" not found!")
+    }
   };
 
   Manager.prototype.notify=function(message) {"use strict";
@@ -442,7 +517,7 @@ module.exports=
 return Manager;})()
 
 }).call(this,require('_process'))
-},{"./alias":2,"./bind-all":3,"./camelize":4,"./merge":10,"_process":15,"elucidata-type":16}],10:[function(require,module,exports){
+},{"./alias":2,"./bind-all":3,"./camelize":4,"./merge":11,"_process":16,"elucidata-type":17}],11:[function(require,module,exports){
 module.exports=
 function merge(/* target, ...sources */) {
   var sources= Array.prototype.slice.call( arguments),
@@ -459,7 +534,7 @@ function merge(/* target, ...sources */) {
   return target
 }
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /* global performance */
 var now= (function(){
   if( typeof performance === 'object' && performance.now ) {
@@ -477,7 +552,7 @@ var now= (function(){
 
 module.exports= now
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 (function (process,global){
 var Dispatcher= require( './dispatcher'),
     EventEmitter= require( 'events').EventEmitter,
@@ -488,16 +563,15 @@ var Dispatcher= require( './dispatcher'),
     flatten= require( './flatten'),
     uid= require( './uid'),
     alias= require( './alias'),
+    console= require( './console'),  // jshint ignore:line
     bindAll= require( './bind-all'),
     createEvent= require( './create-event'),
     eventHelperMixin= require( './event-helper-mixin')
 
-for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(EventEmitter____Key)){Runtime[EventEmitter____Key]=EventEmitter[EventEmitter____Key];}}var ____SuperProtoOfEventEmitter=EventEmitter===null?null:EventEmitter.prototype;Runtime.prototype=Object.create(____SuperProtoOfEventEmitter);Runtime.prototype.constructor=Runtime;Runtime.__superConstructor__=EventEmitter;
+
 
   function Runtime(settings) {"use strict";
-    EventEmitter.call(this)
-    this.configure( settings)
-
+    this.$Runtime_emitter= new EventEmitter()
     this.$Runtime_registry= {}
     this.$Runtime_managers= {}
     this.$Runtime_builders= []
@@ -505,6 +579,8 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
     this.$Runtime_anyChangeEvent= this.createEvent('*', 'any-change')
     this.$Runtime_dataChanges= []
     this.$Runtime_timer= false
+
+    this.configure( settings)
 
     if( this.settings.singletonDispatcher) {
       this.dispatcher= Dispatcher.getInstance()
@@ -527,8 +603,10 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
       freezeInstance: false,
       useRAF: true,
       verbose: false,
+      logging: false,
       singletonDispatcher: false
     }, settings || {})
+    Dispatcher.enableLogging( this.settings.logging)
     return this
   };
 
@@ -537,7 +615,7 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
   };
 
   Runtime.prototype.createEvent=function(storeName, eventName) {"use strict";
-    var event= createEvent( storeName, eventName, this)
+    var event= createEvent( storeName, eventName, this.$Runtime_emitter)
 
     if(! this.$Runtime_events[ event.name]) {
       this.$Runtime_events[ event.name]= event
@@ -562,13 +640,9 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
     var instance= this.$Runtime_registry[ name]
 
     if( !instance) {
-      if( this.settings.verbose)  {
-        console.warn( "Storefront: Store", name, "is not defined.")
-      }
+      this.$Runtime_warn( "Store", name, "is not defined.")
       if( stubMissing === true) {
-        if( this.settings.verbose)  {
-          console.info( "Building stub for ", name)
-        }
+        this.$Runtime_info( "Building stub for", name)
         instance= { name:name }
         this.$Runtime_registry[ name]= instance
       }
@@ -626,8 +700,8 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
         manager= this.$Runtime_managers[ name],
         return_value
 
-    if( instance && this.settings.verbose) {
-      console.warn(name, "already defined: Merging definitions.")
+    if( instance) {
+      this.$Runtime_warn( name, "already defined: Merging definitions.")
     }
 
     if(! instance) {
@@ -666,9 +740,9 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
   };
 
   Runtime.prototype.$Runtime_trackChangeFor=function(name) {"use strict";
-    var eventName= name +':change'
-    this.on( eventName, function(){
-      this.$Runtime_dataChanges.push({ type:eventName, params:Array.prototype.slice.call(arguments)})
+    var event_name= name +':change'
+    this.$Runtime_emitter.on( event_name, function(){
+      this.$Runtime_dataChanges.push({ type:event_name, params:Array.prototype.slice.call(arguments)})
 
       if(! this.$Runtime_timer) {
         if( this.settings.useRAF && global.requestAnimationFrame) {
@@ -682,6 +756,11 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
     }.bind(this))
   };
 
+  Runtime.prototype.$Runtime_stopTrackingChangesFor=function(name) {"use strict";
+    var event_name= name +':change'
+    this.$Runtime_emitter.removeListener( event_name)
+  };
+
   Runtime.prototype.$Runtime_relayDataChanges=function() {"use strict";
     if( this.$Runtime_dataChanges.length) {
       this.$Runtime_anyChangeEvent.emitNow( this.$Runtime_dataChanges)
@@ -690,12 +769,23 @@ for(var EventEmitter____Key in EventEmitter){if(EventEmitter.hasOwnProperty(Even
     this.$Runtime_timer= false
   };
 
+  Runtime.prototype.$Runtime_warn=function() {"use strict";
+    if( this.settings.verbose) {
+      console.warn.apply( console, arguments)
+    }
+  };
+  Runtime.prototype.$Runtime_info=function() {"use strict";
+    if( this.settings.verbose) {
+      console.info.apply( console, arguments)
+    }
+  };
+
 
 
 module.exports= Runtime
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./alias":2,"./bind-all":3,"./camelize":4,"./create-event":5,"./dispatcher":6,"./event-helper-mixin":7,"./flatten":8,"./manager":9,"./merge":10,"./uid":13,"_process":15,"elucidata-type":16,"events":14}],13:[function(require,module,exports){
+},{"./alias":2,"./bind-all":3,"./camelize":4,"./console":5,"./create-event":6,"./dispatcher":7,"./event-helper-mixin":8,"./flatten":9,"./manager":10,"./merge":11,"./uid":14,"_process":16,"elucidata-type":17,"events":15}],14:[function(require,module,exports){
 var _last_id = 0
 
 function uid ( radix){
@@ -713,7 +803,7 @@ function uid ( radix){
 
 module.exports= uid
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1016,7 +1106,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -1104,7 +1194,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 (function() {
   var name, type, _elementTestRe, _fn, _i, _keys, _len, _ref, _typeList;
 
