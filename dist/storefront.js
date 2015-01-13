@@ -102,8 +102,10 @@ var camelize= require( './camelize'),
     flatten= require( './flatten')
 
 module.exports=
-function createEvent( baseName, eventName, emitter) {
+function createEvent( baseName, eventName, emitter, options) {
   var event_key= baseName +':'+ eventName
+
+  options= options || {}
 
   var eventApi= {
 
@@ -342,14 +344,15 @@ module.exports=
     this.$Manager_handlers= {}
     this.$Manager_notifyEvent= runtime.createEvent( name, 'notify')
     this.$Manager_changeEvent= runtime.createEvent( name, 'change')
+    // this._configEvent= runtime.createEvent( name, 'config')
 
     this.expose( this.$Manager_notifyEvent.public)
     this.expose( this.$Manager_changeEvent.public)
 
     bindAll( this,
       'dispatch', 'notify', 'actions', 'waitFor', 'hasChanged', 'before',
-      'expose', 'getClerk', 'getStore', 'createEvent', 'invoke'
-    )
+      'expose', 'get', 'before', 'createEvent', 'invoke'
+    ) //, 'configure'
 
     alias( this, 'actions', 'action', 'observe', 'observes')
     alias( this, 'get', 'getStore', 'getClerk')
@@ -365,7 +368,16 @@ module.exports=
         }
       }.bind(this))
     }
+
+    // this.configure() // Setup defaults...
   }
+
+  // configure( settings) {
+  //   this.settings= merge({ // Defaults
+  //     globalChanges: true
+  //   }, settings || {})
+  //   this._configEvent.emitNow(this)
+  // }
 
   Manager.prototype.dispatch=function(type, payload, callback) {"use strict";
     if( this.runtime.settings.aysncDispatch) {
@@ -489,9 +501,10 @@ module.exports=
     }
   };
 
-  Manager.prototype.createEvent=function(eventName) {"use strict";
-    var event= this.runtime.createEvent( name, eventName),
-        emitterFn= event.emit.bind( event)
+  Manager.prototype.createEvent=function(eventName, options) {"use strict";
+    options= options || {}
+    var event= this.runtime.createEvent( name, eventName, options),
+        emitterFn= options.sync ? event.emitNow.bind( event) : event.emit.bind( event)
 
     this.expose( event.public)
     this.$Manager_instance[ 'emit'+ camelize( eventName)]= emitterFn
@@ -614,8 +627,8 @@ var Dispatcher= require( './dispatcher'),
     return new Runtime( settings || this.settings)
   };
 
-  Runtime.prototype.createEvent=function(storeName, eventName) {"use strict";
-    var event= createEvent( storeName, eventName, this.$Runtime_emitter)
+  Runtime.prototype.createEvent=function(storeName, eventName, options) {"use strict";
+    var event= createEvent( storeName, eventName, this.$Runtime_emitter, options)
 
     if(! this.$Runtime_events[ event.name]) {
       this.$Runtime_events[ event.name]= event
