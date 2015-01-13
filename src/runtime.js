@@ -58,8 +58,8 @@ class Runtime {
     return new Runtime( settings || this.settings)
   }
 
-  createEvent( storeName, eventName) {
-    var event= createEvent( storeName, eventName, this._emitter)
+  createEvent( storeName, eventName, options) {
+    var event= createEvent( storeName, eventName, this._emitter, options)
 
     if(! this._events[ event.name]) {
       this._events[ event.name]= event
