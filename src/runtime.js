@@ -16,6 +16,7 @@ class Runtime {
 
   constructor( settings) {
     this._emitter= new EventEmitter()
+    this._emitter.setMaxListeners( 0) // Unlimited event listeners! ? !
     this._registry= {}
     this._managers= {}
     this._builders= []
