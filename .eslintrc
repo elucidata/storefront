@@ -1,0 +1,61 @@
+{
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "ecmaFeatures": {
+    "arrowFunctions": true,
+    "binaryLiterals": true,
+    "blockBindings": true,
+    "classes": true,
+    "defaultParams": true,
+    "destructuring": true,
+    "forOf": true,
+    "generators": true,
+    "modules": true,
+    "objectLiteralComputedProperties ": true,
+    "objectLiteralDuplicateProperties ": true,
+    "objectLiteralShorthandMethods ": true,
+    "objectLiteralShorthandProperties ": true,
+    "octalLiterals ": true,
+    "regexUFlag ": true,
+    "regexYFlag ": true,
+    "spread ": true,
+    "superInFunctions ": true,
+    "templateStrings ": true,
+    "unicodeCodePointEscapes ": true,
+    "globalReturn ": true,
+    "jsx ": true
+  },
+  "rules": {
+    "no-unused-vars": [0],
+    "strict": 0,
+    "quotes": [0, "single", "avoid-escape"],
+    "eol-last": [0],
+    "curly": [1, "multi-line"],
+    "space-infix-ops": [0],
+    "no-mixed-requires": [0],
+    "no-underscore-dangle": [0],
+    "semi": [0],
+    "new-cap": [0],
+    "no-shadow": [0],
+    "camelcase": [0],
+    "comma-dangle": [0],
+    "comma-spacing": [0],
+    "space-unary-ops": [0],
+    "key-spacing": [0],
+    "no-alert": [1],
+    "no-throw-literal": [1],
+    "no-mixed-spaces-and-tabs": [1],
+    "no-trailing-spaces": [0],
+    "no-multi-spaces": [0],
+    "no-use-before-define": [0],
+    "no-debugger": [1],
+    "no-dupe-keys": [1],
+    "brace-style": [2, "stroustrup", { "allowSingleLine": true }]
+  },
+  "globals": {
+    "require": true
+  }
+}
