@@ -31,6 +31,7 @@
   * [Action Stubbing](#action-stubbing)
 * [Custom Events](#custom-events)
   * [Event Helper Mixin](#event-helper-mixin)
+  * [Subscription Manager](#subscription-manager)
 
 <!-- toc stop -->
 
@@ -409,4 +410,35 @@ React.createClass({
         )
     }
 })
+```
+
+The event helper mixin is a thin wrapper around:
+
+---
+
+### Subscription Manager
+
+A utility for managing event subscriptions. Use it in a class-based React component like this:
+
+```javascript
+class MyComponent extends React.Component {
+    componentDidMount() {
+        this._subscriptions= Storefront.mixins.subscriptions()
+            .on( 'MyStore', 'notify', this.onStoreNotification.bind( this))
+    }
+    
+    componentWillUnmount() {
+        this._subscriptions.release()
+    }
+
+    onStoreNotification( notice ) {
+        // Do something with it here...
+    }
+
+    render() {
+        return (
+            <div></div>
+        )
+    }
+}
 ```
