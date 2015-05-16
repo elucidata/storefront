@@ -25,11 +25,33 @@ test( 'Storefront.define( name, fn) ...', function( t){
       }
     })
 
+    mgr.actions((function () {
+      var _class = function () {};
+
+      _class.prototype.resetData = function resetData() {
+        data = 'RESULT'
+        mgr.dataHasChanged()
+      };
+
+      return _class;
+    })())
+
     mgr.outlets({
 
       getData: function() { return data }
     })
-  })
+
+    mgr.outlets((function () {
+      var _class = function () {};
+
+      _class.prototype.hasData = function hasData() {
+        return data != null
+      };
+
+      return _class;
+    })())
+
+  }) // End of store definition
 
   t.deepLooseEqual(
     instance,
@@ -55,6 +77,16 @@ test( 'Storefront.define( name, fn) ...', function( t){
   t.ok(
     instance.setData,
     'exposes defined actions.'
+  )
+
+  t.ok(
+    instance.resetData,
+    'exposes defined actions (from inline class).'
+  )
+
+  t.ok(
+    instance.hasData,
+    'exposes defined outlets (from inline class).'
   )
 
   t.equal(

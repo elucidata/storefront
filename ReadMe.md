@@ -31,23 +31,19 @@ Or straight from **github**:
 
 ## Overview
 
-For an idea of how it all works, here's a skeleton authentication Storefront:
+For an idea of how it all works, here's a skeleton store for app authentication:
 
 _stores/auth.js_
 ```javascript
-var Storefront= require( 'storefront')
+import Storefront from 'storefront'
 
-module.exports=
-Storefront.define( 'Auth', ( manager)=>{
-    // Destructuring for prettier code. :-)
-    var {actions, outlets, dataHasChanged}= manager
-
+export default Storefront.define( 'Auth', store => {
     // Internal state.
-    var _loggedIn= false
+    let _loggedIn= false
 
     // The following actions, login/logout, will have
-    // 'creators' automatically generated for us.
-    actions({
+    // 'creators' automatically generated.
+    store.actions({
 
         login( action) {
             if( authenticate( action.payload)) {
@@ -57,17 +53,17 @@ Storefront.define( 'Auth', ( manager)=>{
                 _loggedIn= false
             }
             // notify listeners that the internal state has changed
-            dataHasChanged()
+            store.hasChanged()
         },
 
         logout( action) {
             _loggedIn= false
-            dataHasChanged()
+            store.hasChanged()
         }
     })
 
     // Methods for querying state are defined as 'outlets'
-    outlets({
+    store.outlets({
 
         isLoggedIn() {
             return _loggedIn
@@ -94,27 +90,23 @@ if(! authStore.isLoggedIn()) {
 So the method names we chose in the `actions` block (`login` and `logout`) will have so-called "Action Creator" functions automatically created using the same name. But you can write your own dispatching function by defining it in a `before` block like this:
 
 ```javascript
-Storefront.define( 'Auth', ( mgr)=> {
-    // Destructuring for prettier code. :-)
-    var {actions, outlets, before, dataHasChanged}= manager
+Storefront.define( 'Auth', store => {
 
-    // 'actions' block from above goes here...
-
-    before({
+    store.before({
 
         // If we need to do something async, it's better to do it here,
         // before it's been dispatched...
         login( dispatch, username, password) {
             myApi.authenticate( username, passord)
-                .then(( user)=>{
+                .then( user =>{
                     // The 'dispatch' param is a function that's
                     // pre-bound to the correct action event name,
                     // you just call it with your payload:
                     dispatch( user)
                 })
-                .catch(( err)=>{
+                .catch( err =>{
                     // Maybe you have a central api error store?
-                    manager.getStore( 'Errors').report( err)
+                    store.get( 'Errors').report( err)
                 })
 
         }
@@ -132,8 +124,8 @@ See [docs/api.md](./docs/api.md) for more.
 I use ES6 syntax in all my javascript files for consistency, but it's not required to use Storefront, just change the method calls to the more old-school style:
 
 ```javascript
-Storefront.define( 'Project', function( mgr){
-    mgr.actions({
+Storefront.define( 'Project', function( store){
+    store.actions({
         addProject: function( action) {
             // ...
         }

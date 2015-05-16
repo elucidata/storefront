@@ -2,6 +2,8 @@
 
 * Designed with ES* and decorators in mind!
 
+Inspired by the `alt` implementation of flux.
+
 **Example**
 
 _flux.js_
@@ -222,4 +224,161 @@ else {
 }
 
 export default instance
+```
+
+
+# Clerks Style?
+
+_TodoStore.js_
+```javascript
+// import {createActions, onAction, Store, Clerk} from 'flux'
+const {createActions, onAction, Store, Clerk} = {}
+
+// Actions -- Dispatches payloads
+//  Clerk -- Listens for Actions, and triggers Actions
+//  Store -- Listens for Actions, and triggers Change Events
+
+const App= createActions( 'startUp' )
+
+const TodoActions= createActions( 'addTodo', 'removeTodo' )
+
+class TodoClerk extends Clerk {
+  @onAction( App.startUp )
+  init( payload ) {
+    fetch( '/todos')
+      .then( JSON.parse )
+      .then( data => {
+        for( let todo of data ) {
+          TodoActions.addTodo( todo )
+        }
+      })
+      .catch( error => {
+        console.log( 'error fetch todos', error )
+        payload.returnValue= error
+      })
+  }
+}
+
+class TodoStore extends Store {
+  state= {
+    todos: []
+  }
+
+  @onAction( TodoActions.addTodo )
+  addTodo({ payload:todo }) {
+    this.todos.push( todo )
+    this.markAsChanged()
+  }
+}
+```
+
+
+## Hybrid...
+
+_TodosStore.js_
+```javascript
+import {accessor, onAction, Store, Clerk, Actions} from './flux'
+
+// Actions -- Dispatches payloads
+//  Clerk -- Listens for Actions, and triggers Actions
+//  Store -- Listens for Actions, and triggers Change Events
+
+
+const TodoActions= Actions.create( 'addTodo', 'removeTodo' )
+
+@Clerk
+class TodoClerk {
+  @onAction( App.startUp )
+  init( payload ) {
+    fetch( '/todos')
+      .then( JSON.parse )
+      .then( data => {
+        for( let todo of data ) {
+          TodoActions.addTodo( todo )
+        }
+      })
+      .catch( error => {
+        console.log( 'error fetch todos', error )
+        payload.returnValue= error
+      })
+  }
+}
+
+@Store({
+  exposes: TodoActions
+})
+class TodoStore {
+  state=  Immutable.Map({})
+  fetching= {}
+
+  @onAction( TodoActions.addTodo )
+  addTodo({ payload:todo }) {
+    this.setState( this.state.set( todo.id, todo ))
+    delete this.fetching[ todo.id ]
+  }
+
+  @accessor
+  getTodos() {
+    return this.state.values()
+  }
+
+  @accessor
+  getTodo( id ) {
+    if( this.state.has( id )) {
+      return this.state.get( id )
+    }
+    else {
+      if(! this.fetching[ id ]) {
+        this.fetch[ id ] = true
+        fetch( `/todos/${ id }`)
+          .then( r => r.json() )
+          .then( TodoActions.addTodo )
+          .catch( AppActions.reportError )
+      }
+      return null
+    }
+  }
+}
+```
+
+
+### Slightly Different
+
+_flux.js_
+```javascript
+import Storefront from 'storefront'
+export default new Storefront({
+  immutable: true
+})
+```
+
+_TodoStore.js_
+```javascript
+import flux from './flux'
+
+const TodoActions= flux.createActions( 'addTodo' )
+
+@flux.store
+@flux.expose( TodoActions )
+class TodoStore {
+    state= Immutable.Map({})
+
+    @flux.bind( TodoActions.addTodo )
+    addTodo({ payload:todo }) {
+     this.setState( todo.id, todo )
+    }
+
+    @flux.expose
+    getTodo( id ) {
+     this.state.get( id )
+    }
+}
+
+@flux.clerk
+class TodoClerk {
+    @flux.bind( TodoActions.fetch )
+    onFetch({ action, payload, timestamp }) {
+        // Why a separate object?
+    }
+}
 ```

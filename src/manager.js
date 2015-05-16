@@ -2,6 +2,7 @@ var merge= require( './merge'),
     alias= require( './alias'),
     bindAll= require( './bind-all'),
     camelize= require( './camelize'),
+    extractMethods= require( './extract-methods'),
     kind= require( 'elucidata-type')
 
 module.exports=
@@ -30,6 +31,8 @@ class Manager {
     alias( this, 'expose', 'exposes', 'outlet', 'outlets')
     alias( this, 'createEvent', 'defineEvent')
     alias( this, 'hasChanged', 'dataDidChange', 'dataHasChanged')
+    alias( this, 'onChange', 'listen')
+    alias( this, 'offChange', 'unlisten')
 
     if( instance.token == null) {  // jshint ignore:line
       instance.token= runtime.dispatcher.register(( action)=>{
@@ -84,6 +87,7 @@ class Manager {
   }
 
   before( methods) {
+    methods= extractMethods( methods)
     Object.keys( methods).forEach(( action_name)=> {
       var event_name= this.name +'_'+ action_name,
           fn= methods[ action_name],
@@ -103,7 +107,7 @@ class Manager {
     else if( kind.isObject( store)) {
       store= store.name
     }
-
+    methods= extractMethods( methods)
     Object.keys( methods).forEach(( action_name)=>{
       var event_name= store +'_'+ action_name,
           fn= methods[ action_name]
@@ -148,6 +152,7 @@ class Manager {
   }
 
   expose( methods) {
+    methods= extractMethods( methods)
     Object.keys( methods).forEach(( method_name)=>{
       if( this._instance.hasOwnProperty( method_name)) {
         var method= this._instance[ method_name]

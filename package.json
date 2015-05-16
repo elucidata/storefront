@@ -2,7 +2,7 @@
   "name": "storefront",
   "description": "Less tedious Flux implementation.",
   "main": "index.js",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "license": "MIT",
   "author": "Matt McCray <matt@elucidata.net>",
   "keywords": [
@@ -30,7 +30,8 @@
     "test": "tape test/**/*.js | tap-spec"
   },
   "dependencies": {
-    "elucidata-type": "^1.1.1"
+    "elucidata-type": "^1.1.1",
+    "eventemitter3": "^1.1.0"
   },
   "devDependencies": {
     "react-tools": "^0.12.1",
