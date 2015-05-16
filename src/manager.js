@@ -16,7 +16,6 @@ class Manager {
     this._handlers= {}
     this._notifyEvent= runtime.createEvent( name, 'notify')
     this._changeEvent= runtime.createEvent( name, 'change')
-    // this._configEvent= runtime.createEvent( name, 'config')
 
     this.expose( this._notifyEvent.public)
     this.expose( this._changeEvent.public)
@@ -24,7 +23,7 @@ class Manager {
     bindAll( this,
       'dispatch', 'notify', 'actions', 'waitFor', 'hasChanged', 'before',
       'expose', 'get', 'before', 'createEvent', 'invoke'
-    ) //, 'configure'
+    )
 
     alias( this, 'actions', 'action', 'observe', 'observes')
     alias( this, 'get', 'getStore', 'getClerk')
@@ -42,16 +41,7 @@ class Manager {
         }
       })
     }
-
-    // this.configure() // Setup defaults...
   }
-
-  // configure( settings) {
-  //   this.settings= merge({ // Defaults
-  //     globalChanges: true
-  //   }, settings || {})
-  //   this._configEvent.emitNow(this)
-  // }
 
   dispatch( type, payload, callback) {
     if( this.runtime.settings.aysncDispatch) {
@@ -82,7 +72,7 @@ class Manager {
   }
 
   notify( message) {
-    this._notifyEvent.emit( message)
+    this._notifyEvent.emitNow( message)
     return this
   }
 
@@ -180,7 +170,7 @@ class Manager {
   createEvent( eventName, options) {
     options= options || {}
     var event= this.runtime.createEvent( name, eventName, options),
-        emitterFn= options.sync ? event.emitNow.bind( event) : event.emit.bind( event)
+        emitterFn= options.async ? event.emit.bind( event) : event.emitNow.bindNow( event)
 
     this.expose( event.public)
     this._instance[ 'emit'+ camelize( eventName)]= emitterFn

@@ -1,44 +1,21 @@
-var camelize= require( './camelize')
+var camelize= require( './camelize'),
+    subscriptions= require( './subscriptions')
 
 module.exports=
 function eventHelperMixin( runtime) {
+  var _subscriber= subscriptions( runtime)
+
   return {
     onStoreEvent( storeName, eventName, callback) {
-      storeName= storeName.name || storeName // in case they send a store instance
-
-      var store= runtime.getInstance( storeName), hookup
-
-      if( store) {
-        eventName= camelize( eventName)
-
-        if( hookup= store[ 'on'+ eventName]) {  // jshint ignore:line
-          hookup( callback)
-
-          if(! this._storeListeners) {
-            this._storeListeners= []
-          }
-
-          this._storeListeners.push({ storeName, eventName, callback })
-        }
-        else {
-          if( runtime.settings.verbose) {
-            console.warn( "Storefront: Event", eventName, "isn't supported by store:", storeName)
-          }
-        }
+      if(! this._storefront_subscriptions) {
+        this._storefront_subscriptions= _subscriber()
       }
+      this._storefront_subscriptions.on( storeName, eventName, callback)
     },
-
     componentWillUnmount() {
-      if( this._storeListeners) {
-
-        this._storeListeners.forEach(( eventInfo)=> {
-          var {storeName, eventName, callback}= eventInfo,
-              store= runtime.getInstance( storeName)
-          store[ 'off'+ eventName]( callback )
-        })
-
-        this._storeListeners.length= 0
-        this._storeListeners= null
+      if( this._storefront_subscriptions) {
+        this._storefront_subscriptions.release()
+        this._storefront_subscriptions= null
       }
     }
   }

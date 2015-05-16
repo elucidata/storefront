@@ -11,7 +11,8 @@ var Dispatcher= require( './dispatcher'),
     console= require( './console'),  // jshint ignore:line
     bindAll= require( './bind-all'),
     createEvent= require( './create-event'),
-    eventHelperMixin= require( './event-helper-mixin')
+    eventHelperMixin= require( './event-helper-mixin'),
+    subscriptions= require( './subscriptions')
 
 class Runtime {
 
@@ -36,7 +37,8 @@ class Runtime {
     }
 
     this.mixins={
-      eventHelper: eventHelperMixin( this)
+      eventHelper: eventHelperMixin( this),
+      subscriptions: subscriptions( this)
     }
 
     alias( this, 'get', 'getInstance')
@@ -86,9 +88,9 @@ class Runtime {
     var instance= this._registry[ name]
 
     if( !instance) {
-      this._warn( "Store", name, "is not defined.")
+      this._warn( "Storefront: Store", name, "is not defined.")
       if( stubMissing === true) {
-        this._info( "Building stub for", name)
+        this._info( "Storefront: Building stub for", name)
         instance= { name }
         this._registry[ name]= instance
       }
@@ -147,7 +149,7 @@ class Runtime {
         return_value
 
     if( instance) {
-      this._warn( name, "already defined: Merging definitions.")
+      this._warn( 'Storefront:', name, "already defined: Merging definitions.")
     }
 
     if(! instance) {

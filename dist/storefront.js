@@ -35,7 +35,7 @@ function bindAll(/* target, ...props */) {
   return target
 }
 
-},{"elucidata-type":17}],4:[function(require,module,exports){
+},{"elucidata-type":18}],4:[function(require,module,exports){
 module.exports=
 function camelize( string) {
   return string.replace( /(?:^|[-_])(\w)/g, function( _, char) {
@@ -147,7 +147,7 @@ function createEvent( baseName, eventName, emitter, options) {
 }
 
 }).call(this,require('_process'))
-},{"./camelize":4,"./flatten":10,"_process":16}],7:[function(require,module,exports){
+},{"./camelize":4,"./flatten":10,"_process":17}],7:[function(require,module,exports){
 var uid= require( './uid'),
     now= require( './now'),
     console= require( './console')  // jshint ignore:line
@@ -270,54 +270,31 @@ module.exports=
   };
 return Dispatcher;})()
 
-},{"./console":5,"./now":13,"./uid":15}],8:[function(require,module,exports){
-var camelize= require( './camelize')
+},{"./console":5,"./now":13,"./uid":16}],8:[function(require,module,exports){
+var camelize= require( './camelize'),
+    subscriptions= require( './subscriptions')
 
 module.exports=
 function eventHelperMixin( runtime) {
+  var _subscriber= subscriptions( runtime)
+
   return {
     onStoreEvent:function( storeName, eventName, callback) {
-      storeName= storeName.name || storeName // in case they send a store instance
-
-      var store= runtime.getInstance( storeName), hookup
-
-      if( store) {
-        eventName= camelize( eventName)
-
-        if( hookup= store[ 'on'+ eventName]) {  // jshint ignore:line
-          hookup( callback)
-
-          if(! this._storeListeners) {
-            this._storeListeners= []
-          }
-
-          this._storeListeners.push({ storeName:storeName, eventName:eventName, callback:callback })
-        }
-        else {
-          if( runtime.settings.verbose) {
-            console.warn( "Storefront: Event", eventName, "isn't supported by store:", storeName)
-          }
-        }
+      if(! this._storefront_subscriptions) {
+        this._storefront_subscriptions= _subscriber()
       }
+      this._storefront_subscriptions.on( storeName, eventName, callback)
     },
-
     componentWillUnmount:function() {
-      if( this._storeListeners) {
-
-        this._storeListeners.forEach(function( eventInfo) {
-          var $__0=   eventInfo,storeName=$__0.storeName,eventName=$__0.eventName,callback=$__0.callback,
-              store= runtime.getInstance( storeName)
-          store[ 'off'+ eventName]( callback )
-        })
-
-        this._storeListeners.length= 0
-        this._storeListeners= null
+      if( this._storefront_subscriptions) {
+        this._storefront_subscriptions.release()
+        this._storefront_subscriptions= null
       }
     }
   }
 }
 
-},{"./camelize":4}],9:[function(require,module,exports){
+},{"./camelize":4,"./subscriptions":15}],9:[function(require,module,exports){
 var kind= require( 'elucidata-type')
 
 module.exports=
@@ -349,7 +326,7 @@ function getInlineMethods( source ) {
   return methods
 }
 
-},{"elucidata-type":17}],10:[function(require,module,exports){
+},{"elucidata-type":18}],10:[function(require,module,exports){
 module.exports=
 function flatten( arrays) {
   var merged= []
@@ -377,7 +354,6 @@ module.exports=
     this.$Manager_handlers= {}
     this.$Manager_notifyEvent= runtime.createEvent( name, 'notify')
     this.$Manager_changeEvent= runtime.createEvent( name, 'change')
-    // this._configEvent= runtime.createEvent( name, 'config')
 
     this.expose( this.$Manager_notifyEvent.public)
     this.expose( this.$Manager_changeEvent.public)
@@ -385,7 +361,7 @@ module.exports=
     bindAll( this,
       'dispatch', 'notify', 'actions', 'waitFor', 'hasChanged', 'before',
       'expose', 'get', 'before', 'createEvent', 'invoke'
-    ) //, 'configure'
+    )
 
     alias( this, 'actions', 'action', 'observe', 'observes')
     alias( this, 'get', 'getStore', 'getClerk')
@@ -403,16 +379,7 @@ module.exports=
         }
       }.bind(this))
     }
-
-    // this.configure() // Setup defaults...
   }
-
-  // configure( settings) {
-  //   this.settings= merge({ // Defaults
-  //     globalChanges: true
-  //   }, settings || {})
-  //   this._configEvent.emitNow(this)
-  // }
 
   Manager.prototype.dispatch=function(type, payload, callback) {"use strict";
     if( this.runtime.settings.aysncDispatch) {
@@ -443,7 +410,7 @@ module.exports=
   };
 
   Manager.prototype.notify=function(message) {"use strict";
-    this.$Manager_notifyEvent.emit( message)
+    this.$Manager_notifyEvent.emitNow( message)
     return this
   };
 
@@ -541,7 +508,7 @@ module.exports=
   Manager.prototype.createEvent=function(eventName, options) {"use strict";
     options= options || {}
     var event= this.runtime.createEvent( name, eventName, options),
-        emitterFn= options.sync ? event.emitNow.bind( event) : event.emit.bind( event)
+        emitterFn= options.async ? event.emit.bind( event) : event.emitNow.bindNow( event)
 
     this.expose( event.public)
     this.$Manager_instance[ 'emit'+ camelize( eventName)]= emitterFn
@@ -567,7 +534,7 @@ module.exports=
 return Manager;})()
 
 }).call(this,require('_process'))
-},{"./alias":2,"./bind-all":3,"./camelize":4,"./extract-methods":9,"./merge":12,"_process":16,"elucidata-type":17}],12:[function(require,module,exports){
+},{"./alias":2,"./bind-all":3,"./camelize":4,"./extract-methods":9,"./merge":12,"_process":17,"elucidata-type":18}],12:[function(require,module,exports){
 module.exports=
 function merge(/* target, ...sources */) {
   var sources= Array.prototype.slice.call( arguments),
@@ -617,7 +584,8 @@ var Dispatcher= require( './dispatcher'),
     console= require( './console'),  // jshint ignore:line
     bindAll= require( './bind-all'),
     createEvent= require( './create-event'),
-    eventHelperMixin= require( './event-helper-mixin')
+    eventHelperMixin= require( './event-helper-mixin'),
+    subscriptions= require( './subscriptions')
 
 
 
@@ -642,7 +610,8 @@ var Dispatcher= require( './dispatcher'),
     }
 
     this.mixins={
-      eventHelper: eventHelperMixin( this)
+      eventHelper: eventHelperMixin( this),
+      subscriptions: subscriptions( this)
     }
 
     alias( this, 'get', 'getInstance')
@@ -692,9 +661,9 @@ var Dispatcher= require( './dispatcher'),
     var instance= this.$Runtime_registry[ name]
 
     if( !instance) {
-      this.$Runtime_warn( "Store", name, "is not defined.")
+      this.$Runtime_warn( "Storefront: Store", name, "is not defined.")
       if( stubMissing === true) {
-        this.$Runtime_info( "Building stub for", name)
+        this.$Runtime_info( "Storefront: Building stub for", name)
         instance= { name:name }
         this.$Runtime_registry[ name]= instance
       }
@@ -753,7 +722,7 @@ var Dispatcher= require( './dispatcher'),
         return_value
 
     if( instance) {
-      this.$Runtime_warn( name, "already defined: Merging definitions.")
+      this.$Runtime_warn( 'Storefront:', name, "already defined: Merging definitions.")
     }
 
     if(! instance) {
@@ -837,7 +806,73 @@ var Dispatcher= require( './dispatcher'),
 module.exports= Runtime
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./alias":2,"./bind-all":3,"./camelize":4,"./console":5,"./create-event":6,"./dispatcher":7,"./event-helper-mixin":8,"./flatten":10,"./manager":11,"./merge":12,"./uid":15,"_process":16,"elucidata-type":17,"eventemitter3":18}],15:[function(require,module,exports){
+},{"./alias":2,"./bind-all":3,"./camelize":4,"./console":5,"./create-event":6,"./dispatcher":7,"./event-helper-mixin":8,"./flatten":10,"./manager":11,"./merge":12,"./subscriptions":15,"./uid":16,"_process":17,"elucidata-type":18,"eventemitter3":19}],15:[function(require,module,exports){
+var camelize= require( './camelize'),
+    alias= require( './alias')
+
+
+
+  function Subscriptions(runtime) {"use strict";
+    this.$Subscriptions_runtime= runtime
+    this.$Subscriptions_storeListeners= []
+    alias( this, 'on', 'onStoreEvent', 'onEvent')
+    alias( this, 'release', 'off', 'releaseAll')
+  }
+
+  Subscriptions.prototype.size=function() {"use strict";
+    return this.$Subscriptions_storeListeners.length
+  };
+
+  Subscriptions.prototype.on=function(storeName, eventName, callback)  {"use strict";
+    storeName= storeName.name || storeName // in case they send a store instance
+    var store= this.$Subscriptions_runtime.getInstance( storeName), hookup
+
+    if( store) {
+      eventName= camelize( eventName)
+
+
+      if( hookup= store[ 'on'+ eventName]) {  // jshint ignore:line
+        hookup( callback)
+
+        this.$Subscriptions_storeListeners.push({ storeName:storeName, eventName:eventName, callback:callback })
+      }
+      else {
+        if( this.$Subscriptions_runtime.settings.verbose) {
+          console.warn( "Storefront: Event", eventName, "isn't supported by store:", storeName)
+        }
+      }
+    }
+    else {
+      if( this.$Subscriptions_runtime.settings.verbose) {
+        console.warn( "Storefront: Store", storeName, "not found")
+      }
+    }
+    return this
+  };
+
+  Subscriptions.prototype.release=function() {"use strict";
+    this.$Subscriptions_storeListeners.forEach(function( eventInfo) {
+      var $__0=   eventInfo,storeName=$__0.storeName,eventName=$__0.eventName,callback=$__0.callback,
+          store= this.$Subscriptions_runtime.getInstance( storeName)
+
+      store[ 'off'+ eventName]( callback )
+    }.bind(this))
+
+    this.$Subscriptions_storeListeners.length= 0
+    this.$Subscriptions_storeListeners= []
+    return this
+  };
+
+
+
+module.exports=
+function subscriptions( runtime) {
+  return function() {
+    return new Subscriptions( runtime )
+  }
+}
+
+},{"./alias":2,"./camelize":4}],16:[function(require,module,exports){
 var _last_id = 0
 
 function uid ( radix){
@@ -855,7 +890,7 @@ function uid ( radix){
 
 module.exports= uid
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -943,7 +978,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 (function() {
   var name, type, _elementTestRe, _fn, _i, _keys, _len, _ref, _typeList;
 
@@ -1040,7 +1075,7 @@ process.chdir = function (dir) {
 
 }).call(this);
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 //

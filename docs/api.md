@@ -71,11 +71,11 @@ name | default | description
 Defines a store:
 
 ```javascript
-Storefront.define( 'StoreName', ( manager)=>{
+Storefront.define( 'StoreName', manager =>{
 
     // Object keys sent to .actions() become action names
-    storeMgr.actions({
-        // Match the object key (method name) from the Clerk's actions block
+    manager.actions({
+
         actionName( action) {
             // action === {
             //     origin: 'StoreName',
@@ -87,7 +87,7 @@ Storefront.define( 'StoreName', ( manager)=>{
             manager.waitFor( 'OtherStore')
 
             // Or...
-            var otherStore= manager.getStore( 'OtherStore')
+            var otherStore= manager.get( 'OtherStore')
             manager.waitFor( otherStore)
 
             // After you have changed your internal data
@@ -103,7 +103,6 @@ Storefront.define( 'StoreName', ( manager)=>{
     // Create your own "Action Creators"
     manager.before({
 
-        // Available on the storefront instance
         actionName( dispatch, params ) {
             // dispatch() is auto-bound with the action name,
             // 'StoreName_actionName' in this case.
@@ -125,7 +124,7 @@ Storefront.define( 'StoreName', ( manager)=>{
         // Match the action name/mthod of other store
         otherActionName( action) {
             // You can send the name of the store to wait for, or get
-            // an instance with: manager.getStore( 'OtherStore')
+            // an instance with: manager.get( 'OtherStore')
             manager.waitFor( 'OtherStore')
         }
     })
@@ -383,7 +382,7 @@ var store= Storefront.define( 'Hotkey', (mgr)=>{
     emitHotkey( params )
 })
 
-// Instances how have support for:
+// Instances now have support for:
 store.onHotkey( fn )
 store.offHotkey( fn )
 ```
