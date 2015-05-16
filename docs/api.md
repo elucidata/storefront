@@ -286,7 +286,7 @@ The token used by the Dispatcher. Primarily for internal use.
 
 ### Action Stubbing
 
-Storefront will automatically create an action stubs for every method defined in the `actions` block:
+Storefront will automatically create an action stub for every method defined in the `actions` block:
 
 ```javascript
 Storefront.define( 'Timer', ( mgr)=>{

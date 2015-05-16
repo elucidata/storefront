@@ -42,7 +42,7 @@ export default Storefront.define( 'Auth', store => {
     let _loggedIn= false
 
     // The following actions, login/logout, will have
-    // 'creators' automatically generated.
+    // 'action creators' automatically generated.
     store.actions({
 
         login( action) {
@@ -74,13 +74,13 @@ export default Storefront.define( 'Auth', store => {
 
 At its simplest, that's it.
 
-> For the full example code with a demonstration of how to handle input validation in Storefront (Promises or Events), how to `waitFor` other stores, and more see [docs/usage.md](./docs/usage.md)
+> For the full example code with a demonstration of how to handle input validation in Storefront (via Promises or Events), how to `waitFor` other stores, and more see [docs/usage.md](./docs/usage.md)
 
 You can now use the store as a simple object:
 
 ```javascript
 // get by name or require( 'stores/auth'), whichever you prefer.
-var authStore= Storefront.get( 'Auth')
+const authStore= Storefront.get( 'Auth')
 
 if(! authStore.isLoggedIn()) {
     authStore.login('username', 'password')
@@ -138,7 +138,7 @@ Storefront.define( 'Project', function( store){
 
 The MIT License (MIT)
 
-Copyright (c) 2014 Elucidata unLTD
+Copyright (c) 2014-2015 Elucidata unLTD
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

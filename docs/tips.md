@@ -23,8 +23,6 @@ myStore // => Storefront instance
 
 This means that the internal action names look something like this: `5r7u9_actionName` -- But since you never have to type that, who cares, right?
 
-_Note:_ If you're defining the clerk and store separately (`defineClerk` & `defineStore`), this isn't supported.
-
 ## Testing
 
 If you need to reset a store, you can reach call `Storefront.resetStore` to do that.
@@ -94,3 +92,36 @@ Storefront.define( 'Navigation', ( mgr)=>{
     })
 })
 ```
+
+## Immutable Stores
+
+It's pretty easy to make a store use Immutable state (using Facebook's Immutable in this example, but you can use what you like):
+
+```javascript
+var AppStore= Storefront.define( store => {
+
+    let _state= Immutable.fromJS({
+        ready: false,
+        version: '1.0.0'
+    })
+
+    store.actions({
+        setReady({ payload:isReady }) {
+            _setState( _state.set( 'ready', isReady ))
+        }
+    })
+
+    store.outlets({
+        isReady() { return _state.get('ready') }
+        version() { return _state.get('version') }
+        getState() { return _state }
+    })
+
+    function _setState( newState ) {
+        // Only trigger change when the state has _actually_ changed.
+        if(! newState.equals( _state ) ) {
+            _state= newState
+            store.hasChanged()
+        }
+    }
+})

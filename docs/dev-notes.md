@@ -6,6 +6,7 @@
 
 * [To-Do](#to-do)
 * [Ideas](#ideas)
+  * [Immutable Support](#immutable-support)
   * [Validation Custom Events](#validation-custom-events)
   * [ES6 Classes?](#es6-classes)
   * [Pass all stores down from top of React component structure?](#pass-all-stores-down-from-top-of-react-component-structure)
@@ -19,6 +20,40 @@
 
 
 ## Ideas
+
+### Immutable Support
+
+A DIY approach is probably best:
+
+_stores/app.js_
+```javascript
+Storefront.define( 'App', store => {
+    let state= Immutable.fromJS({
+        ready: false,
+        version: '1.0.0'
+    })
+
+    store.actions({
+        setReady({ payload:isReady }) {
+            setState( state.set( 'ready', isReady ))
+        }
+    })
+
+    store.outlets({
+        isReady() { return state.get('ready') }
+        version() { return state.get('version') }
+        getState() { return state }
+    })
+
+    function setState( newState ) {
+        // Only trigger change when the state has _actually_ changed.
+        if(! newState.eq( state )) {
+            state= newState
+            store.hasChanged()
+        }
+    }
+})
+```
 
 ### Validation Custom Events
 

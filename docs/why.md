@@ -4,7 +4,7 @@
 
 Good question. 'Cause I suffer from NIH-syndrome.
 
-OK, not really. _Actually_, after working with Flux in a couple of small projects, and about to start a very large one, there are a few things I got tired of managing/dealing with. As such I wanted to build a system that technically supported everything the (quasi) official [Facebook Flux]() version does, but with these rules in mind:
+OK, not really. _Actually_, after working with Flux in a couple of small projects, and about to start a very large one, there are a few things I got tired of managing/dealing with. As such I wanted to build a system that technically supported everything the official [Facebook Flux]() version does, but with these rules in mind:
 
 - No need to talk to a dispatcher directly.
 - No need to know any dispatchTokens.
@@ -17,9 +17,9 @@ OK, not really. _Actually_, after working with Flux in a couple of small project
 
 Not to seem negative, there are excellent parts of Flux that I wanted to be sure to keep:
 
-- General flow.
+- Unidirection data flow.
 - ~~Singleton Dispatcher~~ Shared dispatcher per Runtime instance.
-- Sequenceable dispatching.
+- Sequenceable dispatching (`waitFor`).
 - Synchronicity of dispatching and store updates.
 
 Originally, I wanted to use ES6 classes for Stores. But it turns out that closures are nicer from a private-data perspective (internal state is truly hidden from consumers), _and_ from a ease-of-use perspective (code is cleaner looking).
@@ -34,23 +34,21 @@ Terminology-wise, instead of _Action Creators_, _Action Events_ (usually in a co
 Here's a tiny store to illustrate how to use Storefront:
 
 ```javascript
-var selectionStore= Storefront.define( 'Selection', ( mgr)=> {
-    // mgr contains all the methods required to define your store.
-    var {actions, outlets, dataHasChanged}= mgr
+const selectionStore= Storefront.define( 'Selection', store => {
 
     // Internal State
     var _selectedItem= null
 
     // Handle the actions
-    actions({
+    store.actions({
         select( action) {
             _selectedItem= action.payload.item
-            dataHasChanged()
+            store.hasChanged()
         }
     })
 
     // Provide some data access methods to consumers
-    outlets({
+    store.outlets({
         getSelectedItem() {
             return _selectedItem
         },
@@ -62,7 +60,7 @@ var selectionStore= Storefront.define( 'Selection', ( mgr)=> {
 })
 ```
 
-The methods available from the example 'selectionStore' are:
+The methods available from the example `selectionStore` are:
 
 ```javascript
 { name: 'Selection',

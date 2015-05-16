@@ -15,40 +15,38 @@ Example authentication store that uses events to send validation notifications.
 
 _stores/auth.js_
 ``` javascript
-var Storefront= require( 'storefront'),
-    type= require( 'elucidata-type'),
-    API= require('<your-api-lib>')
+import Storefront from 'storefront'
+import type from 'elucidata-type'
+import API from '<your-api-lib>'
 
-module.exports=
-Storefront.define( 'Auth', ( mgr)=> {
-    var {actions, outlets, dataHasChanged, observes, notify}= mgr,
-    userStore= mgr.getStore( 'Users'),
-    errorStore= mgr.getStore( 'Errors')
+export default Storefront.define( 'Auth', store => {
+    const userStore= store.getStore( 'Users'),
+          errorStore= store.getStore( 'Errors')
+    
+    let authData= getInitialState()
 
-    var authData= getInitialState()
-
-    before({
+    store.before({
 
         login( dispatch, username, password) {
             if( type.isEmpty( username))
-                return notify({ valid:false, message:"Username cannot be empty."})
+                return store.notify({ valid:false, message:"Username cannot be empty."})
             if( type.isEmpty( password))
-                return notify({ valid:false, message:"Password cannot be empty."})
+                return store.notify({ valid:false, message:"Password cannot be empty."})
 
             API.
                 authenticate( username, password).
                 then(( user)=> {
-                    notify({ valid:true })
+                    store.notify({ valid:true })
                     dispatch( user)
                 }).
                 catch(( err)=> {
                     errorStore.report( err)
-                    notify({ valid:false, message:()'API Error: '+ err) })
+                    store.notify({ valid:false, message:()'API Error: '+ err) })
                 })
         }
     })
 
-    actions({
+    store.actions({
 
         login( action) {
             authData= {
@@ -56,32 +54,32 @@ Storefront.define( 'Auth', ( mgr)=> {
                 authenticatedAt: new Date(),
                 currentUser: action.payload
             }
-            dataHasChanged()
+            store.hasChanged()
         },
 
         // An action for this handler will be automatically created...
         logout( action) {
             authData= getInitialState()
-            notify( 'You have been logged out.')
-            dataHasChanged()
+            store.notify( 'You have been logged out.')
+            store.hasChanged()
         }
     })
 
-    observes( userStore, {
+    store.observes( userStore, {
 
         remove( action) {
             if( !authData.authenticated) return
             if( action.payload.id !== authData.currentUser.id) return
 
-            mgr.waitFor( userStore)
+            store.waitFor( userStore)
 
             if( userStore.get( authData.currentUser.id) === null ) {
-                mgr.getClerk().logout()
+                store.invoke( 'logout')
             }
         }
     })
 
-    outlets({
+    store.outlets({
 
         isAuthenticated() {
             return authData.authenticated
