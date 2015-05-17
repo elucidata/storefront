@@ -10,6 +10,7 @@
   * [Validation Custom Events](#validation-custom-events)
   * [ES6 Classes?](#es6-classes)
   * [Pass all stores down from top of React component structure?](#pass-all-stores-down-from-top-of-react-component-structure)
+  * [Storefront Controller](#storefront-controller)
 
 <!-- toc stop -->
 
@@ -215,4 +216,38 @@ configure({ useRAF:true }).
 onChange( renderApp)
 
 renderApp()
+```
+
+---
+
+### Storefront Controller
+
+An HOC for resolving store data to child component props. Put it at `Storefront.util.Controller`?
+
+Should support usage as an ES7 decorator too.
+
+```javascript
+const {Controller}= Storefront.util
+
+@Controller({
+    listenTo: ['Auth', 'Cart'],
+    resolveProps: {
+        loggedInAs( props, Auth, Cart ) {
+            return Auth.getLoggedInUser()
+        },
+        cart( props, Auth, Cart ) {
+            return Cart.getState().toJS() // Using Immutable.js?
+        }
+    }
+})
+class MyView extends React.Component {
+    render() {
+        return (
+            <div>
+                { this.props.loggedInAs }. 
+                { this.props.cart.length } items in your cart.
+            </div>
+        )
+    }
+}
 ```

@@ -400,7 +400,7 @@ Usage:
 
 ```javascript
 React.createClass({
-    mixins: [ Storefront.mixins.eventHelper ],
+    mixins: [ Storefront.util.eventHelperMixin ],
 
     componentDidMount() {
         this.onStoreEvent(
@@ -423,7 +423,7 @@ A utility for managing event subscriptions. Use it in a class-based React compon
 ```javascript
 class MyComponent extends React.Component {
     componentDidMount() {
-        this._subscriptions= Storefront.mixins.subscriptions()
+        this._subscriptions= Storefront.util.subscriptions()
             .on( 'MyStore', 'notify', this.onStoreNotification.bind( this))
     }
     

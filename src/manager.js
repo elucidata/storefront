@@ -19,6 +19,10 @@ class Manager {
 
     this.expose( this._notifyEvent.public)
     this.expose( this._changeEvent.public)
+    this.expose({
+      listen: this._changeEvent.public.onChange,
+      unlisten: this._changeEvent.public.offChange
+    })
 
     bindAll( this,
       'dispatch', 'notify', 'actions', 'waitFor', 'hasChanged', 'before',
@@ -30,8 +34,6 @@ class Manager {
     alias( this, 'expose', 'exposes', 'outlet', 'outlets')
     alias( this, 'createEvent', 'defineEvent')
     alias( this, 'hasChanged', 'dataDidChange', 'dataHasChanged')
-    alias( this, 'onChange', 'listen')
-    alias( this, 'offChange', 'unlisten')
 
     if( instance.token == null) {  // jshint ignore:line
       instance.token= runtime.dispatcher.register(( action)=>{

@@ -4,7 +4,7 @@ var Runtime= require( './lib/runtime')
 // module.exports= Runtime.newInstance()
 module.exports= new Runtime()
 
-},{"./lib/runtime":14}],2:[function(require,module,exports){
+},{"./lib/runtime":15}],2:[function(require,module,exports){
 module.exports=
 function alias(/* target, prop, ...aliases */) {
   var aliases= Array.prototype.slice.call( arguments),
@@ -35,7 +35,7 @@ function bindAll(/* target, ...props */) {
   return target
 }
 
-},{"elucidata-type":18}],4:[function(require,module,exports){
+},{"elucidata-type":19}],4:[function(require,module,exports){
 module.exports=
 function camelize( string) {
   return string.replace( /(?:^|[-_])(\w)/g, function( _, char) {
@@ -147,7 +147,7 @@ function createEvent( baseName, eventName, emitter, options) {
 }
 
 }).call(this,require('_process'))
-},{"./camelize":4,"./flatten":10,"_process":17}],7:[function(require,module,exports){
+},{"./camelize":4,"./flatten":11,"_process":18}],7:[function(require,module,exports){
 var uid= require( './uid'),
     now= require( './now'),
     console= require( './console')  // jshint ignore:line
@@ -270,7 +270,35 @@ module.exports=
   };
 return Dispatcher;})()
 
-},{"./console":5,"./now":13,"./uid":16}],8:[function(require,module,exports){
+},{"./console":5,"./now":14,"./uid":17}],8:[function(require,module,exports){
+function ensure( condition, format, a, b, c, d, e, f) {
+  if(! condition) {
+    var error, args, args_index
+
+    if (format === undefined) {
+      error = new Error(
+        'Minified exception occurred; use the non-minified dev environment ' +
+        'for the full error message and additional helpful warnings.'
+      )
+    }
+    else {
+      args= [a, b, c, d, e, f]
+      args_index= 0
+
+      error= new Error(
+        'Violation: ' +
+        format.replace( /%s/g, function(){ return args[ args_index++]})
+      )
+    }
+
+    error.framesToPop= 1 // we don't care about ensure's own frame
+    throw error
+  }
+}
+
+module.exports= ensure
+
+},{}],9:[function(require,module,exports){
 var camelize= require( './camelize'),
     subscriptions= require( './subscriptions')
 
@@ -294,7 +322,7 @@ function eventHelperMixin( runtime) {
   }
 }
 
-},{"./camelize":4,"./subscriptions":15}],9:[function(require,module,exports){
+},{"./camelize":4,"./subscriptions":16}],10:[function(require,module,exports){
 var kind= require( 'elucidata-type')
 
 module.exports=
@@ -326,7 +354,7 @@ function getInlineMethods( source ) {
   return methods
 }
 
-},{"elucidata-type":18}],10:[function(require,module,exports){
+},{"elucidata-type":19}],11:[function(require,module,exports){
 module.exports=
 function flatten( arrays) {
   var merged= []
@@ -334,7 +362,7 @@ function flatten( arrays) {
   return merged.concat.apply( merged, arrays)
 }
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 (function (process){
 var merge= require( './merge'),
     alias= require( './alias'),
@@ -357,6 +385,10 @@ module.exports=
 
     this.expose( this.$Manager_notifyEvent.public)
     this.expose( this.$Manager_changeEvent.public)
+    this.expose({
+      listen: this.$Manager_changeEvent.public.onChange,
+      unlisten: this.$Manager_changeEvent.public.offChange
+    })
 
     bindAll( this,
       'dispatch', 'notify', 'actions', 'waitFor', 'hasChanged', 'before',
@@ -368,8 +400,6 @@ module.exports=
     alias( this, 'expose', 'exposes', 'outlet', 'outlets')
     alias( this, 'createEvent', 'defineEvent')
     alias( this, 'hasChanged', 'dataDidChange', 'dataHasChanged')
-    alias( this, 'onChange', 'listen')
-    alias( this, 'offChange', 'unlisten')
 
     if( instance.token == null) {  // jshint ignore:line
       instance.token= runtime.dispatcher.register(function( action){
@@ -534,7 +564,7 @@ module.exports=
 return Manager;})()
 
 }).call(this,require('_process'))
-},{"./alias":2,"./bind-all":3,"./camelize":4,"./extract-methods":9,"./merge":12,"_process":17,"elucidata-type":18}],12:[function(require,module,exports){
+},{"./alias":2,"./bind-all":3,"./camelize":4,"./extract-methods":10,"./merge":13,"_process":18,"elucidata-type":19}],13:[function(require,module,exports){
 module.exports=
 function merge(/* target, ...sources */) {
   var sources= Array.prototype.slice.call( arguments),
@@ -551,7 +581,7 @@ function merge(/* target, ...sources */) {
   return target
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /* global performance */
 var now= (function(){
   if( typeof performance === 'object' && performance.now ) {
@@ -569,18 +599,20 @@ var now= (function(){
 
 module.exports= now
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 (function (process,global){
 var Dispatcher= require( './dispatcher'),
     // EventEmitter= require( 'events').EventEmitter,
     EventEmitter= require('eventemitter3'),
     Manager= require( './manager'),
     kind= require( 'elucidata-type'),
+    ensure= require( './ensure'),
     camelize= require( './camelize'),
     merge= require( './merge'),
     flatten= require( './flatten'),
     uid= require( './uid'),
     alias= require( './alias'),
+    now= require( './now'),
     console= require( './console'),  // jshint ignore:line
     bindAll= require( './bind-all'),
     createEvent= require( './create-event'),
@@ -609,6 +641,21 @@ var Dispatcher= require( './dispatcher'),
       this.dispatcher= new Dispatcher()
     }
 
+    this.util={
+      eventHelperMixin: eventHelperMixin( this),
+      subscriptions: subscriptions( this),
+      ensure:ensure,
+      kind:kind,
+      camelize:camelize,
+      merge:merge,
+      flatten:flatten,
+      uid:uid,
+      alias:alias,
+      bindAll:bindAll,
+      now:now
+    }
+
+        // DEPRECATED:
     this.mixins={
       eventHelper: eventHelperMixin( this),
       subscriptions: subscriptions( this)
@@ -806,7 +853,7 @@ var Dispatcher= require( './dispatcher'),
 module.exports= Runtime
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./alias":2,"./bind-all":3,"./camelize":4,"./console":5,"./create-event":6,"./dispatcher":7,"./event-helper-mixin":8,"./flatten":10,"./manager":11,"./merge":12,"./subscriptions":15,"./uid":16,"_process":17,"elucidata-type":18,"eventemitter3":19}],15:[function(require,module,exports){
+},{"./alias":2,"./bind-all":3,"./camelize":4,"./console":5,"./create-event":6,"./dispatcher":7,"./ensure":8,"./event-helper-mixin":9,"./flatten":11,"./manager":12,"./merge":13,"./now":14,"./subscriptions":16,"./uid":17,"_process":18,"elucidata-type":19,"eventemitter3":20}],16:[function(require,module,exports){
 var camelize= require( './camelize'),
     alias= require( './alias')
 
@@ -872,7 +919,7 @@ function subscriptions( runtime) {
   }
 }
 
-},{"./alias":2,"./camelize":4}],16:[function(require,module,exports){
+},{"./alias":2,"./camelize":4}],17:[function(require,module,exports){
 var _last_id = 0
 
 function uid ( radix){
@@ -890,7 +937,7 @@ function uid ( radix){
 
 module.exports= uid
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -978,7 +1025,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 (function() {
   var name, type, _elementTestRe, _fn, _i, _keys, _len, _ref, _typeList;
 
@@ -1075,7 +1122,7 @@ process.chdir = function (dir) {
 
 }).call(this);
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 //

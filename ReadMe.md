@@ -1,6 +1,6 @@
 # Storefront
 
-Weighing in at ~5kB, **Storefront** is a simple flux implementation that supports all the primary elements of [Facebook's flux pattern](https://facebook.github.io/flux/). Here are the main differences:
+Weighing in at ~6kB, **Storefront** is a simple flux implementation that supports all the primary elements of [Facebook's flux pattern](https://facebook.github.io/flux/). Here are the main differences:
 
 - No separate constants file to manage event names.
 - Makes the dispatcher an internal detail that consumers don't worry about. (No dispatcherToken<sup>1</sup>)

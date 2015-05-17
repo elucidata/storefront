@@ -3,11 +3,13 @@ var Dispatcher= require( './dispatcher'),
     EventEmitter= require('eventemitter3'),
     Manager= require( './manager'),
     kind= require( 'elucidata-type'),
+    ensure= require( './ensure'),
     camelize= require( './camelize'),
     merge= require( './merge'),
     flatten= require( './flatten'),
     uid= require( './uid'),
     alias= require( './alias'),
+    now= require( './now'),
     console= require( './console'),  // jshint ignore:line
     bindAll= require( './bind-all'),
     createEvent= require( './create-event'),
@@ -36,6 +38,21 @@ class Runtime {
       this.dispatcher= new Dispatcher()
     }
 
+    this.util={
+      eventHelperMixin: eventHelperMixin( this),
+      subscriptions: subscriptions( this),
+      ensure,
+      kind,
+      camelize,
+      merge,
+      flatten,
+      uid,
+      alias,
+      bindAll,
+      now
+    }
+
+        // DEPRECATED:
     this.mixins={
       eventHelper: eventHelperMixin( this),
       subscriptions: subscriptions( this)
