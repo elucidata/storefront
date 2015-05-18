@@ -2,7 +2,7 @@
   "name": "storefront",
   "description": "Less tedious Flux implementation.",
   "main": "index.js",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "license": "MIT",
   "author": "Matt McCray <matt@elucidata.net>",
   "keywords": [
@@ -27,7 +27,8 @@
     "inc-minor": "mversion minor",
     "inc-patch": "mversion patch",
     "gz-size": "gzip -c dist/storefront.min.js | wc -c | pretty-bytes",
-    "test": "tape test/**/*.js | tap-spec"
+    "test": "tape test/**/*.js | tap-spec",
+    "test_b": "babel-tape-runner test/**/*-test.js | tap-spec"
   },
   "dependencies": {
     "elucidata-type": "^1.1.1",
@@ -40,6 +41,8 @@
     "mversion": "^1.8.0",
     "uglifyjs": "^2.3.6",
     "browserify": "^6.3.2",
-    "envify": "^3.2.0"
+    "envify": "^3.2.0",
+    "babel": "^5.4.3",
+    "babel-tape-runner": "^1.1.0"
   }
 }

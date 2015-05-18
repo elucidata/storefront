@@ -63,3 +63,47 @@ test( 'Storefront.onChanged( fn) ...', function( t){
 
   })
 })
+
+
+test( 'Store.onChanged( fn) ...', function( is){
+
+  var allEvents= 7,
+      aggregatedEvents= 3
+
+  is.plan( allEvents)
+
+  var rt= Storefront.newInstance()
+
+  is.ok( rt, 'Using new instance')
+
+  var store= rt.define(function( m ){
+    var data= null
+    m.actions({
+      updateData: function(action) {
+        data= action.payload
+        m.hasChanged()
+      }
+    })
+    m.outlets({
+      getData: function() {
+        return data
+      }
+    })
+  })
+
+  store.onChange(function(){
+    is.pass('<instance>.onChange called!')
+  })
+
+  store.updateData(1)
+  store.updateData(2)
+  store.updateData(3)
+  store.updateData(9)
+  store.updateData(3)
+
+  var finalData= store.getData()
+
+  is.equal( finalData, 3, "Returns last result of updateData() call.")
+
+  // is.end()
+})

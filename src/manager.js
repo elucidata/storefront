@@ -172,7 +172,7 @@ class Manager {
   createEvent( eventName, options) {
     options= options || {}
     var event= this.runtime.createEvent( name, eventName, options),
-        emitterFn= options.async ? event.emit.bind( event) : event.emitNow.bindNow( event)
+        emitterFn= options.async ? event.emit.bind( event) : event.emitNow.bind( event)
 
     this.expose( event.public)
     this._instance[ 'emit'+ camelize( eventName)]= emitterFn

@@ -52,7 +52,7 @@ class Runtime {
       now
     }
 
-        // DEPRECATED:
+    // DEPRECATED:
     this.mixins={
       eventHelper: eventHelperMixin( this),
       subscriptions: subscriptions( this)
@@ -140,6 +140,14 @@ class Runtime {
 
   storeNames() {
     return Object.keys( this._registry)
+  }
+
+  allStores() {
+    var all= {}
+    Object.keys( this._registry).forEach( name => {
+      all[ name]= this._registry[ name]
+    })
+    return all
   }
 
   recreateStore( name) {

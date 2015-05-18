@@ -84,11 +84,15 @@ module.exports=
       ]
 
   while( prop= properties.pop()) {  // jshint ignore:line
-    con[ prop]= con[ prop] || empty
+    if(! con[ prop]) {
+      con[ prop]= con[ prop] || empty
+    }
   }
 
   while( method= methods.pop()) {  // jshint ignore:line
-    con[ method]= con[ method] || dummy
+    if(! con[ method]) {
+      con[ method]= con[ method] || dummy
+    }
   }
 
   return con
@@ -538,7 +542,7 @@ module.exports=
   Manager.prototype.createEvent=function(eventName, options) {"use strict";
     options= options || {}
     var event= this.runtime.createEvent( name, eventName, options),
-        emitterFn= options.async ? event.emit.bind( event) : event.emitNow.bindNow( event)
+        emitterFn= options.async ? event.emit.bind( event) : event.emitNow.bind( event)
 
     this.expose( event.public)
     this.$Manager_instance[ 'emit'+ camelize( eventName)]= emitterFn
@@ -655,7 +659,7 @@ var Dispatcher= require( './dispatcher'),
       now:now
     }
 
-        // DEPRECATED:
+    // DEPRECATED:
     this.mixins={
       eventHelper: eventHelperMixin( this),
       subscriptions: subscriptions( this)
@@ -743,6 +747,14 @@ var Dispatcher= require( './dispatcher'),
 
   Runtime.prototype.storeNames=function() {"use strict";
     return Object.keys( this.$Runtime_registry)
+  };
+
+  Runtime.prototype.allStores=function() {"use strict";
+    var all= {}
+    Object.keys( this.$Runtime_registry).forEach( function(name)  {
+      all[ name]= this.$Runtime_registry[ name]
+    }.bind(this))
+    return all
   };
 
   Runtime.prototype.recreateStore=function(name) {"use strict";

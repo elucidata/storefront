@@ -37,11 +37,15 @@ module.exports=
       ]
 
   while( prop= properties.pop()) {  // jshint ignore:line
-    con[ prop]= con[ prop] || empty
+    if(! con[ prop]) {
+      con[ prop]= con[ prop] || empty
+    }
   }
 
   while( method= methods.pop()) {  // jshint ignore:line
-    con[ method]= con[ method] || dummy
+    if(! con[ method]) {
+      con[ method]= con[ method] || dummy
+    }
   }
 
   return con
