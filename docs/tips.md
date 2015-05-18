@@ -5,6 +5,7 @@
 * [Auto Naming](#auto-naming)
 * [Testing](#testing)
 * [Read-Only Stores](#read-only-stores)
+* [Immutable Stores](#immutable-stores)
 
 <!-- toc stop -->
 
@@ -100,28 +101,110 @@ It's pretty easy to make a store use Immutable state (using Facebook's Immutable
 ```javascript
 var AppStore= Storefront.define( store => {
 
-    let _state= Immutable.fromJS({
+    let state= Immutable.fromJS({
         ready: false,
         version: '1.0.0'
     })
 
     store.actions({
         setReady({ payload:isReady }) {
-            _setState( _state.set( 'ready', isReady ))
+            setState( state.set( 'ready', isReady))
         }
     })
 
     store.outlets({
-        isReady() { return _state.get('ready') }
-        version() { return _state.get('version') }
-        getState() { return _state }
+        isReady() { return state.get( 'ready') }
+        version() { return state.get( 'version') }
+        getState() { return state }
     })
 
-    function _setState( newState ) {
+    function setState( newState ) {
         // Only trigger change when the state has _actually_ changed.
-        if(! newState.equals( _state ) ) {
-            _state= newState
+        if(! newState.equals( state ) ) {
+            state= newState
             store.hasChanged()
         }
     }
 })
+```
+
+**Add Cursors and Shared App State**
+
+_app-state.js_
+```javascript
+import Immutable from 'immutable'
+import Cursor from 'immutable/contrib/cursor'
+
+let rootState= Immutable.fromJS({})
+
+export function createState( store, initial={}) {
+  const storeState= Immutable.fromJS( initial)
+
+  rootState= rootState.set( store.name, storeState)
+
+  const storeCursor= Cursor.from( rootState, [ store.name ], newState => {
+    const wrappedNewState= Immutable.fromJS( newState )
+    if(! rootState.equals( wrappedNewState)) {
+      rootState= wrappedNewState
+      console.info( "Store", store.name, "changed.")
+      store.hasChanged()
+    }
+  })
+
+  store.outlet({
+    getState() {
+      return rootState.get( store.name )
+    }
+  })
+
+  return storeCursor
+}
+
+export function getRootState() {
+  return rootState
+}
+```
+
+Usage example:
+
+_app.js_
+```javascript
+import Storefront from 'storefront'
+import {createState} from './app-state'
+
+export default Storefront.define('App', store => {
+  let state= createState( store, {
+    ready: false
+  })
+
+  store.before({
+
+    start( dispatch) {
+      if( state.get('ready')) {
+        console.warn('Already started!')
+      }
+      else {
+        console.log("Starting up...")
+        dispatch()
+      }
+    }
+  })
+
+  store.actions({
+
+    start( action ) {
+      console.log("App startup!", action)
+      state= state.set('ready', true)
+    }
+
+  })
+
+  store.outlets({
+
+    isReady() {
+      return state.get( 'ready')
+    }
+
+  })
+})
+```
