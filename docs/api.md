@@ -61,7 +61,7 @@ name | default | description
 `asyncDispatch` | true | Defer dispatching from action creator to nextTick.
 `freezeInstance` | false | Use `Object.freeze` on instance after definition.
 `logging` | false | Log all dispatches to the console.
-`useRAF` | true | Batch all onChange events using requestAnimationFrame.
+`useRAF` | true | Batch top-level onChange event using requestAnimationFrame.
 `verbose` | false | Prints warnings to console.
 `singletonDispatcher` | false | Use a global dispatcher instead of a shared-runtime instance.
 
@@ -84,7 +84,8 @@ Storefront.define( 'StoreName', manager =>{
             //     payload: { params }
             // }
 
-            // You can wait of other Store like this:
+            // You can wait for other Stores to complete their
+            // dispatch handling like this:
             manager.waitFor( 'OtherStore')
 
             // Or...

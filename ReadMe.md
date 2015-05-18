@@ -4,7 +4,7 @@ Weighing in at ~6kB, **Storefront** is a simple flux implementation that support
 
 - No separate constants file to manage event names.
 - Makes the dispatcher an internal detail that consumers don't worry about. (No dispatcherToken<sup>1</sup>)
-- Encapsulates all the Flux details within the store module, exposing only operational methods (queries and actions).
+- Encapsulates all the Flux details within a single module, exposing only operational methods (queries and actions).
 
 
 ## Docs
