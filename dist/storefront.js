@@ -133,14 +133,18 @@ function createEvent( baseName, eventName, emitter, options) {
 
     emitFlat: function() {
       var params= flatten( [ event_key].concat( Array.prototype.slice.call( arguments)))
-      process.nextTick(function(){
-        emitter.emit.apply( emitter, params)
-      })
+      emitter.emit.apply( emitter, params)
+      // process.nextTick(()=>{
+      //   emitter.emit.apply( emitter, params)
+      // })
     }
   }
 
   eventApi.public[ 'on'+ camelize( eventName)]= function( fn) {
     emitter.on( event_key, fn)
+    return function unsubscribeToChanges() {
+      emitter.removeListener( event_key, fn)
+    }
   }
 
   eventApi.public[ 'off'+ camelize( eventName)]= function( fn) {
@@ -406,7 +410,7 @@ module.exports=
     alias( this, 'hasChanged', 'dataDidChange', 'dataHasChanged')
 
     if( instance.token == null) {  // jshint ignore:line
-      instance.token= runtime.dispatcher.register(function( action){
+      instance.token= runtime.dispatcher.register( function(action)  {
         var handler
         if( handler= this.$Manager_handlers[ action.type]) {  // jshint ignore:line
           handler( action)
@@ -416,8 +420,8 @@ module.exports=
   }
 
   Manager.prototype.dispatch=function(type, payload, callback) {"use strict";
-    if( this.runtime.settings.aysncDispatch) {
-      process.nextTick(function(){
+    if( this.runtime.settings.aysncDispatch ) {
+      process.nextTick(function()  {
         this.runtime.dispatcher.dispatch(
           { origin: this.name, type:type, payload:payload },
           callback
@@ -891,9 +895,10 @@ var camelize= require( './camelize'),
 
 
       if( hookup= store[ 'on'+ eventName]) {  // jshint ignore:line
-        hookup( callback)
+        var disconnector= hookup( callback)
 
-        this.$Subscriptions_storeListeners.push({ storeName:storeName, eventName:eventName, callback:callback })
+        //this._storeListeners.push({ storeName, eventName, callback })
+        this.$Subscriptions_storeListeners.push( disconnector )
       }
       else {
         if( this.$Subscriptions_runtime.settings.verbose) {
@@ -910,12 +915,13 @@ var camelize= require( './camelize'),
   };
 
   Subscriptions.prototype.release=function() {"use strict";
-    this.$Subscriptions_storeListeners.forEach(function( eventInfo) {
-      var $__0=   eventInfo,storeName=$__0.storeName,eventName=$__0.eventName,callback=$__0.callback,
-          store= this.$Subscriptions_runtime.getInstance( storeName)
+    this.$Subscriptions_storeListeners.forEach( function(disconnect)  {return disconnect();} )
+    // this._storeListeners.forEach(( eventInfo)=> {
+    //   var {storeName, eventName, callback}= eventInfo,
+    //       store= this._runtime.getInstance( storeName)
 
-      store[ 'off'+ eventName]( callback )
-    }.bind(this))
+    //   store[ 'off'+ eventName]( callback )
+    // })
 
     this.$Subscriptions_storeListeners.length= 0
     this.$Subscriptions_storeListeners= []

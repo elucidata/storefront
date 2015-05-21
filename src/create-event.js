@@ -29,14 +29,18 @@ function createEvent( baseName, eventName, emitter, options) {
 
     emitFlat: ()=> {
       var params= flatten( [ event_key].concat( Array.prototype.slice.call( arguments)))
-      process.nextTick(()=>{
-        emitter.emit.apply( emitter, params)
-      })
+      emitter.emit.apply( emitter, params)
+      // process.nextTick(()=>{
+      //   emitter.emit.apply( emitter, params)
+      // })
     }
   }
 
   eventApi.public[ 'on'+ camelize( eventName)]= ( fn)=> {
     emitter.on( event_key, fn)
+    return function unsubscribeToChanges() {
+      emitter.removeListener( event_key, fn)
+    }
   }
 
   eventApi.public[ 'off'+ camelize( eventName)]= ( fn)=> {

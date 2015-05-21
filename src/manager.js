@@ -36,7 +36,7 @@ class Manager {
     alias( this, 'hasChanged', 'dataDidChange', 'dataHasChanged')
 
     if( instance.token == null) {  // jshint ignore:line
-      instance.token= runtime.dispatcher.register(( action)=>{
+      instance.token= runtime.dispatcher.register( action => {
         var handler
         if( handler= this._handlers[ action.type]) {  // jshint ignore:line
           handler( action)
@@ -46,8 +46,8 @@ class Manager {
   }
 
   dispatch( type, payload, callback) {
-    if( this.runtime.settings.aysncDispatch) {
-      process.nextTick(()=>{
+    if( this.runtime.settings.aysncDispatch ) {
+      process.nextTick(() => {
         this.runtime.dispatcher.dispatch(
           { origin: this.name, type, payload },
           callback

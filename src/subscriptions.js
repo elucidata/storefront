@@ -23,9 +23,10 @@ class Subscriptions {
 
 
       if( hookup= store[ 'on'+ eventName]) {  // jshint ignore:line
-        hookup( callback)
+        var disconnector= hookup( callback)
 
-        this._storeListeners.push({ storeName, eventName, callback })
+        //this._storeListeners.push({ storeName, eventName, callback })
+        this._storeListeners.push( disconnector )
       }
       else {
         if( this._runtime.settings.verbose) {
@@ -42,12 +43,13 @@ class Subscriptions {
   }
 
   release() {
-    this._storeListeners.forEach(( eventInfo)=> {
-      var {storeName, eventName, callback}= eventInfo,
-          store= this._runtime.getInstance( storeName)
+    this._storeListeners.forEach( disconnect => disconnect() )
+    // this._storeListeners.forEach(( eventInfo)=> {
+    //   var {storeName, eventName, callback}= eventInfo,
+    //       store= this._runtime.getInstance( storeName)
 
-      store[ 'off'+ eventName]( callback )
-    })
+    //   store[ 'off'+ eventName]( callback )
+    // })
 
     this._storeListeners.length= 0
     this._storeListeners= []

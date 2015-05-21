@@ -5,7 +5,9 @@
 * [Auto Naming](#auto-naming)
 * [Testing](#testing)
 * [Read-Only Stores](#read-only-stores)
+* [Ogre Stores](#ogre-stores)
 * [Immutable Stores](#immutable-stores)
+
 
 <!-- toc stop -->
 
@@ -93,6 +95,62 @@ Storefront.define( 'Navigation', ( mgr)=>{
     })
 })
 ```
+
+## Ogre Stores
+
+Storefront works great with [Ogre](https://github.com/elucidata/ogre2)!
+
+_stores/User.js_
+```javascript
+export default Storefront.define( 'User', store => {
+  const state= createStoreState( store, {
+    users: []
+  })
+
+  store.actions(class {
+    addUser({ payload:user }) {
+      state.push('users', user)
+    }
+  })
+
+  store.outlets({
+    getActive: () => state.filter('users', user => user.isActive)
+  })
+
+})
+```
+
+Simple shared app state helper:
+
+_applicationState.js_
+```javascript
+export const applicationState= new Ogre({}, { strict:false })
+
+export const storeStates= applicationState.scopeTo( 'store' )
+
+export function createStoreState( store, initial={} ) {
+  const storeState= storeStates.scopeTo( store.name )
+
+  store.outlet({
+      getState() {
+          return storeState
+      }
+  })
+
+  storeState.onChange( changes => {
+    console.debug( 'Store', store.name, 'changed!')
+    store.hasChanged()
+  })
+
+  return storeState
+}
+
+export function getStoreStates() {
+    return storeStates
+}
+```
+
+
 
 ## Immutable Stores
 

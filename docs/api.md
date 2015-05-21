@@ -259,6 +259,14 @@ The name of the store.
 
 Listen for changes on store instance. Not batched.
 
+Returns unsubscription function.
+
+```javascript
+let stopListening= store.onChange( ()=> alert('bang') )
+// When you're ready:
+stopListening()
+```
+
 ---
 
 #### `store.offChange( fn:function )`

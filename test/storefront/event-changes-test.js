@@ -36,13 +36,11 @@ test( 'Storefront.onChanged( fn) ...', function( t){
     'fetches data from Store.'
   )
 
-  instance.setData( 'new data')
 
   Storefront.onChange(function(){
     t.pass('Global onChange called')
   })
 
-  // This works because dipatching happens on nextTick()
   instance.onChange(function(){
 
     t.pass('onChange callback triggered')
@@ -62,10 +60,13 @@ test( 'Storefront.onChanged( fn) ...', function( t){
     )
 
   })
+
+  instance.setData( 'new data')
+
 })
 
 
-test( 'Store.onChanged( fn) ...', function( is){
+test( 'Store.onChanged( fn) callbacks...', function( is){
 
   var allEvents= 7,
       aggregatedEvents= 3
@@ -74,7 +75,10 @@ test( 'Store.onChanged( fn) ...', function( is){
 
   var rt= Storefront.newInstance()
 
-  is.ok( rt, 'Using new instance')
+  is.ok(
+    rt,
+    'Using new instance'
+  )
 
   var store= rt.define(function( m ){
     var data= null
@@ -91,8 +95,10 @@ test( 'Store.onChanged( fn) ...', function( is){
     })
   })
 
-  store.onChange(function(){
-    is.pass('<instance>.onChange called!')
+  var unsubscribe= store.onChange(function(){
+    is.pass(
+      '<instance>.onChange called!'
+    )
   })
 
   store.updateData(1)
@@ -103,7 +109,18 @@ test( 'Store.onChanged( fn) ...', function( is){
 
   var finalData= store.getData()
 
-  is.equal( finalData, 3, "Returns last result of updateData() call.")
+  unsubscribe()
+
+  // These shouldn't trigger a callback.
+  store.updateData(3)
+  store.updateData(9)
+  store.updateData(3)
+
+  is.equal(
+    finalData,
+    3,
+    "Returns last result of updateData() call."
+  )
 
   // is.end()
 })

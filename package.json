@@ -26,6 +26,7 @@
     "inc-major": "mversion major",
     "inc-minor": "mversion minor",
     "inc-patch": "mversion patch",
+    "toc": "toc docs/",
     "gz-size": "gzip -c dist/storefront.min.js | wc -c | pretty-bytes",
     "test": "tape test/**/*.js | tap-spec",
     "test_b": "babel-tape-runner test/**/*-test.js | tap-spec"
