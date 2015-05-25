@@ -1415,7 +1415,7 @@ module.exports={
   "name": "storefront",
   "description": "Less tedious Flux implementation.",
   "main": "index.js",
-  "version": "0.7.1",
+  "version": "0.7.3",
   "license": "MIT",
   "author": "Matt McCray <matt@elucidata.net>",
   "keywords": [
