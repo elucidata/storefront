@@ -2,7 +2,7 @@
   "name": "storefront",
   "description": "Less tedious Flux implementation.",
   "main": "index.js",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "license": "MIT",
   "author": "Matt McCray <matt@elucidata.net>",
   "keywords": [
