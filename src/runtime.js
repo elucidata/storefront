@@ -198,7 +198,7 @@ class Runtime {
     }
 
     if( kind.isObject( return_value)) {
-      manager.expose( return_value)
+      manager.expose( return_value, true)
     }
 
     if( this.settings.freezeInstance === true) {

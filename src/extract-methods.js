@@ -1,15 +1,20 @@
 var kind= require( 'elucidata-type')
 
 module.exports=
-function extractMethods( source) {
+function extractMethods( source, allowNonMethods ) {
   var results= {}
   if( kind.isFunction( source )) {
     source= getInlineMethods( source)
   }
   for( var name in source) {
     var prop= source[ name]
-    if( kind.isFunction( prop)) {
+    if( allowNonMethods === true ) {
       results[ name]= prop
+    }
+    else {
+      if( kind.isFunction( prop )) {
+        results[ name]= prop
+      }
     }
   }
   return results

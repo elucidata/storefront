@@ -97,3 +97,35 @@ test( 'Storefront.define( name, fn) ...', function( t){
 
   t.end()
 })
+
+
+test( "Allow non-functions only in returned object from builder", function( is ) {
+
+  var RT= Storefront.newInstance()
+
+  var store= RT.define( 'NewTest', function( mgr ) {
+    mgr.action({
+      testAction: function() {},
+      testActionValue: "Hello"
+    })
+    mgr.outlets({
+      testOutlet: function() {},
+      testOutletValue: "Hello"
+    })
+    return {
+      testReturn: function() {},
+      testReturnValue: "Hello"
+    }
+  })
+
+  is.equal( typeof store.testAction, 'function', 'Action function defined.' )
+  is.equal( typeof store.testActionValue, 'undefined', 'Action value ignored.' )
+
+  is.equal( typeof store.testOutlet, 'function', 'Outlet function defined.' )
+  is.equal( typeof store.testOutletValue, 'undefined', 'Outlet value ignored.' )
+
+  is.equal( typeof store.testReturn, 'function', 'Return function defined.' )
+  is.equal( typeof store.testReturnValue, 'string', 'Return value defined.' )
+
+  is.end()
+})

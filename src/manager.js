@@ -143,8 +143,9 @@ class Manager {
     return this
   }
 
-  expose( methods) {
-    methods= extractMethods( methods)
+  expose( methods, allowNonMethods=false) {
+    methods= extractMethods( methods, allowNonMethods )
+
     Object.keys( methods).forEach(( method_name)=>{
       if( this._instance.hasOwnProperty( method_name)) {
         var method= this._instance[ method_name]
