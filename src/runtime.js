@@ -14,7 +14,8 @@ var Dispatcher= require( './dispatcher'),
     bindAll= require( './bind-all'),
     createEvent= require( './create-event'),
     eventHelperMixin= require( './event-helper-mixin'),
-    subscriptions= require( './subscriptions')
+    subscriptions= require( './subscriptions'),
+    pkg= require( '../package.json')
 
 class Runtime {
 
@@ -28,6 +29,7 @@ class Runtime {
     this._anyChangeEvent= this.createEvent('*', 'any-change')
     this._dataChanges= []
     this._timer= false
+    this.version= pkg.version
 
     this.configure( settings)
 

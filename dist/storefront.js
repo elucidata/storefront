@@ -334,15 +334,20 @@ function eventHelperMixin( runtime) {
 var kind= require( 'elucidata-type')
 
 module.exports=
-function extractMethods( source) {
+function extractMethods( source, allowNonMethods ) {
   var results= {}
   if( kind.isFunction( source )) {
     source= getInlineMethods( source)
   }
   for( var name in source) {
     var prop= source[ name]
-    if( kind.isFunction( prop)) {
+    if( allowNonMethods === true ) {
       results[ name]= prop
+    }
+    else {
+      if( kind.isFunction( prop )) {
+        results[ name]= prop
+      }
     }
   }
   return results
@@ -517,8 +522,9 @@ module.exports=
     return this
   };
 
-  Manager.prototype.expose=function(methods) {"use strict";
-    methods= extractMethods( methods)
+  Manager.prototype.expose=function(methods, allowNonMethods) {"use strict";
+    methods= extractMethods( methods, allowNonMethods )
+
     Object.keys( methods).forEach(function( method_name){
       if( this.$Manager_instance.hasOwnProperty( method_name)) {
         var method= this.$Manager_instance[ method_name]
@@ -625,7 +631,8 @@ var Dispatcher= require( './dispatcher'),
     bindAll= require( './bind-all'),
     createEvent= require( './create-event'),
     eventHelperMixin= require( './event-helper-mixin'),
-    subscriptions= require( './subscriptions')
+    subscriptions= require( './subscriptions'),
+    pkg= require( '../package.json')
 
 
 
@@ -639,6 +646,7 @@ var Dispatcher= require( './dispatcher'),
     this.$Runtime_anyChangeEvent= this.createEvent('*', 'any-change')
     this.$Runtime_dataChanges= []
     this.$Runtime_timer= false
+    this.version= pkg.version
 
     this.configure( settings)
 
@@ -809,7 +817,7 @@ var Dispatcher= require( './dispatcher'),
     }
 
     if( kind.isObject( return_value)) {
-      manager.expose( return_value)
+      manager.expose( return_value, true)
     }
 
     if( this.settings.freezeInstance === true) {
@@ -869,7 +877,7 @@ var Dispatcher= require( './dispatcher'),
 module.exports= Runtime
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./alias":2,"./bind-all":3,"./camelize":4,"./console":5,"./create-event":6,"./dispatcher":7,"./ensure":8,"./event-helper-mixin":9,"./flatten":11,"./manager":12,"./merge":13,"./now":14,"./subscriptions":16,"./uid":17,"_process":18,"elucidata-type":19,"eventemitter3":20}],16:[function(require,module,exports){
+},{"../package.json":21,"./alias":2,"./bind-all":3,"./camelize":4,"./console":5,"./create-event":6,"./dispatcher":7,"./ensure":8,"./event-helper-mixin":9,"./flatten":11,"./manager":12,"./merge":13,"./now":14,"./subscriptions":16,"./uid":17,"_process":18,"elucidata-type":19,"eventemitter3":20}],16:[function(require,module,exports){
 var camelize= require( './camelize'),
     alias= require( './alias')
 
@@ -1401,6 +1409,57 @@ EventEmitter.prefixed = prefix;
 // Expose the module.
 //
 module.exports = EventEmitter;
+
+},{}],21:[function(require,module,exports){
+module.exports={
+  "name": "storefront",
+  "description": "Less tedious Flux implementation.",
+  "main": "index.js",
+  "version": "0.7.1",
+  "license": "MIT",
+  "author": "Matt McCray <matt@elucidata.net>",
+  "keywords": [
+    "react",
+    "flux"
+  ],
+  "homepage": "https://github.com/elucidata/storefront",
+  "bugs": {
+    "url": "https://github.com/elucidata/storefront/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/elucidata/storefront.git"
+  },
+  "scripts": {
+    "build": "jsx --harmony --no-cache-dir src/ lib/",
+    "watch": "jsx -w --harmony --no-cache-dir src/ lib/",
+    "compile": "NODE_ENV=production browserify index.js -o dist/storefront.js --standalone Storefront",
+    "dist": "npm run build; npm run compile; npm run minify; npm run gz-size",
+    "minify": "cat dist/storefront.js | uglifyjs -m -c > dist/storefront.min.js",
+    "inc-major": "mversion major",
+    "inc-minor": "mversion minor",
+    "inc-patch": "mversion patch",
+    "toc": "toc docs/",
+    "gz-size": "gzip -c dist/storefront.min.js | wc -c | pretty-bytes",
+    "test": "tape test/**/*.js | tap-spec",
+    "test_b": "babel-tape-runner test/**/*-test.js | tap-spec"
+  },
+  "dependencies": {
+    "elucidata-type": "^1.1.1",
+    "eventemitter3": "^1.1.0"
+  },
+  "devDependencies": {
+    "react-tools": "^0.12.1",
+    "tape": "^3.0.3",
+    "tap-spec": "^2.1.0",
+    "mversion": "^1.8.0",
+    "uglifyjs": "^2.3.6",
+    "browserify": "^6.3.2",
+    "envify": "^3.2.0",
+    "babel": "^5.4.3",
+    "babel-tape-runner": "^1.1.0"
+  }
+}
 
 },{}]},{},[1])(1)
 });
