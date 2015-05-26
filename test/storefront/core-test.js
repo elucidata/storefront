@@ -9,6 +9,7 @@ test('Storefront core API...', function( t){
   t.ok( Storefront.configure, 'configure() is available.')
   t.ok( Storefront.onChange, 'onChange() is available.')
   t.ok( Storefront.offChange, 'offChange() is available.')
+  t.equal( typeof Storefront.version, 'string', 'version is defined.')
 
   t.end()
 })
