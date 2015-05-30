@@ -127,12 +127,14 @@ class Runtime {
   }
 
   onChange( fn) {
-    this._anyChangeEvent.public.onAnyChange( fn)
-    return this
+    this._anyChangeEvent.public.onAnyChange( fn )
+    return () => {
+      this._anyChangeEvent.publish.offAnyChange( fn )
+    }
   }
 
-  offChange( fn) {
-    this._anyChangeEvent.public.offAnyChange( fn)
+  offChange( fn ) {
+    this._anyChangeEvent.public.offAnyChange( fn )
     return this
   }
 

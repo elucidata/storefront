@@ -744,12 +744,14 @@ var Dispatcher= require( './dispatcher'),
   };
 
   Runtime.prototype.onChange=function(fn) {"use strict";
-    this.$Runtime_anyChangeEvent.public.onAnyChange( fn)
-    return this
+    this.$Runtime_anyChangeEvent.public.onAnyChange( fn )
+    return function()  {
+      this.$Runtime_anyChangeEvent.publish.offAnyChange( fn )
+    }.bind(this)
   };
 
-  Runtime.prototype.offChange=function(fn) {"use strict";
-    this.$Runtime_anyChangeEvent.public.offAnyChange( fn)
+  Runtime.prototype.offChange=function(fn)  {"use strict";
+    this.$Runtime_anyChangeEvent.public.offAnyChange( fn )
     return this
   };
 
@@ -964,7 +966,7 @@ function uid ( radix){
 module.exports= uid
 
 },{}],18:[function(require,module,exports){
-module.exports= "0.7.3";
+module.exports= "0.7.5";
 },{}],19:[function(require,module,exports){
 // shim for using process in browser
 
