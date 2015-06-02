@@ -19,7 +19,7 @@
   },
   "scripts": {
     "build": "babel src/ -d lib/ --stage 0 --loose",
-    "build-browser-tests": "browserify test/**/*.js -o dist/browser-tests/storefront-tests.js",
+    "build-browser-tests": "browserify testx/**/*.js -o dist/browser-tests/storefront-tests.js",
     "watch": "babel -w src/ -d lib/ --stage 0 --loose",
     "compile": "NODE_ENV=production browserify index.js -o dist/storefront.js --standalone Storefront",
     "dist": "npm run build && npm run compile && npm run minify && npm run build-browser-tests && npm run gz-size",

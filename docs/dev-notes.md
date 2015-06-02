@@ -4,57 +4,22 @@
 
 <!-- toc -->
 
-* [To-Do](#to-do)
+* [Todos](#todos)
 * [Ideas](#ideas)
-  * [Immutable Support](#immutable-support)
   * [Validation Custom Events](#validation-custom-events)
-  * [ES6 Classes?](#es6-classes)
+  * [ES6 Classes](#es6-classes)
   * [Pass all stores down from top of React component structure?](#pass-all-stores-down-from-top-of-react-component-structure)
   * [Storefront Controller](#storefront-controller)
 
 <!-- toc stop -->
 
+## Todo
 
-## To-Do
+- [ ] Support passing custom a `Dispatcher` instance into `configure()`. (In case someone prefers Facebook's error throwing dispatcher to Storefront's queued dispatcher.)
 
-- [ ] Add `.version` to runtime.
 
 
 ## Ideas
-
-### Immutable Support
-
-A DIY approach is probably best:
-
-_stores/app.js_
-```javascript
-Storefront.define( 'App', store => {
-    let state= Immutable.fromJS({
-        ready: false,
-        version: '1.0.0'
-    })
-
-    store.actions({
-        setReady({ payload:isReady }) {
-            setState( state.set( 'ready', isReady ))
-        }
-    })
-
-    store.outlets({
-        isReady() { return state.get('ready') }
-        version() { return state.get('version') }
-        getState() { return state }
-    })
-
-    function setState( newState ) {
-        // Only trigger change when the state has _actually_ changed.
-        if(! newState.eq( state )) {
-            state= newState
-            store.hasChanged()
-        }
-    }
-})
-```
 
 ### Validation Custom Events
 
@@ -63,24 +28,24 @@ Use custom events for validation error messages?
 _stores/auth.js_
 
 ```javascript
-var type= require( 'elucidata-type')
+import Type from 'elucidata-type'
 
-module.exports=
-Storefront.define( 'Auth', ( mgr)=> {
+export default Storefront.define( 'Auth', ( mgr)=> {
     validationFailure= mgr.createEvent( 'validation-failure')
 
     mgr.actions({
         login( dispatch, username, password) {
-            if( type.isEmpty( username)) {
+            if( Type.isEmpty( username)) {
                 return validatationFailure( "Username cannot be empty.")
             }
-            if( type.isEmpty( password)) {
+            if( Type.isEmpty( password)) {
                 return validatationFailure( "Password cannot be empty.")
             }
 
-            MY_API.login( username, password).then(( user)=> {
-                dispatch({ user })
-            })
+            MY_API.login( username, password )
+                .then( user => {
+                    dispatch({ user })
+                })
         }
     })
 })
@@ -112,11 +77,11 @@ React.createClass({
         )
     },
 
-    validationFailure( msg) {
+    validationFailure( msg ) {
         this.setState({ validationMsg: msg })
     },
 
-    formDidSubmit( e) {
+    formDidSubmit( e ) {
         e.preventDefault()
         this.setState({ validationMsg:null })
         var {user, pass}= this.refs
@@ -140,7 +105,7 @@ React.createClass({
         if( this.state.validationMsg == null) return null
 
         return (
-            <div className="error">{ this.state.validationMsg}</div>
+            <div className="error">{ this.state.validationMsg }</div>
         )
     }
 })
@@ -148,44 +113,27 @@ React.createClass({
 
 ---
 
-### ES6 Classes?
+### ES6 Classes
+
+Support was added for inline classes in action/oulets so you can eliminate those unsightly commas.
 
 ```javascript
 
-var manager;
+Storefront.define( "Posts", store => {
+    store.actions( class {
+        loadPost({ payload:post }) {}
+        removePost({ payload:postId }) {}
+        updatePost({ payload:post }) {}
+    })
 
-var _state= Store.initialState()
-
-class Actions {
-    add( dispatch, title) {
-        dispatch({ title })
-    }
-}
-
-class Store {
-
-    add( action) {
-        _state.posts.push( action.payload)
-        manager.dataHasChanged()
-    }
-
-    static initialState() {
-        return {
-            posts: []
-        }
-    }
-}
-
-Storefront.define( "Posts", (mgr)=> {
-    manager= mgr
-
-    actions( new Actions)
-    handles( new Store)
+    store.outlets( class {
+        get( id ) {}
+        allTagged( tags ) {}
+    })
 })
 
 ```
 
-Why bother?
 
 ---
 
@@ -203,17 +151,18 @@ var stores= {
 function renderApp() {
     React.render(
         <Routes>
-        <Route name="root" path="/" {...stores} handler={...}>
-        <Route name="login" {...stores} handler={...}/>
-        </Route>
+            <Route name="root" path="/" {...stores} handler={...}>
+            <Route name="login" {...stores} handler={...}/>
+                {...}
+            </Route>
         </Routes>,
         document.body
     )
 }
 
 Storefront.
-configure({ useRAF:true }).
-onChange( renderApp)
+    configure({ useRAF:true }).
+    onChange( renderApp )
 
 renderApp()
 ```
@@ -230,7 +179,7 @@ Should support usage as an ES7 decorator too.
 const {Controller}= Storefront.util
 
 @Controller({
-    listenTo: ['Auth', 'Cart'],
+    listenTo: [ 'Auth', 'Cart' ],
     resolveProps: {
         loggedInAs( props, Auth, Cart ) {
             return Auth.getLoggedInUser()

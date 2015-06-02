@@ -9,20 +9,20 @@ OK, not really. _Actually_, after working with Flux in a couple of small project
 - No need to talk to a dispatcher directly.
 - No need to know any dispatchTokens.
 - No `switch` blocks of doom.
+- No errors when nesting dispatch calls (Storefront queues nested dispatch calls)
 - No keeping a constants file.
 - No need for consumers to require several files to work with a single store: Flux should be an implementation detail, consumers should be able to deal with a Store like a plain object.
 - It should provide a top-level aggregated 'change' event.
 - It should generate as much boilerplate code as it can.
-- Also, the term 'Action Creators' is rather clumsy and too verbose.
+- Also, the term 'Action Creators' is rather clumsy and too verbose: Begone.
 
 Not to seem negative, there are excellent parts of Flux that I wanted to be sure to keep:
 
 - Unidirection data flow.
-- ~~Singleton Dispatcher~~ Shared dispatcher per Runtime instance.
+- ~~Singleton Dispatcher~~ Shared dispatcher per Runtime instance (optional singleton dispatcher).
 - Sequenceable dispatching (`waitFor`).
-- Synchronicity of dispatching and store updates.
 
-Originally, I wanted to use ES6 classes for Stores. But it turns out that closures are nicer from a private-data perspective (internal state is truly hidden from consumers), _and_ from a ease-of-use perspective (code is cleaner looking).
+Originally, I wanted to use ES6 classes for Stores. But it turns out that closures are nicer from a data-privacy perspective (internal state is truly hidden from consumers), _and_ from a ease-of-use perspective (code is cleaner looking).
 
 So I wound up with **Storefront**.
 
@@ -37,12 +37,12 @@ Here's a tiny store to illustrate how to use Storefront:
 const selectionStore= Storefront.define( 'Selection', store => {
 
     // Internal State
-    var _selectedItem= null
+    let _selectedItem = null
 
     // Handle the actions
     store.actions({
-        select( action) {
-            _selectedItem= action.payload.item
+        select({ payload:item }) {
+            _selectedItem = item
             store.hasChanged()
         }
     })

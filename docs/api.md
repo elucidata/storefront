@@ -77,7 +77,7 @@ Storefront.define( 'StoreName', manager =>{
     // Object keys sent to .actions() become action names
     manager.actions({
 
-        actionName( action) {
+        actionName( action ) {
             // action === {
             //     origin: 'StoreName',
             //     type: 'StoreName_actionName',
@@ -86,18 +86,18 @@ Storefront.define( 'StoreName', manager =>{
 
             // You can wait for other Stores to complete their
             // dispatch handling like this:
-            manager.waitFor( 'OtherStore')
+            manager.waitFor( 'OtherStore' )
 
             // Or...
-            var otherStore= manager.get( 'OtherStore')
-            manager.waitFor( otherStore)
+            var otherStore= manager.get( 'OtherStore' )
+            manager.waitFor( otherStore )
 
             // After you have changed your internal data
             // structures, trigger change event
             manager.hasChanged()
 
             // If you want to send a notify event
-            manager.notify( 'A message.')
+            manager.notify( 'A message.' )
         }
     })
 
@@ -124,10 +124,10 @@ Storefront.define( 'StoreName', manager =>{
     // Listen to actions from other other stores
     manager.observes( 'OtherStore', {
         // Match the action name/mthod of other store
-        otherActionName( action) {
+        otherActionName( action ) {
             // You can send the name of the store to wait for, or get
-            // an instance with: manager.get( 'OtherStore')
-            manager.waitFor( 'OtherStore')
+            // an instance with: manager.get( 'OtherStore' )
+            manager.waitFor( 'OtherStore' )
         }
     })
 
@@ -172,12 +172,12 @@ Define actions that this store will handle. "Action Creators" are automatically 
 
 ```javascript
 stubbed_action_creator= ()=> {
-    var args= Array.prototype.slice.call( arguments),
+    var args= Array.prototype.slice.call( arguments ),
         dispatch= args.shift()
-    if( args.length === 1)
-        dispatch( args[ 0])
+    if( args.length === 1 )
+        dispatch( args[ 0] )
     else
-        dispatch( args)
+        dispatch( args )
 }
 ```
 
@@ -244,7 +244,7 @@ In addition to the outlets and actions defined in stores, storefront instances a
 
 ```javascript
 // Get a store instance by name...
-var store= Storefront.get( "StoreName")
+var store= Storefront.get( "StoreName" )
 ```
 
 ---
@@ -262,7 +262,7 @@ Listen for changes on store instance. Not batched.
 Returns unsubscription function.
 
 ```javascript
-let stopListening= store.onChange( ()=> alert('bang') )
+let stopListening= store.onChange( ()=> alert( 'bang' ) )
 // When you're ready:
 stopListening()
 ```
@@ -298,25 +298,25 @@ The token used by the Dispatcher. Primarily for internal use.
 Storefront will automatically create an action stub for every method defined in the `actions` block:
 
 ```javascript
-Storefront.define( 'Timer', ( mgr)=>{
-    var {actions, outlets, dataHasChanged}= mgr
+Storefront.define( 'Timer', mgr => {
+    const {actions, outlets, dataHasChanged} = mgr
 
-    var _timer= {
+    let _timer = {
         active: false,
         started: null
     }
 
     // Just define the 'actions' and the actions will be auto-stubbed
     actions({
-        start( action) {
-            _timer.active= true
-            _timer.started= +new Date
+        start( action ) {
+            _timer.active = true
+            _timer.started = +new Date
             dataHasChanged()
         },
 
-        stop( action) {
-            _timer.active= false
-            _timer.started= 0
+        stop( action ) {
+            _timer.active = false
+            _timer.started = 0
             dataHasChanged()
         }
     })
@@ -335,17 +335,17 @@ To implement your own "Action Creators," use the `before` block. It will be prov
 This is the same Timer example store as above, only it intercepts the `start` action and only dispatches it if the timer isn't already running.
 
 ```javascript
-Storefront.define( 'Timer', ( mgr)=>{
-    var {actions, outlets, dataHasChanged}= mgr
+Storefront.define( 'Timer', mgr => {
+    const {actions, outlets, dataHasChanged} = mgr
 
-    var _timer= {
+    let _timer= {
         active: false,
         started: null
     }
 
     before({
-        start( dispatch) {
-            if( _timer.active === false) {
+        start( dispatch ) {
+            if( _timer.active === false ) {
                 dispatch() // carry on
             }
             else {
@@ -356,15 +356,15 @@ Storefront.define( 'Timer', ( mgr)=>{
     })
 
     actions({
-        start( action) {
-            _timer.active= true
-            _timer.started= +new Date
+        start( action ) {
+            _timer.active = true
+            _timer.started = +new Date
             dataHasChanged()
         },
 
         stop( action) {
-            _timer.active= false
-            _timer.started= 0
+            _timer.active = false
+            _timer.started = 0
             dataHasChanged()
         }
     })
@@ -385,8 +385,8 @@ Storefront.define( 'Timer', ( mgr)=>{
 You can define custom events in your store by calling `storeManager.createEvent( name )`. Once defined, store instances have onXXX and offXXX methods (where XXX is the event name). Example:
 
 ```javascript
-var store= Storefront.define( 'Hotkey', (mgr)=>{
-    var emitHotkey= mgr.createEvent('hotkey')
+var store= Storefront.define( 'Hotkey', mgr => {
+    const emitHotkey= mgr.createEvent( 'hotkey' )
 
     /// Somewhere in your code:
     emitHotkey( params )
@@ -403,7 +403,7 @@ store.offHotkey( fn )
 
 Storefront provides a helper mixin that will register store event listeners and  automatically deregister them at the `componentWillUnmount` lifecycle hook.
 
-It creates the helper method: `onStoreEvent( storeName, eventName, callback)`
+It creates the helper method: `onStoreEvent( storeName, eventName, callback )`
 
 Usage:
 
@@ -433,7 +433,7 @@ A utility for managing event subscriptions. Use it in a class-based React compon
 class MyComponent extends React.Component {
     componentDidMount() {
         this._subscriptions= Storefront.util.subscriptions()
-            .on( 'MyStore', 'notify', this.onStoreNotification.bind( this))
+            .on( 'MyStore', 'notify', this.onStoreNotification.bind( this ))
     }
     
     componentWillUnmount() {

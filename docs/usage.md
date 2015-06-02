@@ -20,36 +20,36 @@ import type from 'elucidata-type'
 import API from '<your-api-lib>'
 
 export default Storefront.define( 'Auth', store => {
-    const userStore= store.getStore( 'Users'),
-          errorStore= store.getStore( 'Errors')
+    const userStore= store.getStore( 'Users' ),
+          errorStore= store.getStore( 'Errors' )
     
-    let authData= getInitialState()
+    let authData = getInitialState()
 
     store.before({
 
-        login( dispatch, username, password) {
-            if( type.isEmpty( username))
-                return store.notify({ valid:false, message:"Username cannot be empty."})
-            if( type.isEmpty( password))
-                return store.notify({ valid:false, message:"Password cannot be empty."})
+        login( dispatch, username, password ) {
+            if( type.isEmpty( username ))
+                return store.notify({ valid:false, message:"Username cannot be empty." })
+            if( type.isEmpty( password ))
+                return store.notify({ valid:false, message:"Password cannot be empty." })
 
             API.
-                authenticate( username, password).
-                then(( user)=> {
+                authenticate( username, password ).
+                then( user => {
                     store.notify({ valid:true })
-                    dispatch( user)
+                    dispatch( user )
                 }).
-                catch(( err)=> {
-                    errorStore.report( err)
-                    store.notify({ valid:false, message:()'API Error: '+ err) })
+                catch( err => {
+                    errorStore.report( err )
+                    store.notify({ valid:false, message:('API Error: '+ err) })
                 })
         }
     })
 
     store.actions({
 
-        login( action) {
-            authData= {
+        login( action ) {
+            authData = {
                 authenticated: true,
                 authenticatedAt: new Date(),
                 currentUser: action.payload
@@ -58,23 +58,23 @@ export default Storefront.define( 'Auth', store => {
         },
 
         // An action for this handler will be automatically created...
-        logout( action) {
+        logout( action ) {
             authData= getInitialState()
-            store.notify( 'You have been logged out.')
+            store.notify( 'You have been logged out.' )
             store.hasChanged()
         }
     })
 
     store.observes( userStore, {
 
-        remove( action) {
-            if( !authData.authenticated) return
-            if( action.payload.id !== authData.currentUser.id) return
+        remove( action ) {
+            if( !authData.authenticated ) return
+            if( action.payload.id !== authData.currentUser.id ) return
 
-            store.waitFor( userStore)
+            store.waitFor( userStore )
 
-            if( userStore.get( authData.currentUser.id) === null ) {
-                store.invoke( 'logout')
+            if( userStore.get( authData.currentUser.id ) === null ) {
+                store.invoke( 'logout' )
             }
         }
     })
@@ -90,7 +90,7 @@ export default Storefront.define( 'Auth', store => {
         },
 
         currentUser() {
-            return Object.create( authData.currentUser)
+            return Object.create( authData.currentUser )
         }
     })
 
@@ -109,9 +109,9 @@ Consuming validation events:
 
 _views/login-form.jsx_
 ```javascript
-var React= require( 'react'),
-    Storefront= require( 'storefront'),
-    authStore= require( 'stores/auth')
+var React= require( 'react' ),
+    Storefront= require( 'storefront' ),
+    authStore= require( 'stores/auth' )
 
 module.exports=
 React.createClass({
@@ -125,11 +125,11 @@ React.createClass({
     },
 
     componentDidMount() {
-        this.onStoreEvent( authStore, 'notify', this.storeOnNotify)
+        this.onStoreEvent( authStore, 'notify', this.storeOnNotify )
     },
 
-    storeOnNotify( e) {
-        if( e.valid) {
+    storeOnNotify( e ) {
+        if( e.valid ) {
             this.setState({ error:null })
         }
         else {
@@ -149,7 +149,7 @@ React.createClass({
 
     render() {
         return (
-            <form onSubmit={this.formOnSubmit}>
+            <form onSubmit={ this.formOnSubmit }>
                 { this.renderError() }
                 <input type="text" ref="user" placeholder="Username:"/>
                 <input type="password" ref="pass" placeholder="Password:"/>
@@ -176,37 +176,37 @@ Example authentication store that uses promises to communicate validation messag
 
 _stores/auth.js_
 ``` javascript
-var Storefront= require( 'storefront'),
-    type= require( 'elucidata-type'),
-    API= require('<your-api-lib>')
+var Storefront= require( 'storefront' ),
+    type= require( 'elucidata-type' ),
+    API= require( '<your-api-lib>' )
 
 module.exports=
-Storefront.define( 'Auth', ( mgr)=> {
-    var {actions, outlets, dataHasChanged, observes, notify}= mgr,
-        userStore= mgr.getStore( 'Users'),
-        errorStore= mgr.getStore( 'Errors')
+Storefront.define( 'Auth', mgr => {
+    const {actions, outlets, dataHasChanged, observes, notify} = mgr,
+          userStore = mgr.getStore( 'Users' ),
+          errorStore = mgr.getStore( 'Errors' )
 
     var authData= getInitialState()
 
     before({
 
-        login( dispatch, username, password) {
-            if( type.isEmpty( username))
-                return Promise.reject( "Username cannot be empty.")
-            if( type.isEmpty( password))
-                return Promise.reject( "Password cannot be empty.")
+        login( dispatch, username, password ) {
+            if( type.isEmpty( username ))
+                return Promise.reject( "Username cannot be empty." )
+            if( type.isEmpty( password ))
+                return Promise.reject( "Password cannot be empty." )
 
-            return new Promise(( resolve, reject)=>{
+            return new Promise(( resolve, reject )=>{
                 // call your api, whatever it is...
                 API.
-                    authenticate( username, password).
-                    then(( user)=> {
+                    authenticate( username, password ).
+                    then( user => {
                         resolve()
-                        dispatch( user)
+                        dispatch( user )
                     }).
-                    catch(( err)=> {
-                        reject( err)
-                        errorStore.report( err)
+                    catch( err => {
+                        reject( err )
+                        errorStore.report( err )
                     })
             })
         }
@@ -214,7 +214,7 @@ Storefront.define( 'Auth', ( mgr)=> {
 
     actions({
 
-        login( action) {
+        login( action ) {
             authData= {
                 authenticated: true,
                 authenticatedAt: new Date(),
@@ -224,22 +224,22 @@ Storefront.define( 'Auth', ( mgr)=> {
         },
 
         // An action for this handler will be automatically created...
-        logout( action) {
+        logout( action ) {
             authData= getInitialState()
-            notify( 'You have been logged out.')
+            notify( 'You have been logged out.' )
             dataHasChanged()
         }
     })
 
     observes( userStore, {
 
-        remove( action) {
-            if( !authData.authenticated) return
-            if( action.payload.id !== authData.currentUser.id) return
+        remove( action ) {
+            if( !authData.authenticated ) return
+            if( action.payload.id !== authData.currentUser.id ) return
 
-            mgr.waitFor( userStore)
+            mgr.waitFor( userStore )
 
-            if( userStore.get( authData.currentUser.id) === null ) {
+            if( userStore.get( authData.currentUser.id ) === null ) {
                 mgr.getClerk().logout()
             }
         }
@@ -256,7 +256,7 @@ Storefront.define( 'Auth', ( mgr)=> {
         },
 
         currentUser() {
-            return Object.create( authData.currentUser)
+            return Object.create( authData.currentUser )
         }
     })
 
@@ -275,9 +275,9 @@ Consuming validation promises:
 
 _views/login-form.jsx_
 ```javascript
-var React= require( 'react'),
-    Storefront= require( 'storefront'),
-    authStore= require( 'stores/auth')
+var React= require( 'react' ),
+    Storefront= require( 'storefront' ),
+    authStore= require( 'stores/auth' )
 
 module.exports=
 React.createClass({
@@ -288,7 +288,7 @@ React.createClass({
         }
     },
 
-    formOnSubmit( e) {
+    formOnSubmit( e ) {
         e.preventDefault()
         var {user, pass}= this.refs
 
@@ -297,17 +297,17 @@ React.createClass({
                 user.getDOMNode().value,
                 pass.getDOMNode().value
             )
-            .then(()=>{
+            .then(() => {
                 this.setState({ error:null })
             })
-            .catch(( err)=>{
+            .catch( err => {
                 this.setState({ error:err })
             })
     },
 
     render() {
         return (
-            <form onSubmit={this.formOnSubmit}>
+            <form onSubmit={ this.formOnSubmit }>
                 { this.renderError() }
                 <input type="text" ref="user" placeholder="Username:"/>
                 <input type="password" ref="pass" placeholder="Password:"/>
@@ -334,21 +334,21 @@ In your top-level view controller you can listen for an aggregate change event f
 
 _main/routes.jsx_
 ``` javascript
-var Storefront= require( 'storefront'),
-    React= require( 'react/addons'),
-    {Route}= require( 'react-router'),
-    authStore= require( 'stores/auth')
+var Storefront= require( 'storefront' ),
+    React= require( 'react/addons' ),
+    {Route}= require( 'react-router' ),
+    authStore= require( 'stores/auth' )
 
 function renderApp() {
     React.render(
-        <Route path="/" {authStore}/>, // Whatever your routes are...
+        <Route path="/" { authStore }/>, // Whatever your routes are...
         document.body
         )
     }
 
 // By default this will batch up multiple store onChange events and
 // schedule the global onChange using requestAnimationFrame.
-Storefront.onChange( renderApp)
+Storefront.onChange( renderApp )
 
 renderApp()
 ```
