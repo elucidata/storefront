@@ -161,3 +161,8 @@ SOFTWARE.
 ---
 
 1. OK, technically there _is_ a dispatcher token, but it's internalized in such a way that you'll never need to use it.
+
+---
+
+[![browser support](https://ci.testling.com/elucidata/storefront.png)
+](https://ci.testling.com/elucidata/storefront)
