@@ -1,35 +1,44 @@
-var kind= require( 'elucidata-type')
+import Type from 'elucidata-type'
 
-module.exports=
-function extractMethods( source, allowNonMethods ) {
-  var results= {}
-  if( kind.isFunction( source )) {
-    source= getInlineMethods( source)
+export default function extractMethods( source, allowNonMethods ) {
+  let results= {}
+
+  if( Type.isFunction( source )) {
+    source= getInlineMethods( source )
   }
-  for( var name in source) {
-    var prop= source[ name]
+
+  for( let name in source ) {
+    let prop= source[ name ]
+
     if( allowNonMethods === true ) {
-      results[ name]= prop
+      results[ name ]= prop
     }
     else {
-      if( kind.isFunction( prop )) {
-        results[ name]= prop
+
+      if( Type.isFunction( prop )) {
+        results[ name ]= prop
       }
     }
   }
+
   return results
 }
 
 
 function getInlineMethods( source ) {
-  if(!('getOwnPropertyNames' in Object)) { // Probably mobile?
+
+  if(! ( 'getOwnPropertyNames' in Object )) { // Probably mobile?
     return source.prototype // this should work, needs more testing
   }
-  var instance= new source(), methods= {}
-  Object.getOwnPropertyNames( source.prototype).forEach(( name) => {
+
+  let instance= new source(),
+      methods= {}
+
+  Object.getOwnPropertyNames( source.prototype ).forEach( name => {
     if( name !== 'constructor') {
-      methods[ name]= source.prototype[ name]
+      methods[ name ]= source.prototype[ name ]
     }
   })
+
   return methods
 }

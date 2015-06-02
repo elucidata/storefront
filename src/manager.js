@@ -1,24 +1,23 @@
-var merge= require( './merge'),
-    alias= require( './alias'),
-    bindAll= require( './bind-all'),
-    camelize= require( './camelize'),
-    extractMethods= require( './extract-methods'),
-    kind= require( 'elucidata-type')
+import Type from 'elucidata-type'
+import alias from './alias'
+import bindAll from './bind-all'
+import camelize from './camelize'
+import extractMethods from './extract-methods'
+import merge from './merge'
 
-module.exports=
-class Manager {
+export default class Manager {
 
-  constructor( runtime, name, instance) {
-    this.runtime= runtime
-    this.name= name
+  constructor( runtime, name, instance ) {
+    this.runtime = runtime
+    this.name = name
 
-    this._instance= instance
-    this._handlers= {}
-    this._notifyEvent= runtime.createEvent( name, 'notify')
-    this._changeEvent= runtime.createEvent( name, 'change')
+    this._instance = instance
+    this._handlers = {}
+    this._notifyEvent = runtime.createEvent( name, 'notify')
+    this._changeEvent = runtime.createEvent( name, 'change')
 
-    this.expose( this._notifyEvent.public)
-    this.expose( this._changeEvent.public)
+    this.expose( this._notifyEvent.public )
+    this.expose( this._changeEvent.public )
     this.expose({
       listen: this._changeEvent.public.onChange,
       unlisten: this._changeEvent.public.offChange
@@ -35,133 +34,151 @@ class Manager {
     alias( this, 'createEvent', 'defineEvent')
     alias( this, 'hasChanged', 'dataDidChange', 'dataHasChanged')
 
-    if( instance.token == null) {  // jshint ignore:line
+    if( instance.token == null ) {  // jshint ignore:line
       instance.token= runtime.dispatcher.register( action => {
-        var handler
-        if( handler= this._handlers[ action.type]) {  // jshint ignore:line
+        let handler = this._handlers[ action.type ]
+        if( handler ) {
           handler( action)
         }
       })
     }
   }
 
-  dispatch( type, payload, callback) {
-    if( this.runtime.settings.aysncDispatch ) {
-      process.nextTick(() => {
-        this.runtime.dispatcher.dispatch(
-          { origin: this.name, type, payload },
-          callback
-        )
-      })
-    }
-    else {
+  dispatch( type, payload, callback ) {
+    const doDispatch = () => {
       this.runtime.dispatcher.dispatch(
         { origin: this.name, type, payload },
         callback
       )
     }
-    return this
-  }
 
-  invoke( cmd, ...params) {
-    var fn= this._instance[ cmd]
-    if( kind.isFunction( fn)) {
-      return fn.apply( this._instance, params)
+    if( this.runtime.settings.aysncDispatch ) {
+      process.nextTick( doDispatch )
     }
     else {
-      throw new Error( "Method "+ cmd +" not found!")
+      doDispatch()
     }
-  }
 
-  notify( message) {
-    this._notifyEvent.emitNow( message)
     return this
   }
 
-  before( methods) {
-    methods= extractMethods( methods)
-    Object.keys( methods).forEach(( action_name)=> {
-      var event_name= this.name +'_'+ action_name,
-          fn= methods[ action_name],
-          bound_dispatch= this.dispatch.bind( this, event_name)
+  invoke( cmd, ...params ) {
+    const fn= this._instance[ cmd ]
 
-      fn.displayName= event_name
-      this._instance[ action_name]= fn.bind( this._instance, bound_dispatch)
+    if( Type.isFunction( fn )) {
+      return fn.apply( this._instance, params )
+    }
+    else {
+      throw new Error( `Method ${ cmd } not found!` )
+    }
+  }
+
+  notify( message ) {
+    this._notifyEvent.emitNow( message )
+    return this
+  }
+
+  before( methods ) {
+    methods= extractMethods( methods )
+
+    Object.keys( methods ).forEach( actionName => {
+      var eventName= `${ this.name }_${ actionName }`,
+          fn= methods[ actionName ],
+          boundDispatch= this.dispatch.bind( this, eventName )
+
+      fn.displayName= eventName
+      this._instance[ actionName ] = fn.bind( this._instance, boundDispatch )
     })
+
     return this
   }
 
-  actions( store, methods) {
-    if( arguments.length === 1) {
-      methods= store
-      store= this.name
+  actions( store, methods ) {
+    if( arguments.length === 1 ) {
+      methods = store
+      store = this.name
     }
-    else if( kind.isObject( store)) {
-      store= store.name
+    else if( Type.isObject( store )) {
+      store = store.name
     }
-    methods= extractMethods( methods)
-    Object.keys( methods).forEach(( action_name)=>{
-      var event_name= store +'_'+ action_name,
-          fn= methods[ action_name]
 
-      this._handlers[ event_name]= fn //.bind(this._instance)
+    methods= extractMethods( methods )
 
-      if( store == this.name && !this._instance[ action_name]) {
+    Object.keys( methods ).forEach( actionName => {
+      var eventName= `${ this.name }_${ actionName }`,
+          fn= methods[ actionName ]
+
+      this._handlers[ eventName ] = fn.bind( this._instance ) // Change!
+
+      if( store == this.name && !this._instance[ actionName ]) {
         // Stub out an action...
-        var stub= {}
-        stub[ action_name]= ()=> {
-          var args= Array.prototype.slice.call( arguments),
-              dispatch= args.shift()
+        let stub= {}
+
+        stub[ actionName ]= function( dispatch, ...args ) {
           if( args.length === 1) {
-            dispatch( args[ 0])
+            dispatch( args[ 0 ] )
           }
           else {
-            dispatch( args)
+            dispatch( args )
           }
         }
-        this.before( stub)
+
+        // stub[ actionName ]._isStub = true
+
+        this.before( stub )
       }
     })
+
     return this
   }
 
-  waitFor( ...stores) {
-    stores= stores.map(( store)=> {
-      if( kind.isString( store)) {
-        return this.runtime.get( store)
+  waitFor( ...stores ) {
+    stores= stores.map( store => {
+      if( Type.isString( store )) {
+        return this.runtime.get( store )
       }
       else {
         return store
       }
     })
-    this.runtime.dispatcher.waitFor( stores)
+
+    this.runtime.dispatcher.waitFor( stores )
+
     return this
   }
 
-  hasChanged() {
-    this._changeEvent.emitFlat( arguments)
+  hasChanged( ...keys ) {
+    this._changeEvent.emit( keys )
     return this
   }
 
-  expose( methods, allowNonMethods=false) {
+  expose( methods, allowNonMethods=false ) {
     methods= extractMethods( methods, allowNonMethods )
 
-    Object.keys( methods).forEach(( method_name)=>{
-      if( this._instance.hasOwnProperty( method_name)) {
-        var method= this._instance[ method_name]
+    Object.keys( methods ).forEach( methodName => {
+      if( this._instance.hasOwnProperty( methodName )) {
+        let error= new Error( `Redefinition of '${ methodName }' in store ${ storeName } not allowed.` )
+        error.framesToPop= 3
+        throw error
+        // let method= this._instance[ methodName ]
 
-        if(! method._isStub) {
-          var error= new Error( "Redefining property "+ method_name +" on store "+ this.name)
-          error.framesToPop= 3
-          throw error
-        }
+        // if(! method._isStub ) {
+        //   let error= new Error( `Redefinition of '${ methodName }' in store ${ storeName } not allowed.` )
+        //   error.framesToPop= 3
+        //   throw error
+        // }
+        // else {
+        //   console.log( "Method is a stub, go ahead.", methodName)
+        // }
       }
-      this._instance[ method_name]= methods[ method_name]
+
+      this._instance[ methodName ]= methods[ methodName ]
     })
+
     return this
   }
 
-  get( storeName) {
+  get( storeName ) {
     if( storeName ) {
       return this.runtime.get( storeName, true )
     }
@@ -170,13 +187,12 @@ class Manager {
     }
   }
 
-  createEvent( eventName, options) {
-    options= options || {}
-    var event= this.runtime.createEvent( name, eventName, options),
-        emitterFn= options.async ? event.emit.bind( event) : event.emitNow.bind( event)
+  createEvent( eventName, options={} ) {
+    let event= this.runtime.createEvent( name, eventName, options ),
+        emitterFn= options.async ? event.emitNextTick.bind( event ) : event.emit.bind( event )
 
-    this.expose( event.public)
-    this._instance[ 'emit'+ camelize( eventName)]= emitterFn
+    this.expose( event.public )
+    this._instance[ `emit${ camelize( eventName ) }` ] = emitterFn
 
     return emitterFn
   }
@@ -186,13 +202,13 @@ class Manager {
   resetInternals() {
     this._handlers= {}
 
-    if( this._instance.token) {
-      this.runtime.dispatcher.deregister( this._instance.token)
+    if( this._instance.token ) {
+      this.runtime.dispatcher.deregister( this._instance.token )
     }
 
-    Object.keys( this._instance).forEach(( key)=>{
-      if( key !== 'name') {
-        delete this._instance[ key]
+    Object.keys( this._instance ).forEach( key => {
+      if( key !== 'name' ) {
+        delete this._instance[ key ]
       }
     })
   }

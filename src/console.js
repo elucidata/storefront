@@ -37,17 +37,21 @@ module.exports=
       ]
 
   while( prop= properties.pop()) {  // jshint ignore:line
-    if(! con[ prop]) {
+    if(! (prop in con)) {
       con[ prop]= con[ prop] || empty
     }
   }
 
   while( method= methods.pop()) {  // jshint ignore:line
-    if(! con[ method]) {
+    if(! (prop in con)) {
       con[ method]= con[ method] || dummy
     }
   }
 
+  if(! global.console ) {
+    global.console= con
+  }
+
   return con
 
-})( global.console= global.console || {})
+})( global.console || {})

@@ -1,22 +1,24 @@
-var camelize= require( './camelize'),
-    subscriptions= require( './subscriptions')
+import camelize from './camelize'
+import subscriptions from './subscriptions'
 
-module.exports=
-function eventHelperMixin( runtime) {
-  var _subscriber= subscriptions( runtime)
+export default function eventHelperMixin( runtime ) {
+  const _subscriber= subscriptions( runtime )
 
   return {
-    onStoreEvent( storeName, eventName, callback) {
-      if(! this._storefront_subscriptions) {
-        this._storefront_subscriptions= _subscriber()
+
+    onStoreEvent( storeName, eventName, callback ) {
+      if(! this._storefrontSubscriptions ) {
+        this._storefrontSubscriptions= _subscriber()
       }
-      this._storefront_subscriptions.on( storeName, eventName, callback)
+      this._storefrontSubscriptions.on( storeName, eventName, callback )
     },
+
     componentWillUnmount() {
-      if( this._storefront_subscriptions) {
-        this._storefront_subscriptions.release()
-        this._storefront_subscriptions= null
+      if( this._storefrontSubscriptions ) {
+        this._storefrontSubscriptions.release()
+        this._storefrontSubscriptions= null
       }
     }
+
   }
 }

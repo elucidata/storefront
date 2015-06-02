@@ -1,50 +1,58 @@
-var camelize= require( './camelize'),
-    flatten= require( './flatten')
+import camelize from './camelize'
+import flatten from './flatten'
 
-module.exports=
-function createEvent( baseName, eventName, emitter, options) {
-  var event_key= baseName +':'+ eventName
+export default function createEvent( baseName, eventName, emitter, options={} ) {
+  const EVENT_KEY = `${ baseName }:${ eventName }`
 
-  options= options || {}
+  const eventApi= {
 
-  var eventApi= {
-
-    name: event_key,
+    name: EVENT_KEY,
 
     public: {},
 
-    emit: ()=> {
-      var params= Array.prototype.slice.call( arguments)
-      params.unshift( event_key)
-      process.nextTick(()=>{
+    emit: ( ...params ) => {
+      params.unshift( EVENT_KEY )
+      // process.nextTick(() => {
+      //   emitter.emit.apply( emitter, params)
+      // })
+      emitter.emit.apply( emitter, params)
+      return eventApi
+    },
+
+    emitNextTick: ( ...params ) => { // CHANGE
+      params.unshift( EVENT_KEY )
+      process.nextTick(() => {
         emitter.emit.apply( emitter, params)
       })
+      return eventApi
     },
 
-    emitNow: ()=> {
-      var params= Array.prototype.slice.call( arguments)
-      params.unshift( event_key)
+    emitNow: ( ...params ) => {
+      params.unshift( EVENT_KEY)
       emitter.emit.apply( emitter, params)
+      return eventApi
     },
 
-    emitFlat: ()=> {
-      var params= flatten( [ event_key].concat( Array.prototype.slice.call( arguments)))
-      emitter.emit.apply( emitter, params)
+    emitFlat: ( ...params )=> {
+      var params= flatten( [ EVENT_KEY ].concat( params ) )
+      emitter.emit.apply( emitter, params )
       // process.nextTick(()=>{
       //   emitter.emit.apply( emitter, params)
       // })
+      return eventApi
     }
   }
 
-  eventApi.public[ 'on'+ camelize( eventName)]= ( fn)=> {
-    emitter.on( event_key, fn)
+  eventApi.public[ `on${ camelize( eventName ) }` ] = fn => {
+    emitter.on( EVENT_KEY, fn)
     return function unsubscribeToChanges() {
-      emitter.removeListener( event_key, fn)
+      emitter.removeListener( EVENT_KEY, fn )
     }
   }
 
-  eventApi.public[ 'off'+ camelize( eventName)]= ( fn)=> {
-    emitter.removeListener( event_key, fn)
+  eventApi.public[ `off${ camelize( eventName ) }` ] = fn => {
+    emitter.removeListener( EVENT_KEY, fn)
+    return eventApi
   }
 
   return eventApi

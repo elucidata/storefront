@@ -2,7 +2,7 @@
   "name": "storefront",
   "description": "Less tedious Flux implementation.",
   "main": "index.js",
-  "version": "0.7.5",
+  "version": "0.8.0",
   "license": "MIT",
   "author": "Matt McCray <matt@elucidata.net>",
   "keywords": [
@@ -18,10 +18,11 @@
     "url": "git://github.com/elucidata/storefront.git"
   },
   "scripts": {
-    "build": "jsx --harmony --no-cache-dir src/ lib/",
-    "watch": "jsx -w --harmony --no-cache-dir src/ lib/",
+    "build": "babel src/ -d lib/ --stage 0 --loose",
+    "build-browser-tests": "browserify test/**/*.js -o dist/browser-tests/storefront-tests.js",
+    "watch": "babel -w src/ -d lib/ --stage 0 --loose",
     "compile": "NODE_ENV=production browserify index.js -o dist/storefront.js --standalone Storefront",
-    "dist": "npm run build; npm run compile; npm run minify; npm run gz-size",
+    "dist": "npm run build && npm run compile && npm run minify && npm run build-browser-tests && npm run gz-size",
     "minify": "cat dist/storefront.js | uglifyjs -m -c > dist/storefront.min.js",
     "inc-major": "mversion major && npm run update-ver",
     "inc-minor": "mversion minor && npm run update-ver",
@@ -29,8 +30,8 @@
     "update-ver": "node ./update-ver.js",
     "toc": "toc docs/",
     "gz-size": "gzip -c dist/storefront.min.js | wc -c | pretty-bytes",
-    "test": "tape test/**/*.js | tap-spec",
-    "test_b": "babel-tape-runner test/**/*-test.js | tap-spec"
+    "test": "tape test/**/*.js | tap-spec && npm run tests",
+    "tests": "babel-tape-runner tests/**/*.js | tap-spec"
   },
   "dependencies": {
     "elucidata-type": "^1.1.1",
@@ -44,7 +45,20 @@
     "uglifyjs": "^2.3.6",
     "browserify": "^6.3.2",
     "envify": "^3.2.0",
-    "babel": "^5.4.3",
+    "babel": "^5.4.7",
     "babel-tape-runner": "^1.1.0"
+  },
+  "testling": {
+    "files": "test/**/*.js",
+    "browsers": [
+      "ie/6..latest",
+      "chrome/22..latest",
+      "firefox/16..latest",
+      "safari/latest",
+      "opera/11.0..latest",
+      "iphone/6",
+      "ipad/6",
+      "android-browser/latest"
+    ]
   }
 }

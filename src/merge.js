@@ -1,14 +1,9 @@
-module.exports=
-function merge(/* target, ...sources */) {
-  var sources= Array.prototype.slice.call( arguments),
-      target= sources.shift()
+export default function merge( target, ...sources ) {
 
-  sources.forEach(( source)=>{
-    Object.
-      keys( source).
-      forEach(( key)=>{
-        target[ key]= source[ key]
-      })
+  sources.forEach( source => {
+    Object.keys( source ).forEach( key => {
+      target[ key ]= source[ key ]
+    })
   })
 
   return target

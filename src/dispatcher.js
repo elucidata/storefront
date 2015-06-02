@@ -1,59 +1,60 @@
-var uid= require( './uid'),
-    now= require( './now'),
-    console= require( './console')  // jshint ignore:line
+import console from './console'
+import now from './now'
+import uid from './uid'
 
-var THRESHOLD= 10, // In milliseconds
-    _singleton_instance= null,
-    _log_dispatches= false
+const THRESHOLD= 10 // In milliseconds
 
-module.exports=
-class Dispatcher {
+let _singletonInstance= null,
+    _logDispatches= false
+
+export default class Dispatcher {
 
   constructor() {
-    this.active= false
-    this._handlers= {}
-    this._processed= {}
-    this._tokenList= []
-    this._queue= []
+    this.active = false
+    this._handlers = {}
+    this._processed = {}
+    this._tokenList = []
+    this._queue = []
   }
 
-  register( handler, preferredToken) {
-    if( preferredToken && this._handlers.hasOwnProperty( preferredToken)) {
-      preferredToken= uid()
+  register( handler, preferredToken ) {
+    if( preferredToken && this._handlers.hasOwnProperty( preferredToken )) {
+      preferredToken = uid()
     }
 
-    var token = preferredToken || uid()
-    this._handlers[token]= handler
-    this._tokenList= Object.keys( this._handlers)
+    const token = preferredToken || uid()
+
+    this._handlers[ token ] = handler
+    this._tokenList = Object.keys( this._handlers )
+
     return token
   }
 
   deregister( token) {
-    var handler;
-    if( handler= this._handlers[ token] )  // jshint ignore:line
-        delete this._handlers[ token]
+    let handler = this._handlers[ token ]
+    if( handler ) delete this._handlers[ token ]
     return handler
   }
 
-  waitFor( tokens) {
-    if(! this.active) return this
-    (tokens || []).forEach(( token)=>{
+  waitFor( tokens ) {
+    if(! this.active ) return this
+    (tokens || []).forEach( token => {
       // support waitFor params being store instances or store tokens:
-      this._callHandler( token.token || token)
+      this._callHandler( token.token || token )
     })
     return this
   }
 
-  dispatch( action, callback) {
+  dispatch( action, callback ) {
     if( this.active ) {
-      this._queue.push([ action, callback])
+      this._queue.push([ action, callback ])
       return this
     }
 
-    var length= this._tokenList.length,
+    let length= this._tokenList.length,
         index= 0, start_time, duration, label
 
-    if( _log_dispatches) {
+    if( _logDispatches) {
       label= action.type;
       console.time( label)
       console.group( label)
@@ -75,14 +76,14 @@ class Dispatcher {
 
       duration= now() - start_time
 
-      if( duration > THRESHOLD) {
+      if( _logDispatches && duration > THRESHOLD) {
         console.info( 'Dispatch of', action.type ,'took >', THRESHOLD, 'ms') // jshint ignore:line
         // global[ 'console'].info( 'Dispatch of', action.type ,'took >', THRESHOLD, 'ms') // jshint ignore:line
       }
 
     }
 
-    if( _log_dispatches) {
+    if( _logDispatches) {
       console.groupEnd( label)
       console.timeEnd( label)
     }
@@ -93,7 +94,7 @@ class Dispatcher {
 
     if( this._queue.length) {
       // Should this happen on the nextTick?
-      var [nextAction, nextCallback]= this._queue.shift()
+      let [nextAction, nextCallback]= this._queue.shift()
       this.dispatch( nextAction, nextCallback)
     }
 
@@ -102,20 +103,20 @@ class Dispatcher {
 
   _callHandler( token) {
     if( this._processed[ token] === true || !this.active) return
-    var handler= this._handlers[ token]
+    let handler= this._handlers[ token]
 
     handler.call( this, this._currentAction, this, token)
     this._processed[ token]= true
   }
 
   static getInstance() {
-    if( _singleton_instance === null) {
-      _singleton_instance= new this()
+    if( _singletonInstance === null) {
+      _singletonInstance= new this()
     }
-    return _singleton_instance
+    return _singletonInstance
   }
 
   static enableLogging( enabled) {
-    _log_dispatches= enabled
+    _logDispatches= enabled
   }
 }

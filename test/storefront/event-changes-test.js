@@ -61,7 +61,7 @@ test( 'Storefront.onChanged( fn) ...', function( t){
 
   })
 
-  instance.setData( 'new data')
+  instance.setData( 'new data' )
 
 })
 
@@ -69,11 +69,14 @@ test( 'Storefront.onChanged( fn) ...', function( t){
 test( 'Store.onChanged( fn) callbacks...', function( is){
 
   var allEvents= 7,
-      aggregatedEvents= 3
+      aggregatedEvents= 3,
+      callbackCount= 0
 
   is.plan( allEvents)
 
-  var rt= Storefront.newInstance()
+  var rt= Storefront.newInstance({
+    batchedChanges: false
+  })
 
   is.ok(
     rt,
@@ -96,14 +99,24 @@ test( 'Store.onChanged( fn) callbacks...', function( is){
   })
 
   var unsubscribe= store.onChange(function(){
+    callbackCount += 1
     is.pass(
       '<instance>.onChange called!'
     )
   })
 
   store.updateData(1)
+  // is.equal( store.getData(), 1, 'yep' )
+  // is.equal( callbackCount, 1 )
+
   store.updateData(2)
+  // is.equal( store.getData(), 2, 'yep' )
+  // is.equal( callbackCount, 2 )
+
   store.updateData(3)
+  // is.equal( store.getData(), 3, 'yep' )
+  // is.equal( callbackCount, 3 )
+
   store.updateData(9)
   store.updateData(3)
 

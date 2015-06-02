@@ -1,16 +1,16 @@
 /* global performance */
-var now= (()=>{
+const now= (() => {
   if( typeof performance === 'object' && performance.now ) {
     return performance.now.bind( performance )
   }
   else if( Date.now ) {
-    return Date.now.bind(Date)
+    return Date.now.bind( Date )
   }
   else {
-    return ()=> {
+    return () => {
       return (new Date()).getTime()
     }
   }
 })()
 
-module.exports= now
+export default now

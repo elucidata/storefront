@@ -1,14 +1,12 @@
-var kind= require( 'elucidata-type')
+import Type from 'elucidata-type'
 
-module.exports=
-function bindAll(/* target, ...props */) {
-  var props= Array.prototype.slice.call( arguments),
-      target= props.shift()
+export default function bindAll( target, ...props ) {
 
-  props.forEach(( key)=>{
-    var prop= target[ key]
-    if( prop && kind.isFunction( prop)) {
-      target[ key]= prop.bind( target)
+  props.forEach( key => {
+    let prop= target[ key ]
+
+    if( prop && Type.isFunction( prop )) {
+      target[ key ]= prop.bind( target )
     }
   })
 

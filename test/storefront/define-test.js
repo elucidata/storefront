@@ -19,7 +19,8 @@ test( 'Storefront.define( name, fn) ...', function( t){
 
     mgr.actions({
 
-      setData: function( action) {
+      setData: function( action ) {
+        // console.log( 'setting data', action.payload )
         data= action.payload
         mgr.dataHasChanged()
       }
@@ -74,8 +75,13 @@ test( 'Storefront.define( name, fn) ...', function( t){
     'exposes provided functions.'
   )
 
-  t.ok(
-    instance.setData,
+  // t.ok(
+  //   instance.setData,
+  //   'exposes defined actions.'
+  // )
+  t.equal(
+    typeof instance.setData,
+    'function',
     'exposes defined actions.'
   )
 
@@ -94,6 +100,15 @@ test( 'Storefront.define( name, fn) ...', function( t){
     'RESULT',
     'returns data from provided functions.'
   )
+
+  // instance.setData('STUFF')
+
+  // t.equal(
+  //   instance.getData(),
+  //   'STUFF',
+  //   'returns data from provided functions after action.'
+  // )
+
 
   t.end()
 })

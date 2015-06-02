@@ -1,4 +1,4 @@
-function ensure( condition, format, a, b, c, d, e, f) {
+export default function ensure( condition, format, a, b, c, d, e, f ) {
   if(! condition) {
     var error, args, args_index
 
@@ -23,4 +23,4 @@ function ensure( condition, format, a, b, c, d, e, f) {
   }
 }
 
-module.exports= ensure
+// module.exports= ensure

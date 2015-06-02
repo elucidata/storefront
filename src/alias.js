@@ -1,11 +1,7 @@
-module.exports=
-function alias(/* target, prop, ...aliases */) {
-  var aliases= Array.prototype.slice.call( arguments),
-      target= aliases.shift(),
-      prop= aliases.shift(),
-      item= target[ prop]
+export default function alias( target, prop, ...aliases ) {
+  const item= target[ prop]
 
-  aliases.forEach(( alias)=>{
-    target[ alias]= item
+  aliases.forEach( alias => {
+    target[ alias ]= item
   })
 }
