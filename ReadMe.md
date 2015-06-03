@@ -5,6 +5,8 @@ Weighing in at ~6kB, **Storefront** is a simple flux implementation that support
 - No separate constants file to manage event names.
 - Makes the dispatcher an internal detail that consumers don't worry about. (No dispatcherToken<sup>1</sup>)
 - Encapsulates all the Flux details within a single module, exposing only operational methods (queries and actions).
+- Dispatching is queued, so it won't throw an error if you call an action in a dispatch cycle.
+
 
 
 ## Docs
@@ -13,6 +15,7 @@ Weighing in at ~6kB, **Storefront** is a simple flux implementation that support
 - [Usage Example](docs/usage.md)
 
 Example project on GitHub: [github.com/elucidata/storefront-example](https://github.com/elucidata/storefront-example)
+
 
 
 ## Quick Start
@@ -29,6 +32,8 @@ Or straight from **github**:
 
 > [dist/storefront.min.js](https://raw.githubusercontent.com/elucidata/storefront/master/dist/storefront.min.js)
 
+
+
 ## Overview
 
 For an idea of how it all works, here's a skeleton store for app authentication:
@@ -39,25 +44,25 @@ import Storefront from 'storefront'
 
 export default Storefront.define( 'Auth', store => {
     // Internal state.
-    let _loggedIn= false
+    let _loggedIn = false
 
     // The following actions, login/logout, will have
     // 'action creators' automatically generated.
     store.actions({
 
-        login( action) {
-            if( authenticate( action.payload)) {
-                _loggedIn= true
+        login( action ) {
+            if( authenticate( action.payload ) ) {
+                _loggedIn = true
             }
             else {
-                _loggedIn= false
+                _loggedIn = false
             }
             // notify listeners that the internal state has changed
             store.hasChanged()
         },
 
         logout( action) {
-            _loggedIn= false
+            _loggedIn = false
             store.hasChanged()
         }
     })
@@ -80,10 +85,10 @@ You can now use the store as a simple object:
 
 ```javascript
 // get by name or require( 'stores/auth'), whichever you prefer.
-const authStore= Storefront.get( 'Auth')
+const authStore = Storefront.get( 'Auth' )
 
-if(! authStore.isLoggedIn()) {
-    authStore.login('username', 'password')
+if(! authStore.isLoggedIn() ) {
+    authStore.login( 'username', 'password' )
 }
 ```
 
@@ -96,17 +101,20 @@ Storefront.define( 'Auth', store => {
 
         // If we need to do something async, it's better to do it here,
         // before it's been dispatched...
-        login( dispatch, username, password) {
-            myApi.authenticate( username, passord)
+        login( dispatch, username, password ) {
+            myApi.authenticate( username, passord )
                 .then( user =>{
                     // The 'dispatch' param is a function that's
                     // pre-bound to the correct action event name,
                     // you just call it with your payload:
-                    dispatch( user)
+                    dispatch( user )
                 })
                 .catch( err =>{
+                    // Perhaps you have a separate handler for errors
+                    store.invoke( 'loginError', err )
+                    
                     // Maybe you have a central api error store?
-                    store.get( 'Errors').report( err)
+                    store.get( 'Errors' ).report( err )
                 })
 
         }
@@ -117,6 +125,7 @@ Storefront.define( 'Auth', store => {
 ```
 
 See [docs/api.md](./docs/api.md) for more.
+
 
 
 ## ES5 vs ES6 Styles...
@@ -132,6 +141,7 @@ Storefront.define( 'Project', function( store){
     })
 })
 ```
+
 
 
 ## License

@@ -13,9 +13,10 @@
 
 <!-- toc stop -->
 
-## Todo
 
-- [ ] Support passing custom a `Dispatcher` instance into `configure()`. (In case someone prefers Facebook's error throwing dispatcher to Storefront's queued dispatcher.)
+## Todos
+
+- [ ] Support passing custom a `Dispatcher` instance into `configure()`. (For those who prefer Facebook's error throwing dispatcher to Storefront's queued dispatcher.)
 
 
 
