@@ -1,8 +1,10 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var Runtime= require( './lib/runtime')
+'use strict';
+
+var Runtime = require('./lib/runtime');
 
 // module.exports= Runtime.newInstance()
-module.exports= new Runtime()
+module.exports = new Runtime();
 
 },{"./lib/runtime":15}],2:[function(require,module,exports){
 "use strict";
@@ -23,13 +25,16 @@ function alias(target, prop) {
 }
 
 module.exports = exports["default"];
+
 },{}],3:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
 exports['default'] = bindAll;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { 'default': obj };
+}
 
 var _elucidataType = require('elucidata-type');
 
@@ -52,6 +57,7 @@ function bindAll(target) {
 }
 
 module.exports = exports['default'];
+
 },{"elucidata-type":42}],4:[function(require,module,exports){
 'use strict';
 
@@ -65,6 +71,7 @@ function camelize(string) {
 }
 
 module.exports = exports['default'];
+
 },{}],5:[function(require,module,exports){
 (function (global){
 // Based on: https://github.com/paulmillr/console-polyfill/blob/master/index.js
@@ -98,6 +105,7 @@ module.exports = (function (con) {
 
   return con;
 })(global.console || {});
+
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],6:[function(require,module,exports){
 (function (process){
@@ -106,7 +114,9 @@ module.exports = (function (con) {
 exports.__esModule = true;
 exports['default'] = createEvent;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { 'default': obj };
+}
 
 var _camelize = require('./camelize');
 
@@ -193,15 +203,22 @@ function createEvent(baseName, eventName, emitter) {
 }
 
 module.exports = exports['default'];
+
 }).call(this,require('_process'))
 },{"./camelize":4,"./flatten":11,"_process":28}],7:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { 'default': obj };
+}
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError('Cannot call a class as a function');
+  }
+}
 
 var _console = require('./console');
 
@@ -349,6 +366,7 @@ module.exports = exports['default'];
 // jshint ignore:line
 // global[ 'console'].info( 'Dispatch of', action.type ,'took >', THRESHOLD, 'ms') // jshint ignore:line
 // Should the callback be sent anything?
+
 },{"./console":5,"./now":14,"./uid":17}],8:[function(require,module,exports){
 'use strict';
 
@@ -378,13 +396,16 @@ function ensure(condition, format, a, b, c, d, e, f) {
 // module.exports= ensure
 
 module.exports = exports['default'];
+
 },{}],9:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
 exports['default'] = eventHelperMixin;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { 'default': obj };
+}
 
 var _camelize = require('./camelize');
 
@@ -417,13 +438,16 @@ function eventHelperMixin(runtime) {
 }
 
 module.exports = exports['default'];
+
 },{"./camelize":4,"./subscriptions":16}],10:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
 exports['default'] = extractMethods;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { 'default': obj };
+}
 
 var _elucidataType = require('elucidata-type');
 
@@ -472,6 +496,7 @@ function getInlineMethods(source) {
   return methods;
 }
 module.exports = exports['default'];
+
 },{"elucidata-type":42}],11:[function(require,module,exports){
 "use strict";
 
@@ -485,15 +510,22 @@ function flatten(arrays) {
 }
 
 module.exports = exports["default"];
+
 },{}],12:[function(require,module,exports){
 (function (process){
 'use strict';
 
 exports.__esModule = true;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { 'default': obj };
+}
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError('Cannot call a class as a function');
+  }
+}
 
 var _elucidataType = require('elucidata-type');
 
@@ -584,6 +616,17 @@ var Manager = (function () {
 
     if (_elucidataType2['default'].isFunction(fn)) {
       return fn.apply(this._instance, params);
+    } else if (cmd.indexOf('.')) {
+      var _cmd$split = cmd.split('.');
+
+      var _storeName = _cmd$split[0];
+      var fnName = _cmd$split[1];
+      var store = this.runtime.get(_storeName);
+      if (store) {
+        store.invoke.apply(store, [fnName].concat(params));
+      } else {
+        throw new Error('Store ' + _storeName + ' not found for invocation: \'' + cmd + '\'!');
+      }
     } else {
       throw new Error('Method ' + cmd + ' not found!');
     }
@@ -621,13 +664,17 @@ var Manager = (function () {
       store = store.name;
     }
 
+    if (_elucidataType2['default'].isNotString(store)) {
+      throw new Error('Unknown store type: ' + (0, _elucidataType2['default'])(store));
+    }
+
     methods = (0, _extractMethods2['default'])(methods);
 
     Object.keys(methods).forEach(function (actionName) {
-      var eventName = '' + _this4.name + '_' + actionName,
+      var eventName = '' + store + '_' + actionName,
           fn = methods[actionName];
 
-      _this4._handlers[eventName] = fn.bind(_this4._instance); // Change!
+      _this4._handlers[eventName] = fn.bind(_this4._instance); // Change?!
 
       if (store == _this4.name && !_this4._instance[actionName]) {
         // Stub out an action...
@@ -645,7 +692,7 @@ var Manager = (function () {
           }
         };
 
-        // stub[ actionName ]._isStub = true
+        stub[actionName]._isStub = true;
 
         _this4.before(stub);
       }
@@ -692,7 +739,7 @@ var Manager = (function () {
 
     Object.keys(methods).forEach(function (methodName) {
       if (_this6._instance.hasOwnProperty(methodName)) {
-        var error = new Error('Redefinition of \'' + methodName + '\' in store ' + storeName + ' not allowed.');
+        var error = new Error('Redefinition of \'' + methodName + '\' in store \'' + storeName + '\' not allowed.');
         error.framesToPop = 3;
         throw error
         // let method= this._instance[ methodName ]
@@ -758,6 +805,7 @@ var Manager = (function () {
 
 exports['default'] = Manager;
 module.exports = exports['default'];
+
 }).call(this,require('_process'))
 },{"./alias":2,"./bind-all":3,"./camelize":4,"./extract-methods":10,"./merge":13,"_process":28,"elucidata-type":42}],13:[function(require,module,exports){
 "use strict";
@@ -780,6 +828,7 @@ function merge(target) {
 }
 
 module.exports = exports["default"];
+
 },{}],14:[function(require,module,exports){
 /* global performance */
 'use strict';
@@ -799,15 +848,22 @@ var now = (function () {
 
 exports['default'] = now;
 module.exports = exports['default'];
+
 },{}],15:[function(require,module,exports){
 (function (process,global){
 'use strict';
 
 exports.__esModule = true;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { 'default': obj };
+}
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError('Cannot call a class as a function');
+  }
+}
 
 var _dispatcher = require('./dispatcher');
 
@@ -1136,6 +1192,7 @@ var Runtime = (function () {
 
 exports['default'] = Runtime;
 module.exports = exports['default'];
+
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./alias":2,"./bind-all":3,"./camelize":4,"./console":5,"./create-event":6,"./dispatcher":7,"./ensure":8,"./event-helper-mixin":9,"./flatten":11,"./manager":12,"./merge":13,"./now":14,"./subscriptions":16,"./uid":17,"./version":18,"_process":28,"elucidata-type":42,"eventemitter3":43}],16:[function(require,module,exports){
 'use strict';
@@ -1143,9 +1200,15 @@ module.exports = exports['default'];
 exports.__esModule = true;
 exports['default'] = subscriptions;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { 'default': obj };
+}
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError('Cannot call a class as a function');
+  }
+}
 
 var _alias = require('./alias');
 
@@ -1217,6 +1280,7 @@ function subscriptions(runtime) {
 }
 
 module.exports = exports['default'];
+
 },{"./alias":2,"./camelize":4}],17:[function(require,module,exports){
 "use strict";
 
@@ -1239,10 +1303,12 @@ function uid() {
 }
 
 module.exports = exports["default"];
+
 },{}],18:[function(require,module,exports){
 "use strict";
 
-module.exports = "0.8.0";
+module.exports = "0.8.1";
+
 },{}],19:[function(require,module,exports){
 
 },{}],20:[function(require,module,exports){
@@ -7021,25 +7087,29 @@ function through (write, end, opts) {
 
 }).call(this,require('_process'))
 },{"_process":28,"stream":40}],56:[function(require,module,exports){
-var test= require( 'tape'),
-    camelize= require( '../../lib/camelize')
+'use strict';
 
-test( 'lib/camelize.js: Camelize strings...', function( t){
+var test = require('tape'),
+    camelize = require('../../lib/camelize');
 
-  t.equal( camelize( 'hello-dog'), 'HelloDog', 'from hyphenated.')
-  t.equal( camelize( 'hello-my-main-dog'), 'HelloMyMainDog', 'from deeply hyphenated.')
+test('lib/camelize.js: Camelize strings...', function (t) {
 
-  t.equal( camelize( 'hello_dog'), 'HelloDog', 'from underscored.')
-  t.equal( camelize( 'hello_my_main_dog'), 'HelloMyMainDog', 'from deeply underscored.')
+  t.equal(camelize('hello-dog'), 'HelloDog', 'from hyphenated.');
+  t.equal(camelize('hello-my-main-dog'), 'HelloMyMainDog', 'from deeply hyphenated.');
 
-  t.equal( camelize( 'hello-my_main-dog'), 'HelloMyMainDog', 'from mixed types.')
+  t.equal(camelize('hello_dog'), 'HelloDog', 'from underscored.');
+  t.equal(camelize('hello_my_main_dog'), 'HelloMyMainDog', 'from deeply underscored.');
 
-  t.equal( camelize( 'helloDog'), 'HelloDog', 'from mixed case.')
+  t.equal(camelize('hello-my_main-dog'), 'HelloMyMainDog', 'from mixed types.');
 
-  t.end()
-})
+  t.equal(camelize('helloDog'), 'HelloDog', 'from mixed case.');
+
+  t.end();
+});
 
 },{"../../lib/camelize":4,"tape":44}],57:[function(require,module,exports){
+"use strict";
+
 // var test= require( 'tape'),
 //     _console= require( '../../lib/console')  // jshint ignore:line
 
@@ -7051,316 +7121,279 @@ test( 'lib/camelize.js: Camelize strings...', function( t){
 // })
 
 },{}],58:[function(require,module,exports){
-var test= require( 'tape'),
-    extractMethods= require( '../../lib/extract-methods')
+'use strict';
 
-test( 'lib/extract-methods.js: Extract methods from objects or inline classes...', function( t){
+var test = require('tape'),
+    extractMethods = require('../../lib/extract-methods');
 
-  t.equal( typeof extractMethods, 'function', 'exists.')
+test('lib/extract-methods.js: Extract methods from objects or inline classes...', function (t) {
 
-  var source1= {
+  t.equal(typeof extractMethods, 'function', 'exists.');
+
+  var source1 = {
     name: 'test',
-    getItem: function() {},
-    setItem: function() {}
+    getItem: function getItem() {},
+    setItem: function setItem() {}
+  };
+  var source2 = (function () {
+    var _class = function _class() {};
+    _class.prototype.name = 'test';
+    _class.prototype.getItem = function getItem() {};
+    _class.prototype.setItem = function setItem() {};
+    return _class;
+  })();
+  var expected = ['getItem', 'setItem'];
+  var results1 = extractMethods(source1);
+  var results2 = extractMethods(source2);
+
+  t.ok(results1, 'returns object');
+
+  t.deepEqual(Object.keys(results1), expected, 'returns object with correct keys for object source');
+
+  t.deepEqual(Object.keys(results2), expected, 'returns object with correct keys for inline class source');
+
+  for (var key in results2) {
+    var prop = results2[key];
+    t.equal(typeof prop, 'function', 'function type returned for source object, key: ' + key);
   }
-  var source2= (function(){
-    var _class= function (){}
-    _class.prototype.name= 'test'
-    _class.prototype.getItem= function getItem(){}
-    _class.prototype.setItem= function setItem(){}
-    return _class
-  })()
-  var expected= ['getItem', 'setItem']
-  var results1= extractMethods( source1)
-  var results2= extractMethods( source2)
-
-  t.ok( results1, 'returns object')
-
-  t.deepEqual(
-    Object.keys( results1),
-    expected,
-    'returns object with correct keys for object source'
-  )
-
-  t.deepEqual(
-    Object.keys( results2),
-    expected,
-    'returns object with correct keys for inline class source'
-  )
-
-
-  for( var key in results2) {
-    var prop= results2[ key ]
-    t.equal(
-      typeof( prop),
-      'function',
-      ('function type returned for source object, key: '+ key)
-    )
-  }
-  for( var key in results1) {
-    var prop= results1[ key ]
-    t.equal(
-      typeof( prop),
-      'function',
-      ('function type returned for source class, key: '+ key)
-    )
+  for (var key in results1) {
+    var prop = results1[key];
+    t.equal(typeof prop, 'function', 'function type returned for source class, key: ' + key);
   }
 
-  t.end()
-})
+  t.end();
+});
 
 },{"../../lib/extract-methods":10,"tape":44}],59:[function(require,module,exports){
-var test= require( 'tape'),
-    flatten= require( '../../lib/flatten')
+'use strict';
 
-test( 'lib/flatten.js: Flatten...', function( t){
+var test = require('tape'),
+    flatten = require('../../lib/flatten');
 
-  t.deepEqual(
-    flatten([ ['a'], ['b'], 'c']),
-    ['a', 'b', 'c'],
-    'nested arrays.'
-  )
+test('lib/flatten.js: Flatten...', function (t) {
 
-  t.end()
-})
+  t.deepEqual(flatten([['a'], ['b'], 'c']), ['a', 'b', 'c'], 'nested arrays.');
+
+  t.end();
+});
 
 },{"../../lib/flatten":11,"tape":44}],60:[function(require,module,exports){
-var test= require( 'tape'),
-    merge= require( '../../lib/merge')
+'use strict';
 
-test( 'lib/merge.js: Merge...', function( t){
-  var target= { a:'A' },
-      source= { b:'B' }
+var test = require('tape'),
+    merge = require('../../lib/merge');
 
-  t.deepEqual(
-    Object.keys( merge({}, target, source) ),
-    ['a', 'b'],
-    "keys merged"
-  )
+test('lib/merge.js: Merge...', function (t) {
+  var target = { a: 'A' },
+      source = { b: 'B' };
 
-  t.deepEqual(
-    merge({}, target, source),
-    { a:'A', b:'B' },
-    "objects merged"
-  )
+  t.deepEqual(Object.keys(merge({}, target, source)), ['a', 'b'], 'keys merged');
 
-  t.deepEqual(
-    merge({}, target, source, { c:'C', d:'D' }),
-    { a:'A', b:'B', c:'C', d:'D' },
-    "multiple objects merged"
-  )
+  t.deepEqual(merge({}, target, source), { a: 'A', b: 'B' }, 'objects merged');
 
-  t.end()
-})
+  t.deepEqual(merge({}, target, source, { c: 'C', d: 'D' }), { a: 'A', b: 'B', c: 'C', d: 'D' }, 'multiple objects merged');
+
+  t.end();
+});
 
 },{"../../lib/merge":13,"tape":44}],61:[function(require,module,exports){
-var test= require( 'tape'),
-    now= require( '../../lib/now')
+'use strict';
 
-test( 'lib/now.js: Now...', function( t){
+var test = require('tape'),
+    now = require('../../lib/now');
 
-  t.equal( typeof now(), 'number', 'generates numerical representaion of now.')
+test('lib/now.js: Now...', function (t) {
 
-  t.end()
-})
+  t.equal(typeof now(), 'number', 'generates numerical representaion of now.');
+
+  t.end();
+});
 
 },{"../../lib/now":14,"tape":44}],62:[function(require,module,exports){
-var test= require( 'tape'),
-    subscriptions= require( '../../lib/subscriptions'),
-    Storefront= require( '../../index')
+'use strict';
 
-test( 'lib/subscriptions.js: Event Subscription Manager...', function( t){
+var test = require('tape'),
+    subscriptions = require('../../lib/subscriptions'),
+    Storefront = require('../../index');
 
-  t.plan( 10 )
+test('lib/subscriptions.js: Event Subscription Manager...', function (t) {
 
-  t.equal( typeof subscriptions, 'function', 'exists.')
-  t.equal( typeof subscriptions(null), 'function', 'generates curried factory.')
+  t.plan(10);
 
-  var RT= Storefront.newInstance({
+  t.equal(typeof subscriptions, 'function', 'exists.');
+  t.equal(typeof subscriptions(null), 'function', 'generates curried factory.');
+
+  var RT = Storefront.newInstance({
     verbose: false
-  })
-  var subs= subscriptions(RT)()
+  });
+  var subs = subscriptions(RT)();
 
-  t.ok( subs, 'Returns subscription instance.')
+  t.ok(subs, 'Returns subscription instance.');
 
-  t.ok( subs.on, 'Instance has on() method.')
-  t.ok( subs.release, 'Instance has release() method.')
-  t.equal( subs.size(), 0, 'Initial size is 0.')
+  t.ok(subs.on, 'Instance has on() method.');
+  t.ok(subs.release, 'Instance has release() method.');
+  t.equal(subs.size(), 0, 'Initial size is 0.');
 
-  var store= RT.define('Test', function( _store ){
+  var store = RT.define('Test', function (_store) {
     _store.outlets({
-      pow: function() {
+      pow: function pow() {
         // console.log('calling notify!')
-        _store.notify('zoom')
+        _store.notify('zoom');
       }
-    })
-  })
+    });
+  });
 
-  subs.on( store, 'notify', function( s ){
+  subs.on(store, 'notify', function (s) {
     // console.log(">> Callback!")
-    t.equal( s, 'zoom', 'Correctly registered event')
-  })
+    t.equal(s, 'zoom', 'Correctly registered event');
+  });
 
-  store.pow()
+  store.pow();
 
-  t.equal( subs.size(), 1, 'Retains callbacks.')
+  t.equal(subs.size(), 1, 'Retains callbacks.');
 
-  subs.on( 'Crap', 'notify', function(){t.fail('Incorrectly registered event')})
-  subs.on( 'Test', 'junk', function(){t.fail('Incorrectly registered event')})
+  subs.on('Crap', 'notify', function () {
+    t.fail('Incorrectly registered event');
+  });
+  subs.on('Test', 'junk', function () {
+    t.fail('Incorrectly registered event');
+  });
 
-  t.equal( subs.size(), 1, 'Ignores missing stores/events.')
+  t.equal(subs.size(), 1, 'Ignores missing stores/events.');
 
-  subs.release()
+  subs.release();
 
+  store.pow();
+  store.pow();
+  store.pow();
 
-  store.pow()
-  store.pow()
-  store.pow()
-
-  t.equal( subs.size(), 0, 'Clears callbacks.')
-
-  // t.end()
-})
+  t.equal(subs.size(), 0, 'Clears callbacks.');
+});
+// t.end()
 
 },{"../../index":1,"../../lib/subscriptions":16,"tape":44}],63:[function(require,module,exports){
-var test= require( 'tape'),
-    uid= require( '../../lib/uid')
+'use strict';
 
-test( 'lib/uid.js: UID...', function( t){
+var test = require('tape'),
+    uid = require('../../lib/uid');
 
-  t.equal( typeof uid(), 'string', 'creates string id.')
+test('lib/uid.js: UID...', function (t) {
 
-  var ids= {}, i= 0, ID_COUNT= 1000
+  t.equal(typeof uid(), 'string', 'creates string id.');
 
-  for(; i < ID_COUNT; i++) {
-    ids[ uid() ]= true
+  var ids = {},
+      i = 0,
+      ID_COUNT = 1000;
+
+  for (; i < ID_COUNT; i++) {
+    ids[uid()] = true;
   }
 
-  t.equal( Object.keys( ids).length, ID_COUNT, "doesn't create duplicate ids.")
+  t.equal(Object.keys(ids).length, ID_COUNT, 'doesn\'t create duplicate ids.');
 
-  t.end()
-})
+  t.end();
+});
 
 },{"../../lib/uid":17,"tape":44}],64:[function(require,module,exports){
-var test= require( 'tape'), Storefront= require( '../../index')
+'use strict';
 
-test('Storefront core API...', function( t){
+var test = require('tape'),
+    Storefront = require('../../index');
 
-  t.ok( Storefront, 'exists.')
+test('Storefront core API...', function (t) {
 
-  t.ok( Storefront.define, 'define() is available.')
-  t.ok( Storefront.get, 'get() is available.')
-  t.ok( Storefront.configure, 'configure() is available.')
-  t.ok( Storefront.onChange, 'onChange() is available.')
-  t.ok( Storefront.offChange, 'offChange() is available.')
-  t.equal( typeof Storefront.version, 'string', 'version is defined.')
+  t.ok(Storefront, 'exists.');
 
-  t.end()
-})
+  t.ok(Storefront.define, 'define() is available.');
+  t.ok(Storefront.get, 'get() is available.');
+  t.ok(Storefront.configure, 'configure() is available.');
+  t.ok(Storefront.onChange, 'onChange() is available.');
+  t.ok(Storefront.offChange, 'offChange() is available.');
+  t.equal(typeof Storefront.version, 'string', 'version is defined.');
+
+  t.end();
+});
 
 },{"../../index":1,"tape":44}],65:[function(require,module,exports){
-var test= require( 'tape'), Storefront= require( '../../index')
+'use strict';
 
-test( 'Storefront.define( name, fn) ...', function( t){
+var test = require('tape'),
+    Storefront = require('../../index');
 
-  t.ok( Storefront.define, 'exists.')
+test('Storefront.define( name, fn) ...', function (t) {
 
-  var instance= Storefront.define( 'Test', function( mgr){
-    t.ok( mgr.before, 'manager.before exists.')
-    t.ok( mgr.actions, 'manager.actions exists.')
-    t.ok( mgr.outlets, 'manager.outlets exists.')
-    t.ok( mgr.observes, 'manager.observes exists.')
-    t.ok( mgr.actions, 'manager.actions exists.')
-    t.ok( mgr.notify, 'manager.notify exists.')
-    t.ok( mgr.hasChanged, 'manager.hasChanged exists.')
-    t.ok( mgr.waitFor, 'manager.waitFor exists.')
-    t.ok( mgr.exposes, 'manager.exposes exists.')
+  t.ok(Storefront.define, 'exists.');
 
-    var data= 'RESULT'
+  var instance = Storefront.define('Test', function (mgr) {
+    t.ok(mgr.before, 'manager.before exists.');
+    t.ok(mgr.actions, 'manager.actions exists.');
+    t.ok(mgr.outlets, 'manager.outlets exists.');
+    t.ok(mgr.observes, 'manager.observes exists.');
+    t.ok(mgr.actions, 'manager.actions exists.');
+    t.ok(mgr.notify, 'manager.notify exists.');
+    t.ok(mgr.hasChanged, 'manager.hasChanged exists.');
+    t.ok(mgr.waitFor, 'manager.waitFor exists.');
+    t.ok(mgr.exposes, 'manager.exposes exists.');
+
+    var data = 'RESULT';
 
     mgr.actions({
 
-      setData: function( action ) {
+      setData: function setData(action) {
         // console.log( 'setting data', action.payload )
-        data= action.payload
-        mgr.dataHasChanged()
+        data = action.payload;
+        mgr.dataHasChanged();
       }
-    })
+    });
 
     mgr.actions((function () {
-      var _class = function () {};
+      var _class = function _class() {};
 
       _class.prototype.resetData = function resetData() {
-        data = 'RESULT'
-        mgr.dataHasChanged()
+        data = 'RESULT';
+        mgr.dataHasChanged();
       };
 
       return _class;
-    })())
+    })());
 
     mgr.outlets({
 
-      getData: function() { return data }
-    })
+      getData: function getData() {
+        return data;
+      }
+    });
 
     mgr.outlets((function () {
-      var _class = function () {};
+      var _class = function _class() {};
 
       _class.prototype.hasData = function hasData() {
-        return data != null
+        return data != null;
       };
 
       return _class;
-    })())
+    })());
+  }); // End of store definition
 
-  }) // End of store definition
+  t.deepLooseEqual(instance, Storefront.get('Test'), 'returns instance from factory call.');
 
-  t.deepLooseEqual(
-    instance,
-    Storefront.get( 'Test'),
-    'returns instance from factory call.'
-  )
+  t.ok(instance.name, 'exposes store name.');
 
-  t.ok(
-    instance.name,
-    'exposes store name.'
-  )
+  t.ok(instance.token, 'exposes dispatch token.');
 
-  t.ok(
-    instance.token,
-    'exposes dispatch token.'
-  )
-
-  t.ok(
-    instance.getData,
-    'exposes provided functions.'
-  )
+  t.ok(instance.getData, 'exposes provided functions.');
 
   // t.ok(
   //   instance.setData,
   //   'exposes defined actions.'
   // )
-  t.equal(
-    typeof instance.setData,
-    'function',
-    'exposes defined actions.'
-  )
+  t.equal(typeof instance.setData, 'function', 'exposes defined actions.');
 
-  t.ok(
-    instance.resetData,
-    'exposes defined actions (from inline class).'
-  )
+  t.ok(instance.resetData, 'exposes defined actions (from inline class).');
 
-  t.ok(
-    instance.hasData,
-    'exposes defined outlets (from inline class).'
-  )
+  t.ok(instance.hasData, 'exposes defined outlets (from inline class).');
 
-  t.equal(
-    instance.getData(),
-    'RESULT',
-    'returns data from provided functions.'
-  )
+  t.equal(instance.getData(), 'RESULT', 'returns data from provided functions.');
 
   // instance.setData('STUFF')
 
@@ -7370,380 +7403,701 @@ test( 'Storefront.define( name, fn) ...', function( t){
   //   'returns data from provided functions after action.'
   // )
 
+  t.end();
+});
 
-  t.end()
-})
+test('Allow non-functions only in returned object from builder', function (is) {
 
+  var RT = Storefront.newInstance();
 
-test( "Allow non-functions only in returned object from builder", function( is ) {
-
-  var RT= Storefront.newInstance()
-
-  var store= RT.define( 'NewTest', function( mgr ) {
+  var store = RT.define('NewTest', function (mgr) {
     mgr.action({
-      testAction: function() {},
-      testActionValue: "Hello"
-    })
+      testAction: function testAction() {},
+      testActionValue: 'Hello'
+    });
     mgr.outlets({
-      testOutlet: function() {},
-      testOutletValue: "Hello"
-    })
+      testOutlet: function testOutlet() {},
+      testOutletValue: 'Hello'
+    });
     return {
-      testReturn: function() {},
-      testReturnValue: "Hello"
-    }
-  })
+      testReturn: function testReturn() {},
+      testReturnValue: 'Hello'
+    };
+  });
 
-  is.equal( typeof store.testAction, 'function', 'Action function defined.' )
-  is.equal( typeof store.testActionValue, 'undefined', 'Action value ignored.' )
+  is.equal(typeof store.testAction, 'function', 'Action function defined.');
+  is.equal(typeof store.testActionValue, 'undefined', 'Action value ignored.');
 
-  is.equal( typeof store.testOutlet, 'function', 'Outlet function defined.' )
-  is.equal( typeof store.testOutletValue, 'undefined', 'Outlet value ignored.' )
+  is.equal(typeof store.testOutlet, 'function', 'Outlet function defined.');
+  is.equal(typeof store.testOutletValue, 'undefined', 'Outlet value ignored.');
 
-  is.equal( typeof store.testReturn, 'function', 'Return function defined.' )
-  is.equal( typeof store.testReturnValue, 'string', 'Return value defined.' )
+  is.equal(typeof store.testReturn, 'function', 'Return function defined.');
+  is.equal(typeof store.testReturnValue, 'string', 'Return value defined.');
 
-  is.end()
-})
+  is.end();
+});
 
 },{"../../index":1,"tape":44}],66:[function(require,module,exports){
-var test= require( 'tape'),
-    Dispatcher= require( '../../lib/dispatcher'),
-    Storefront= require( '../../index'),
-    notest= function(){}
+'use strict';
 
-test( 'Dispatcher...', function( t){
+var test = require('tape'),
+    Dispatcher = require('../../lib/dispatcher'),
+    Storefront = require('../../index'),
+    notest = function notest() {};
 
-  t.ok(
-    Dispatcher,
-    'exists.'
-  )
+test('Dispatcher...', function (t) {
 
-  t.equal(
-    Dispatcher.getInstance(),
-    Dispatcher.getInstance(),
-    'returns a single instance for multiple calls to #getInstance().'
-  )
+  t.ok(Dispatcher, 'exists.');
 
-  t.end()
-})
+  t.equal(Dispatcher.getInstance(), Dispatcher.getInstance(), 'returns a single instance for multiple calls to #getInstance().');
 
-notest( 'Nested dispatches should be queued...', function( is ) {
+  t.end();
+});
 
-  is.plan( 12 )
+notest('Nested dispatches should be queued...', function (is) {
 
-  var RT= Storefront.newInstance()
+  is.plan(12);
 
-  var storeA= RT.define('A', function( mgr ){
+  var RT = Storefront.newInstance();
+
+  var storeA = RT.define('A', function (mgr) {
     mgr.actions({
-      start: function() {
-        is.pass(
-          'StoreA action called'
-        )
+      start: function start() {
+        is.pass('StoreA action called');
         for (var i = 1; i <= 5; i++) {
-          mgr.get('B').doIt({ count:i, msg:'fromA'})
+          mgr.get('B').doIt({ count: i, msg: 'fromA' });
         }
-        is.pass(
-          'StoreA action finished'
-        )
+        is.pass('StoreA action finished');
       }
 
-    })
-  })
+    });
+  });
 
-  var storeB= RT.define('B', function( mgr ){
+  var storeB = RT.define('B', function (mgr) {
     mgr.actions({
-      doIt: function( action ) {
-        is.pass(
-          'StoreB action called '+ action.payload.count +' '+ action.payload.msg
-        )
-        if( action.payload.msg !== '(internally invoked)') {
-          mgr.invoke('doIt', { count:action.payload.count, msg:'(internally invoked)' })
+      doIt: function doIt(action) {
+        is.pass('StoreB action called ' + action.payload.count + ' ' + action.payload.msg);
+        if (action.payload.msg !== '(internally invoked)') {
+          mgr.invoke('doIt', { count: action.payload.count, msg: '(internally invoked)' });
         }
       }
-    })
-  })
+    });
+  });
 
-  storeA.start()
-
-})
+  storeA.start();
+});
 
 },{"../../index":1,"../../lib/dispatcher":7,"tape":44}],67:[function(require,module,exports){
-var test= require( 'tape'),
-    Storefront= require( '../../index.js')
+'use strict';
 
-test( 'Storefront.onChanged( fn) ...', function( t){
+var test = require('tape'),
+    Storefront = require('../../index.js');
 
-  t.plan( 10)
+test('Storefront.onChanged( fn) ...', function (t) {
 
-  t.ok( Storefront.get, 'exists.')
+  t.plan(10);
 
-  var instance= Storefront.get( 'Test')
+  t.ok(Storefront.get, 'exists.');
 
-  t.deepLooseEqual(
-    instance,
-    Storefront.get( 'Test'),
-    'returns instance from factory call.'
-  )
+  var instance = Storefront.get('Test');
 
-  t.ok(
-    instance.getData,
-    'exposes provided functions.'
-  )
+  t.deepLooseEqual(instance, Storefront.get('Test'), 'returns instance from factory call.');
 
-  t.ok(
-    instance.setData,
-    'exposes provided actions.'
-  )
+  t.ok(instance.getData, 'exposes provided functions.');
 
-  t.ok(
-    instance.onChange,
-    'exposes change handlers functions.'
-  )
+  t.ok(instance.setData, 'exposes provided actions.');
 
-  t.equal(
-    instance.getData(),
-    'RESULT',
-    'fetches data from Store.'
-  )
+  t.ok(instance.onChange, 'exposes change handlers functions.');
 
+  t.equal(instance.getData(), 'RESULT', 'fetches data from Store.');
 
-  Storefront.onChange(function(){
-    t.pass('Global onChange called')
-  })
+  Storefront.onChange(function () {
+    t.pass('Global onChange called');
+  });
 
-  instance.onChange(function(){
+  instance.onChange(function () {
 
-    t.pass('onChange callback triggered')
+    t.pass('onChange callback triggered');
 
-    t.equal(
-      instance.getData(),
-      'new data',
-      'actions propagate correctly.'
-    )
+    t.equal(instance.getData(), 'new data', 'actions propagate correctly.');
 
-    instance= Storefront.recreateStore( 'Test')
+    instance = Storefront.recreateStore('Test');
 
-    t.equal(
-      instance.getData(),
-      'RESULT',
-      'Store reset to default state.'
-    )
+    t.equal(instance.getData(), 'RESULT', 'Store reset to default state.');
+  });
 
-  })
+  instance.setData('new data');
+});
 
-  instance.setData( 'new data' )
+test('Store.onChanged( fn) callbacks...', function (is) {
 
-})
+  var allEvents = 7,
+      aggregatedEvents = 3,
+      callbackCount = 0;
 
+  is.plan(allEvents);
 
-test( 'Store.onChanged( fn) callbacks...', function( is){
-
-  var allEvents= 7,
-      aggregatedEvents= 3,
-      callbackCount= 0
-
-  is.plan( allEvents)
-
-  var rt= Storefront.newInstance({
+  var rt = Storefront.newInstance({
     batchedChanges: false
-  })
+  });
 
-  is.ok(
-    rt,
-    'Using new instance'
-  )
+  is.ok(rt, 'Using new instance');
 
-  var store= rt.define(function( m ){
-    var data= null
+  var store = rt.define(function (m) {
+    var data = null;
     m.actions({
-      updateData: function(action) {
-        data= action.payload
-        m.hasChanged()
+      updateData: function updateData(action) {
+        data = action.payload;
+        m.hasChanged();
       }
-    })
+    });
     m.outlets({
-      getData: function() {
-        return data
+      getData: function getData() {
+        return data;
       }
-    })
-  })
+    });
+  });
 
-  var unsubscribe= store.onChange(function(){
-    callbackCount += 1
-    is.pass(
-      '<instance>.onChange called!'
-    )
-  })
+  var unsubscribe = store.onChange(function () {
+    callbackCount += 1;
+    is.pass('<instance>.onChange called!');
+  });
 
-  store.updateData(1)
+  store.updateData(1);
   // is.equal( store.getData(), 1, 'yep' )
   // is.equal( callbackCount, 1 )
 
-  store.updateData(2)
+  store.updateData(2);
   // is.equal( store.getData(), 2, 'yep' )
   // is.equal( callbackCount, 2 )
 
-  store.updateData(3)
+  store.updateData(3);
   // is.equal( store.getData(), 3, 'yep' )
   // is.equal( callbackCount, 3 )
 
-  store.updateData(9)
-  store.updateData(3)
+  store.updateData(9);
+  store.updateData(3);
 
-  var finalData= store.getData()
+  var finalData = store.getData();
 
-  unsubscribe()
+  unsubscribe();
 
   // These shouldn't trigger a callback.
-  store.updateData(3)
-  store.updateData(9)
-  store.updateData(3)
+  store.updateData(3);
+  store.updateData(9);
+  store.updateData(3);
 
-  is.equal(
-    finalData,
-    3,
-    "Returns last result of updateData() call."
-  )
-
-  // is.end()
-})
+  is.equal(finalData, 3, 'Returns last result of updateData() call.');
+});
+// is.end()
 
 },{"../../index.js":1,"tape":44}],68:[function(require,module,exports){
-var test= require( 'tape'), Storefront= require( '../../index')
+'use strict';
 
-test(".newInstance()", function(is){
+var test = require('tape'),
+    Storefront = require('../../index');
 
-  var NSF= Storefront.newInstance()
+test('.newInstance()', function (is) {
 
-  is.plan( 3)
+  var NSF = Storefront.newInstance();
 
-  is.ok(
-    NSF,
-    "created."
-  )
+  is.plan(3);
 
-  is.equal(
-    NSF.size(),
-    0,
-    "creates an empty runtime."
-  )
+  is.ok(NSF, 'created.');
+
+  is.equal(NSF.size(), 0, 'creates an empty runtime.');
 
   // Make sure old store and new store dispatchers are separate:
 
-  Storefront.define('Dupes', function(mgr){
+  Storefront.define('Dupes', function (mgr) {
     mgr.actions({
-      runIt: function( action) {
-        is.fail('Storefront dupes called.')
+      runIt: function runIt(action) {
+        is.fail('Storefront dupes called.');
       }
-    })
-  })
+    });
+  });
 
-  var store= NSF.define('Dupes', function(mgr){
+  var store = NSF.define('Dupes', function (mgr) {
     mgr.actions({
-      runIt: function( action) {
-        is.pass('NEW Storefront dupes called.')
+      runIt: function runIt(action) {
+        is.pass('NEW Storefront dupes called.');
       }
-    })
-  })
+    });
+  });
 
-  store.runIt()
+  store.runIt();
+});
+// is.end()
 
-  // is.end()
-
-  // console.log( store)
-})
+// console.log( store)
 
 },{"../../index":1,"tape":44}],69:[function(require,module,exports){
-var test= require( 'tape'), Storefront= require( '../../index')
+'use strict';
 
+var test = require('tape'),
+    Storefront = require('../../index');
 
-test("Storefront (inline) store auto-naming...", function(is){
+test('Storefront (inline) store auto-naming...', function (is) {
 
-  var store= Storefront.define(function( mgr){
+  var store = Storefront.define(function (mgr) {
 
     mgr.actions({
-      test: function( action){}
-    })
+      test: function test(action) {}
+    });
 
     mgr.outlets({
       isTest: true
-    })
+    });
+  });
 
-  })
+  is.ok(store, 'created.');
 
-  is.ok(
-    store,
-    "created."
-  )
+  is.ok(store.name, 'creates a name automatically.');
 
-  is.ok(
-    store.name,
-    "creates a name automatically."
-  )
+  is.end();
+});
 
-  is.end()
+test('Storefront automatic action generation...', function (is) {
 
-  // console.log( store)
-})
-
-
-test("Storefront automatic action generation...", function(is){
-
-  var store= Storefront.define(function( mgr){
+  var store = Storefront.define(function (mgr) {
     mgr.actions({
-      test: function(a) {}
-    })
-  })
+      test: function test(a) {}
+    });
+  });
 
-  is.ok(
-    store,
-    "created."
-  )
+  is.ok(store, 'created.');
 
-  is.ok(
-    store.test,
-    "creates an action automatically."
-  )
+  is.ok(store.test, 'creates an action automatically.');
 
-  is.end()
+  is.end();
+});
 
-  // console.log( store)
-})
+test('Storefront before action...', function (is) {
 
+  is.plan(3);
 
-test("Storefront before action...", function(is){
-
-  is.plan( 3)
-
-  var store= Storefront.define(function( mgr){
+  var store = Storefront.define(function (mgr) {
     mgr.actions({
-      test: function(a) {
-        is.pass( 'Called action handler.')
+      test: function test(a) {
+        is.pass('Called action handler.');
       }
-    })
+    });
     mgr.before({
-      test: function(d){
-        is.pass( 'Called before handler.')
-        d()
+      test: function test(d) {
+        is.pass('Called before handler.');
+        d();
       }
-    })
-  })
+    });
+  });
 
-  is.ok(
-    store,
-    "created."
-  )
+  is.ok(store, 'created.');
 
-  store.test()
+  store.test();
+});
+// console.log( store)
+// console.log( store)
+// is.end()
 
-  // is.end()
-
-  // console.log( store)
-})
+// console.log( store)
 
 },{"../../index":1,"tape":44}],70:[function(require,module,exports){
-module.exports=require(19)
-},{"/Users/darthapo/Projects/OpenSource/storefront/node_modules/browserify/lib/_empty.js":19}],71:[function(require,module,exports){
-module.exports=require(19)
-},{"/Users/darthapo/Projects/OpenSource/storefront/node_modules/browserify/lib/_empty.js":19}]},{},[56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71]);
+"use strict";
+
+},{}],71:[function(require,module,exports){
+"use strict";
+
+},{}],72:[function(require,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _index = require('../../index');
+
+var _index2 = _interopRequireDefault(_index);
+
+var _tape = require('tape');
+
+var _tape2 = _interopRequireDefault(_tape);
+
+var _testHelpers = require('../test-helpers');
+
+var RT = _index2['default'].newInstance({ asyncDispatch: false, useRAF: false }),
+    store = RT.define('TestStore', _testHelpers.StoreBuilder);
+
+(0, _tape2['default'])('Storefront reset internals:', function (is) {
+
+  is.equal(store.getValue(), '?', 'initial state set');
+
+  store.setValue('New');
+  is.equal(store.getValue(), 'New', 'new state is set');
+
+  RT.recreateStore('TestStore');
+  is.equal(store.getValue(), '?', 'initial state is reset');
+
+  is.end();
+});
+
+},{"../../index":1,"../test-helpers":79,"tape":44}],73:[function(require,module,exports){
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _index = require('../../index');
+
+var _index2 = _interopRequireDefault(_index);
+
+var _tape = require('tape');
+
+var _tape2 = _interopRequireDefault(_tape);
+
+var rt = _index2['default'].newInstance({ asyncDispatch: false, useRAF: false, logging: false, verbose: false });
+
+(0, _tape2['default'])('Defining Actions:', function (main) {
+
+  main.test(' -> with object literals', function (is) {
+    is.plan(2);
+
+    var store = rt.define('Test1', function (store) {
+      store.actions({
+        doThis: function doThis() {
+          is.pass('defined action was called');
+        }
+      });
+    });
+
+    is.equal(typeof store.doThis, 'function', 'defined action');
+
+    store.doThis();
+  });
+
+  main.test(' -> with classes', function (is) {
+    is.plan(2);
+
+    var store = rt.define('Test1', function (store) {
+      store.actions((function () {
+        var _class = function () {
+          _classCallCheck(this, _class);
+        };
+
+        _createClass(_class, [{
+          key: 'doThat',
+          value: function doThat() {
+            is.pass('defined action was called');
+          }
+        }]);
+
+        return _class;
+      })());
+    });
+
+    is.equal(typeof store.doThat, 'function', 'defined action');
+
+    store.doThat();
+  });
+
+  main.end();
+});
+
+},{"../../index":1,"tape":44}],74:[function(require,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _index = require('../../index');
+
+var _index2 = _interopRequireDefault(_index);
+
+var _tape = require('tape');
+
+var _tape2 = _interopRequireDefault(_tape);
+
+var _testHelpers = require('../test-helpers');
+
+var syncRT = _index2['default'].newInstance({ asyncDispatch: false, useRAF: false }),
+    asyncRT = _index2['default'].newInstance({ asyncDispatch: true, useRAF: true });
+
+var syncStore = syncRT.define('SyncStore', _testHelpers.StoreBuilder);
+
+var asyncStore = syncRT.define('AsyncStore', _testHelpers.StoreBuilder);
+
+(0, _tape2['default'])('Storefront onChange events:', function (main) {
+
+  main.test(' -> batched events', function (is) {
+    var eventCount = 0;
+
+    is.end();
+  });
+
+  main.test(' -> synced events', function (is) {
+    var eventCount = 0;
+
+    is.end();
+  });
+
+  main.end();
+});
+
+},{"../../index":1,"../test-helpers":79,"tape":44}],75:[function(require,module,exports){
+"use strict";
+
+},{}],76:[function(require,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _index = require('../../index');
+
+var _index2 = _interopRequireDefault(_index);
+
+var _tape = require('tape');
+
+var _tape2 = _interopRequireDefault(_tape);
+
+(0, _tape2['default'])('Store obervation:', function (main) {
+
+  main.test(' -> observing instances', function (is) {
+    var rt = _index2['default'].newInstance({
+      asyncDispatch: false, useRAF: false
+    });
+
+    var store1 = rt.define(function (store) {
+      var data = null;
+      store.actions({
+        load: function load(_ref) {
+          var payload = _ref.payload;
+
+          data = payload;
+          store.hasChanged();
+        }
+      });
+      store.outlets({
+        getData: function getData() {
+          return data;
+        }
+      });
+    });
+
+    var store2 = rt.define(function (store) {
+      var store1_data = null;
+      store.observes(store1, {
+        load: function load(_ref2) {
+          var payload = _ref2.payload;
+
+          store.waitFor(store1);
+          // store1_data= payload
+          store1_data = store1.getData();
+          store.hasChanged();
+        }
+      });
+      store.outlets({
+        getData: function getData() {
+          return store1_data;
+        }
+      });
+    });
+
+    is.equal(store1.getData(), null, 'Initial state is set.');
+    var msg = 'mange une orange';
+
+    store1.load(msg);
+    is.equal(store1.getData(), msg, 'Updated state is set.');
+
+    is.equal(store2.getData(), msg, 'Second store state is set from first store.');
+
+    is.end();
+  });
+
+  main.test(' -> observing by name', function (is) {
+
+    var rt = _index2['default'].newInstance({
+      asyncDispatch: false, useRAF: false
+    });
+
+    var store1 = rt.define('Store1', function (store) {
+      var data = null;
+      store.actions({
+        load: function load(_ref3) {
+          var payload = _ref3.payload;
+
+          data = payload;
+          store.hasChanged();
+        }
+      });
+      store.outlets({
+        getData: function getData() {
+          return data;
+        }
+      });
+    });
+
+    var store2 = rt.define('Store2', function (store) {
+      var store1_data = null;
+      store.observes('Store1', {
+        load: function load(_ref4) {
+          var payload = _ref4.payload;
+
+          store.waitFor('Store1');
+          // store1_data= payload
+          store1_data = store.get('Store1').getData();
+          store.hasChanged();
+        }
+      });
+      store.outlets({
+        getData: function getData() {
+          return store1_data;
+        }
+      });
+    });
+
+    is.equal(store1.getData(), null, 'Initial state is set.');
+    var msg = 'mange une orange';
+
+    store1.load(msg);
+    is.equal(store1.getData(), msg, 'Updated state is set.');
+
+    is.equal(store2.getData(), msg, 'Second store state is set from first store.');
+
+    is.end();
+  });
+
+  main.end();
+});
+
+},{"../../index":1,"tape":44}],77:[function(require,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _index = require('../../index');
+
+var _index2 = _interopRequireDefault(_index);
+
+var _tape = require('tape');
+
+var _tape2 = _interopRequireDefault(_tape);
+
+(0, _tape2['default'])('Storefront Instances:', function (main) {
+  var RT = _index2['default'].newInstance();
+
+  main.ok(RT, 'Created new instance');
+
+  main.notEqual(_index2['default'], RT, 'New instance is separate but equal');
+
+  main.test(' -> settings', function (is) {
+
+    is.deepEqual(_index2['default'].settings, RT.settings, 'Defaults to same settings as original');
+
+    var RT2 = _index2['default'].newInstance({
+      useRAF: false
+    });
+
+    is.notDeepEqual(_index2['default'].settings, RT2.settings, 'Merges new settings with original settings');
+
+    is.end();
+  });
+
+  // main.test( '', is => {
+
+  // })
+
+  main.end();
+});
+
+},{"../../index":1,"tape":44}],78:[function(require,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _index = require('../../index');
+
+var _index2 = _interopRequireDefault(_index);
+
+var _tape = require('tape');
+
+var _tape2 = _interopRequireDefault(_tape);
+
+var rt = _index2['default'].newInstance({ asyncDispatch: false, useRAF: false, logging: false, verbose: false });
+
+(0, _tape2['default'])('Defining Stores:', function (main) {
+
+  main.test(' -> with builder function', function (is) {
+    var store = rt.define('TestStoreA', function (store) {
+      var value = 'Yep';
+      store.outlets({
+        getValue: function getValue() {
+          return value;
+        }
+      });
+      return { value: value };
+    });
+    is.equal(store.value, 'Yep', 'returned value from builder');
+    is.ok(rt.hasStore('TestStoreA'), 'defined named store');
+    is.equal(rt.get('TestStoreA').value, 'Yep', 'returned value from builder');
+    is.equal(rt.get('TestStoreA').getValue(), 'Yep', 'returned value from outlet');
+    is.end();
+  });
+
+  main.test(' -> with builder object', function (is) {
+    // No actions are defined for object builders, only outlets!
+    var store = rt.define('TestStoreB', {
+      getValue: function getValue() {
+        return 'Yep';
+      },
+      value: 'Yep'
+    });
+    is.equal(store.value, 'Yep', 'returned value from builder');
+    is.ok(rt.hasStore('TestStoreB'), 'defined named store');
+    is.equal(rt.get('TestStoreB').value, 'Yep', 'returned value from builder');
+    is.equal(rt.get('TestStoreB').getValue(), 'Yep', 'returned value from outlet');
+
+    // Move this to an 'internal' test
+    //is.equal( Object.keys( rt.getManager('TestStoreB')._handlers).length, 0, 'No events created for object builder')
+    is.end();
+  });
+
+  main.end();
+});
+
+},{"../../index":1,"tape":44}],79:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+exports.StoreBuilder = StoreBuilder;
+
+function StoreBuilder(store) {
+
+  var state = {
+    value: '?',
+    setCount: 0
+  };
+
+  store.actions({
+
+    setValue: function setValue(action) {
+      state.value = action.payload;
+      state.setCount = state.setCount + 1;
+      store.hasChanged();
+    }
+
+  });
+
+  store.outlets({
+
+    getValue: function getValue() {
+      return state.value;
+    }
+
+  });
+
+  return {
+    rawState: state
+  };
+}
+
+},{}]},{},[56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78]);

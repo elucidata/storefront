@@ -584,6 +584,17 @@ var Manager = (function () {
 
     if (_elucidataType2['default'].isFunction(fn)) {
       return fn.apply(this._instance, params);
+    } else if (cmd.indexOf('.')) {
+      var _cmd$split = cmd.split('.');
+
+      var _storeName = _cmd$split[0];
+      var fnName = _cmd$split[1];
+      var store = this.runtime.get(_storeName);
+      if (store) {
+        store.invoke.apply(store, [fnName].concat(params));
+      } else {
+        throw new Error('Store ' + _storeName + ' not found for invocation: \'' + cmd + '\'!');
+      }
     } else {
       throw new Error('Method ' + cmd + ' not found!');
     }
@@ -621,13 +632,17 @@ var Manager = (function () {
       store = store.name;
     }
 
+    if (_elucidataType2['default'].isNotString(store)) {
+      throw new Error('Unknown store type: ' + (0, _elucidataType2['default'])(store));
+    }
+
     methods = (0, _extractMethods2['default'])(methods);
 
     Object.keys(methods).forEach(function (actionName) {
-      var eventName = '' + _this4.name + '_' + actionName,
+      var eventName = '' + store + '_' + actionName,
           fn = methods[actionName];
 
-      _this4._handlers[eventName] = fn.bind(_this4._instance); // Change!
+      _this4._handlers[eventName] = fn.bind(_this4._instance); // Change?!
 
       if (store == _this4.name && !_this4._instance[actionName]) {
         // Stub out an action...
@@ -645,7 +660,7 @@ var Manager = (function () {
           }
         };
 
-        // stub[ actionName ]._isStub = true
+        stub[actionName]._isStub = true;
 
         _this4.before(stub);
       }
@@ -692,7 +707,7 @@ var Manager = (function () {
 
     Object.keys(methods).forEach(function (methodName) {
       if (_this6._instance.hasOwnProperty(methodName)) {
-        var error = new Error('Redefinition of \'' + methodName + '\' in store ' + storeName + ' not allowed.');
+        var error = new Error('Redefinition of \'' + methodName + '\' in store \'' + storeName + '\' not allowed.');
         error.framesToPop = 3;
         throw error
         // let method= this._instance[ methodName ]
@@ -1242,7 +1257,7 @@ module.exports = exports["default"];
 },{}],18:[function(require,module,exports){
 "use strict";
 
-module.exports = "0.8.0";
+module.exports = "0.8.1";
 },{}],19:[function(require,module,exports){
 // shim for using process in browser
 

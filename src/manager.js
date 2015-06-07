@@ -68,6 +68,16 @@ export default class Manager {
     if( Type.isFunction( fn )) {
       return fn.apply( this._instance, params )
     }
+    else if( cmd.indexOf( '.' )) {
+      let [storeName, fnName]= cmd.split( '.' ),
+          store= this.runtime.get( storeName )
+      if( store ) {
+        store.invoke( fnName, ...params)
+      }
+      else {
+        throw new Error( `Store ${ storeName } not found for invocation: '${ cmd }'!` )
+      }
+    }
     else {
       throw new Error( `Method ${ cmd } not found!` )
     }
@@ -102,13 +112,17 @@ export default class Manager {
       store = store.name
     }
 
+    if( Type.isNotString( store )) {
+      throw new Error( `Unknown store type: ${ Type( store )}` )
+    }
+
     methods= extractMethods( methods )
 
     Object.keys( methods ).forEach( actionName => {
-      var eventName= `${ this.name }_${ actionName }`,
+      let eventName= `${ store }_${ actionName }`,
           fn= methods[ actionName ]
 
-      this._handlers[ eventName ] = fn.bind( this._instance ) // Change!
+      this._handlers[ eventName ] = fn.bind( this._instance ) // Change?!
 
       if( store == this.name && !this._instance[ actionName ]) {
         // Stub out an action...
@@ -123,7 +137,7 @@ export default class Manager {
           }
         }
 
-        // stub[ actionName ]._isStub = true
+        stub[ actionName ]._isStub = true
 
         this.before( stub )
       }
@@ -157,7 +171,7 @@ export default class Manager {
 
     Object.keys( methods ).forEach( methodName => {
       if( this._instance.hasOwnProperty( methodName )) {
-        let error= new Error( `Redefinition of '${ methodName }' in store ${ storeName } not allowed.` )
+        let error= new Error( `Redefinition of '${ methodName }' in store '${ storeName }' not allowed.` )
         error.framesToPop= 3
         throw error
         // let method= this._instance[ methodName ]
