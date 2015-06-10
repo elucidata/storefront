@@ -1,10 +1,10 @@
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Storefront=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var Runtime= require( './lib/runtime')
+var Runtime= require(15)
 
 // module.exports= Runtime.newInstance()
 module.exports= new Runtime()
 
-},{"./lib/runtime":15}],2:[function(require,module,exports){
+},{"15":15}],2:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -31,7 +31,7 @@ exports['default'] = bindAll;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _elucidataType = require('elucidata-type');
+var _elucidataType = require(20);
 
 var _elucidataType2 = _interopRequireDefault(_elucidataType);
 
@@ -52,7 +52,7 @@ function bindAll(target) {
 }
 
 module.exports = exports['default'];
-},{"elucidata-type":20}],4:[function(require,module,exports){
+},{"20":20}],4:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -108,11 +108,11 @@ exports['default'] = createEvent;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _camelize = require('./camelize');
+var _camelize = require(4);
 
 var _camelize2 = _interopRequireDefault(_camelize);
 
-var _flatten = require('./flatten');
+var _flatten = require(11);
 
 var _flatten2 = _interopRequireDefault(_flatten);
 
@@ -193,8 +193,8 @@ function createEvent(baseName, eventName, emitter) {
 }
 
 module.exports = exports['default'];
-}).call(this,require('_process'))
-},{"./camelize":4,"./flatten":11,"_process":19}],7:[function(require,module,exports){
+}).call(this,require(19))
+},{"11":11,"19":19,"4":4}],7:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -203,15 +203,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _console = require('./console');
+var _console = require(5);
 
 var _console2 = _interopRequireDefault(_console);
 
-var _now = require('./now');
+var _now = require(14);
 
 var _now2 = _interopRequireDefault(_now);
 
-var _uid = require('./uid');
+var _uid = require(17);
 
 var _uid2 = _interopRequireDefault(_uid);
 
@@ -349,7 +349,7 @@ module.exports = exports['default'];
 // jshint ignore:line
 // global[ 'console'].info( 'Dispatch of', action.type ,'took >', THRESHOLD, 'ms') // jshint ignore:line
 // Should the callback be sent anything?
-},{"./console":5,"./now":14,"./uid":17}],8:[function(require,module,exports){
+},{"14":14,"17":17,"5":5}],8:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -386,11 +386,11 @@ exports['default'] = eventHelperMixin;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _camelize = require('./camelize');
+var _camelize = require(4);
 
 var _camelize2 = _interopRequireDefault(_camelize);
 
-var _subscriptions = require('./subscriptions');
+var _subscriptions = require(16);
 
 var _subscriptions2 = _interopRequireDefault(_subscriptions);
 
@@ -417,7 +417,7 @@ function eventHelperMixin(runtime) {
 }
 
 module.exports = exports['default'];
-},{"./camelize":4,"./subscriptions":16}],10:[function(require,module,exports){
+},{"16":16,"4":4}],10:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -425,7 +425,7 @@ exports['default'] = extractMethods;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _elucidataType = require('elucidata-type');
+var _elucidataType = require(20);
 
 var _elucidataType2 = _interopRequireDefault(_elucidataType);
 
@@ -472,7 +472,7 @@ function getInlineMethods(source) {
   return methods;
 }
 module.exports = exports['default'];
-},{"elucidata-type":20}],11:[function(require,module,exports){
+},{"20":20}],11:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -495,27 +495,27 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _elucidataType = require('elucidata-type');
+var _elucidataType = require(20);
 
 var _elucidataType2 = _interopRequireDefault(_elucidataType);
 
-var _alias = require('./alias');
+var _alias = require(2);
 
 var _alias2 = _interopRequireDefault(_alias);
 
-var _bindAll = require('./bind-all');
+var _bindAll = require(3);
 
 var _bindAll2 = _interopRequireDefault(_bindAll);
 
-var _camelize = require('./camelize');
+var _camelize = require(4);
 
 var _camelize2 = _interopRequireDefault(_camelize);
 
-var _extractMethods = require('./extract-methods');
+var _extractMethods = require(10);
 
 var _extractMethods2 = _interopRequireDefault(_extractMethods);
 
-var _merge = require('./merge');
+var _merge = require(13);
 
 var _merge2 = _interopRequireDefault(_merge);
 
@@ -773,8 +773,8 @@ var Manager = (function () {
 
 exports['default'] = Manager;
 module.exports = exports['default'];
-}).call(this,require('_process'))
-},{"./alias":2,"./bind-all":3,"./camelize":4,"./extract-methods":10,"./merge":13,"_process":19,"elucidata-type":20}],13:[function(require,module,exports){
+}).call(this,require(19))
+},{"10":10,"13":13,"19":19,"2":2,"20":20,"3":3,"4":4}],13:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -824,71 +824,71 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _dispatcher = require('./dispatcher');
+var _dispatcher = require(7);
 
 var _dispatcher2 = _interopRequireDefault(_dispatcher);
 
-var _eventemitter3 = require('eventemitter3');
+var _eventemitter3 = require(21);
 
 var _eventemitter32 = _interopRequireDefault(_eventemitter3);
 
-var _manager = require('./manager');
+var _manager = require(12);
 
 var _manager2 = _interopRequireDefault(_manager);
 
-var _alias = require('./alias');
+var _alias = require(2);
 
 var _alias2 = _interopRequireDefault(_alias);
 
-var _bindAll = require('./bind-all');
+var _bindAll = require(3);
 
 var _bindAll2 = _interopRequireDefault(_bindAll);
 
-var _camelize = require('./camelize');
+var _camelize = require(4);
 
 var _camelize2 = _interopRequireDefault(_camelize);
 
-var _console = require('./console');
+var _console = require(5);
 
 var _console2 = _interopRequireDefault(_console);
 
-var _createEvent2 = require('./create-event');
+var _createEvent2 = require(6);
 
 var _createEvent3 = _interopRequireDefault(_createEvent2);
 
-var _ensure = require('./ensure');
+var _ensure = require(8);
 
 var _ensure2 = _interopRequireDefault(_ensure);
 
-var _eventHelperMixin = require('./event-helper-mixin');
+var _eventHelperMixin = require(9);
 
 var _eventHelperMixin2 = _interopRequireDefault(_eventHelperMixin);
 
-var _flatten = require('./flatten');
+var _flatten = require(11);
 
 var _flatten2 = _interopRequireDefault(_flatten);
 
-var _elucidataType = require('elucidata-type');
+var _elucidataType = require(20);
 
 var _elucidataType2 = _interopRequireDefault(_elucidataType);
 
-var _merge = require('./merge');
+var _merge = require(13);
 
 var _merge2 = _interopRequireDefault(_merge);
 
-var _now = require('./now');
+var _now = require(14);
 
 var _now2 = _interopRequireDefault(_now);
 
-var _subscriptions = require('./subscriptions');
+var _subscriptions = require(16);
 
 var _subscriptions2 = _interopRequireDefault(_subscriptions);
 
-var _uid = require('./uid');
+var _uid = require(17);
 
 var _uid2 = _interopRequireDefault(_uid);
 
-var _version = require('./version');
+var _version = require(18);
 
 var _version2 = _interopRequireDefault(_version);
 
@@ -1151,8 +1151,8 @@ var Runtime = (function () {
 
 exports['default'] = Runtime;
 module.exports = exports['default'];
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./alias":2,"./bind-all":3,"./camelize":4,"./console":5,"./create-event":6,"./dispatcher":7,"./ensure":8,"./event-helper-mixin":9,"./flatten":11,"./manager":12,"./merge":13,"./now":14,"./subscriptions":16,"./uid":17,"./version":18,"_process":19,"elucidata-type":20,"eventemitter3":21}],16:[function(require,module,exports){
+}).call(this,require(19),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"11":11,"12":12,"13":13,"14":14,"16":16,"17":17,"18":18,"19":19,"2":2,"20":20,"21":21,"3":3,"4":4,"5":5,"6":6,"7":7,"8":8,"9":9}],16:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1162,11 +1162,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _alias = require('./alias');
+var _alias = require(2);
 
 var _alias2 = _interopRequireDefault(_alias);
 
-var _camelize = require('./camelize');
+var _camelize = require(4);
 
 var _camelize2 = _interopRequireDefault(_camelize);
 
@@ -1232,7 +1232,7 @@ function subscriptions(runtime) {
 }
 
 module.exports = exports['default'];
-},{"./alias":2,"./camelize":4}],17:[function(require,module,exports){
+},{"2":2,"4":4}],17:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;

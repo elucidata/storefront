@@ -21,7 +21,7 @@
     "build": "babel src/ -d lib/ --stage 0 --loose",
     "build-browser-tests": "browserify test*/**/*.js -o dist/browser-tests/storefront-tests.js -t [ babelify --stage 0 ]",
     "watch": "babel -w src/ -d lib/ --stage 0 --loose",
-    "compile": "NODE_ENV=production browserify index.js -o dist/storefront.js --standalone Storefront",
+    "compile": "NODE_ENV=production browserify index.js -o dist/storefront.js --standalone Storefront -p bundle-collapser/plugin",
     "dist": "npm run build && npm run compile && npm run minify && npm run build-browser-tests && npm run gz-size",
     "minify": "cat dist/storefront.js | uglifyjs -m -c > dist/storefront.min.js",
     "inc-major": "mversion major && npm run update-ver",
@@ -47,7 +47,8 @@
     "envify": "^3.2.0",
     "babel": "^5.4.7",
     "babel-tape-runner": "^1.1.0",
-    "babelify": "^6.1.2"
+    "babelify": "^6.1.2",
+    "bundle-collapser": "^1.2.0"
   },
   "testling": {
     "files": "test/**/*.js",
